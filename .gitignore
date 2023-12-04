@@ -1,0 +1,7 @@
+.dart_tool
+.idea
+build
+test
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
