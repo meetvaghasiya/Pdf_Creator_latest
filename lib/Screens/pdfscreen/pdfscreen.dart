@@ -5,10 +5,15 @@ import 'dart:io';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_share/flutter_share.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf_creator/All%20Widget/share.dart';
+import 'package:pdf_creator/Utilities/colors.dart';
+import 'package:pdf_creator/main.dart';
 import 'package:pdf_creator/model/documentmodel.dart';
 import 'package:pdf_creator/provider/documentprovider.dart';
 import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
+import 'package:share/share.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class PDFScreen extends StatefulWidget {
@@ -49,11 +54,12 @@ class _PDFScreenState extends State<PDFScreen> {
     return true;
   }
 
-  String getName() {
-    int lastSlashIndex = widget.document.pdfPath.lastIndexOf('/');
-
-    int dotIndex = widget.document.pdfPath.indexOf('.', lastSlashIndex);
-    return widget.document.pdfPath.substring(lastSlashIndex + 1, dotIndex);
+  String getName(int index) {
+    return Provider.of<DocumentProvider>(context).allDocuments[index].name;
+    // int lastSlashIndex = widget.document.pdfPath.lastIndexOf('/');
+    //
+    // int dotIndex = widget.document.pdfPath.indexOf('.', lastSlashIndex);
+    // return widget.document.pdfPath.substring(lastSlashIndex + 1, dotIndex);
   }
 
   @override
@@ -61,17 +67,39 @@ class _PDFScreenState extends State<PDFScreen> {
     print(widget.document.pdfPath);
     return Scaffold(
       appBar: AppBar(
-        title: Text(getName()),
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColor.whiteClr,
+          ),
+        ),
+        backgroundColor: AppColor.themeDark,
+        title: Text(
+          getName(widget.index),
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            color: AppColor.whiteClr,
+          ),
+        ),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.share),
+            icon: Icon(
+              Icons.share,
+              color: AppColor.whiteClr,
+            ),
             onPressed: () async {
-              await FlutterShare.shareFile(
-                  title: "pdf", filePath: widget.document.pdfPath);
+              abcsharePDF(context, widget.index);
             },
           ),
           IconButton(
-            icon: Icon(Icons.cloud_upload),
+            icon: Icon(
+              Icons.cloud_upload,
+              color: AppColor.whiteClr,
+            ),
             onPressed: () async {
               final pdf = File(
                   Provider.of<DocumentProvider>(context, listen: false)
@@ -84,111 +112,14 @@ class _PDFScreenState extends State<PDFScreen> {
         ],
       ),
       body: Container(
+        height: double.infinity,
+        width: double.infinity,
         child: SfPdfViewer.file(
           File(widget.document.pdfPath),
         ),
       ),
     );
   }
-
-  // Widget moreSheet(DocumentModel document) {
-  //   return SafeArea(
-  //     child: SingleChildScrollView(
-  //       child: Column(
-  //         mainAxisAlignment: MainAxisAlignment.spaceAround,
-  //         children: <Widget>[
-  //           Stack(
-  //             children: <Widget>[
-  //               Container(
-  //                   width: MediaQuery.of(context).size.width,
-  //                   height: 400,
-  //                   child: Image.file(new File(document.documentPath))),
-  //               Positioned(
-  //                 top: 350,
-  //                 child: Container(
-  //                     width: MediaQuery.of(context).size.width,
-  //                     height: 50,
-  //                     color: Colors.black.withOpacity(0.7),
-  //                     child: Center(
-  //                       child: Text(
-  //                         document.name,
-  //                         style: TextStyle(color: Colors.white, fontSize: 18),
-  //                       ),
-  //                     )),
-  //               ),
-  //               Align(
-  //                 alignment: Alignment.topRight,
-  //                 child: GestureDetector(
-  //                   onTap: () {
-  //                     setState(() {
-  //                       isShowDialog = false;
-  //                     });
-  //                   },
-  //                   child: Container(
-  //                     margin: EdgeInsets.only(right: 10),
-  //                     padding: EdgeInsets.all(10),
-  //                     decoration: BoxDecoration(
-  //                         color: Colors.black.withOpacity(0.7),
-  //                         borderRadius: BorderRadius.circular(30)),
-  //                     child: Icon(
-  //                       Icons.clear,
-  //                       color: Colors.white,
-  //                     ),
-  //                   ),
-  //                 ),
-  //               )
-  //             ],
-  //           ),
-  //           ListTile(
-  //             leading: Icon(Icons.edit),
-  //             title: Text("Rename"),
-  //             onTap: () {
-  //               int? docIndex;
-  //               List<DocumentModel> documents =
-  //                   Provider.of<DocumentProvider>(context, listen: false)
-  //                       .allDocuments;
-  //               for (int index = 0; index < documents.length; index++) {
-  //                 if (document.dateTime == documents[index].dateTime) {
-  //                   docIndex = index;
-  //                 }
-  //               }
-  //               showRenameDialog(
-  //                   index: docIndex!,
-  //                   dateTime: document.dateTime,
-  //                   name: document.name);
-  //             },
-  //           ),
-  //           ListTile(
-  //             leading: Icon(Icons.print),
-  //             title: Text("Print"),
-  //             onTap: () async {
-  //               final pdf = File(document.pdfPath);
-  //               await Printing.layoutPdf(
-  //                   onLayout: (_) => pdf.readAsBytesSync());
-  //             },
-  //           ),
-  //           ListTile(
-  //             leading: Icon(Icons.delete),
-  //             title: Text("Delete"),
-  //             onTap: () {
-  //               int? docIndex;
-  //               List<DocumentModel> documents =
-  //                   Provider.of<DocumentProvider>(context, listen: false)
-  //                       .allDocuments;
-  //               for (int index = 0; index < documents.length; index++) {
-  //                 if (document.dateTime == documents[index].dateTime) {
-  //                   docIndex = index;
-  //                 }
-  //               }
-  //               showDeleteDialog1(
-  //                   index: docIndex!, dateTime: document.dateTime);
-  //             },
-  //           )
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
 
   void showRenameDialog({int? index, DateTime? dateTime, String? name}) {
     TextEditingController controller = TextEditingController();

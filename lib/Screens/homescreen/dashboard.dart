@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pdf_creator/All%20Widget/share.dart';
 import 'package:pdf_creator/Screens/Search%20Screen/searchscreen.dart';
 import 'package:pdf_creator/Screens/pdfscreen/pdfscreen.dart';
 import 'package:pdf_creator/Utilities/colors.dart';
+import 'package:pdf_creator/main.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:async';
 import 'package:path/path.dart';
@@ -245,12 +247,9 @@ class _PDFListState extends State<PDFList> {
                                   color: AppColor.whiteClr,
                                 ),
                                 onPressed: () {
-                                  sharePdf(Provider.of<DocumentProvider>(
-                                          context,
-                                          listen: false)
-                                      .allDocuments[index]
-                                      .pdfPath);
-                                  // shareDocument(Provider.of<DocumentProvider>(
+                                  abcsharePDF(context, index);
+                                  // sharePdf(context, index);
+                                  // sharePdf(Provider.of<DocumentProvider>(
                                   //         context,
                                   //         listen: false)
                                   //     .allDocuments[index]
@@ -314,35 +313,6 @@ class _PDFListState extends State<PDFList> {
       ),
     );
   }
-
-  Future<void> sharePdf(String PDFpath) async {
-    try {
-      // Replace 'your_pdf_file.pdf' with the actual name of your PDF file.
-      String pdfFileName = PDFpath;
-
-      // Get the directory where the PDF file is stored.
-      Directory appDocDir = await getApplicationDocumentsDirectory();
-      String pdfFilePath = PDFpath;
-      // String pdfFilePath = '${appDocDir.path}/$pdfFileName';
-
-      // Check if the PDF file exists.
-      if (await File(pdfFilePath).exists()) {
-        // Specify a subject for the share dialog (optional).
-        String subject = 'This File Shared From PDF Creator';
-
-        // Share the PDF file.
-        Share.shareFiles([pdfFilePath], subject: subject);
-      } else {
-        print('PDF file not found.');
-      }
-    } catch (e) {
-      print('Error sharing PDF: $e');
-    }
-  }
-
-  // void shareDocument(String pdfPath) async {
-  //   await FlutterShare.shareFile(title: "pdf", filePath: pdfPath);
-  // }
 
   void showModalSheet(
       {int? index,

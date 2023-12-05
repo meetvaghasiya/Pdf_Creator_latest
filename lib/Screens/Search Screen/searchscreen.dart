@@ -105,7 +105,8 @@ class Search extends SearchDelegate {
           child: ListTile(
             onTap: () {
               Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => PDFScreen(document: documentList[index]),
+                builder: (context) =>
+                    PDFScreen(document: documentList[index], index: index),
               ));
             },
             leading: Container(
