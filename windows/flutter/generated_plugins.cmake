@@ -7,6 +7,8 @@ list(APPEND FLUTTER_PLUGIN_LIST
   flutter_document_scan_sdk
   permission_handler_windows
   printing
+  syncfusion_pdfviewer_windows
+  url_launcher_windows
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

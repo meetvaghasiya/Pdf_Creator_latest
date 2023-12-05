@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:io';
 
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart';
@@ -8,11 +9,13 @@ import 'package:pdf_creator/model/documentmodel.dart';
 import 'package:pdf_creator/provider/documentprovider.dart';
 import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class PDFScreen extends StatefulWidget {
   DocumentModel document;
   var animatedListKey;
-  PDFScreen({required this.document, this.animatedListKey});
+  final index;
+  PDFScreen({required this.document, this.animatedListKey, this.index});
 
   @override
   _PDFScreenState createState() => _PDFScreenState();
@@ -46,39 +49,45 @@ class _PDFScreenState extends State<PDFScreen> {
     return true;
   }
 
+  String getName() {
+    int lastSlashIndex = widget.document.pdfPath.lastIndexOf('/');
+
+    int dotIndex = widget.document.pdfPath.indexOf('.', lastSlashIndex);
+    return widget.document.pdfPath.substring(lastSlashIndex + 1, dotIndex);
+  }
+
   @override
   Widget build(BuildContext context) {
+    print(widget.document.pdfPath);
     return Scaffold(
-      body:
-          // isShowDialog
-          // ? moreSheet(widget.document)
-          // :
-          PDFViewerScaffold(
-              appBar: AppBar(
-                title: Text("Document"),
-                actions: <Widget>[
-                  IconButton(
-                    icon: Icon(Icons.share),
-                    onPressed: () async {
-                      await FlutterShare.shareFile(
-                          title: "pdf", filePath: widget.document.pdfPath);
-                    },
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.cloud_upload),
-                    onPressed: () async {},
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.more_vert),
-                    onPressed: () async {
-                      setState(() {
-                        isShowDialog = true;
-                      });
-                    },
-                  ),
-                ],
-              ),
-              path: widget.document.pdfPath),
+      appBar: AppBar(
+        title: Text(getName()),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.share),
+            onPressed: () async {
+              await FlutterShare.shareFile(
+                  title: "pdf", filePath: widget.document.pdfPath);
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.cloud_upload),
+            onPressed: () async {
+              final pdf = File(
+                  Provider.of<DocumentProvider>(context, listen: false)
+                      .allDocuments[widget.index]
+                      .pdfPath);
+              await Printing.layoutPdf(
+                  onLayout: (context) => pdf.readAsBytesSync());
+            },
+          ),
+        ],
+      ),
+      body: Container(
+        child: SfPdfViewer.file(
+          File(widget.document.pdfPath),
+        ),
+      ),
     );
   }
 

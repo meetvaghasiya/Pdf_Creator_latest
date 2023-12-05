@@ -52,7 +52,7 @@ class Search extends SearchDelegate {
                 ),
               ));
             },
-            leading: Image.file(new File(documentList[index].documentPath)),
+            leading: Image.file(File(documentList[index].documentPath)),
             title: Text(documentList[index].name),
             subtitle: Text(
                 "${documentList[index].dateTime.day.toString()}/${documentList[index].dateTime.month.toString()}/${documentList[index].dateTime.year.toString()}"),
@@ -108,7 +108,20 @@ class Search extends SearchDelegate {
                 builder: (context) => PDFScreen(document: documentList[index]),
               ));
             },
-            leading: Image.file(new File(documentList[index].documentPath)),
+            leading: Container(
+              height: MediaQuery.of(context).size.height * .2,
+              width: MediaQuery.of(context).size.width * .17,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.file(
+                  File(documentList[index].documentPath),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
             title: Text(documentList[index].name),
             subtitle: Text(
                 "${documentList[index].dateTime.day.toString()}/${documentList[index].dateTime.month.toString()}/${documentList[index].dateTime.year.toString()}"),

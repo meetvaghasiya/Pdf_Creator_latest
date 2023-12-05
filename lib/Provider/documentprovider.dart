@@ -74,11 +74,12 @@ class DocumentProvider extends ChangeNotifier {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     sharedPreferences.setString(
         document.dateTime.millisecondsSinceEpoch.toString(), jsonDocument);
-    print(jsonDocument);
     allDocuments.add(document);
     allDocuments.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+
     Timer(const Duration(milliseconds: 500), () {
       animatedListKey.currentState?.insertItem(0);
+      notifyListeners();
     });
   }
 

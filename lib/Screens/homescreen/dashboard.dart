@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pdf_creator/Screens/Search%20Screen/searchscreen.dart';
 import 'package:pdf_creator/Screens/pdfscreen/pdfscreen.dart';
 import 'package:pdf_creator/Utilities/colors.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -12,6 +13,7 @@ import 'dart:async';
 import 'package:path/path.dart';
 import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
+import 'package:share/share.dart';
 
 import '../../provider/documentprovider.dart';
 
@@ -27,13 +29,9 @@ class _DashBoardState extends State<DashBoard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: AppColor.themeDark,
         centerTitle: true,
-        leading: Icon(
-          Icons.list,
-          color: Colors.white,
-          size: 30,
-        ),
         title: Text(
           "Dashboard",
           style: TextStyle(
@@ -86,18 +84,20 @@ class _PDFListState extends State<PDFList> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: EdgeInsets.only(top: h * .02, left: w * .05),
-                child: Text(
+              ListTile(
+                title: Text(
                   "PDF History",
                   style: TextStyle(
                       // color: AppColor.whiteClr,
                       fontSize: 18,
                       fontWeight: FontWeight.w500),
                 ),
-              ),
-              SizedBox(
-                height: h * .02,
+                trailing: IconButton(
+                  icon: Icon(Icons.search),
+                  onPressed: () async {
+                    showSearch(context: context, delegate: Search());
+                  },
+                ),
               ),
               Expanded(
                 child: FutureBuilder(
@@ -114,14 +114,13 @@ class _PDFListState extends State<PDFList> {
                     return Container(
                         height: MediaQuery.of(context).size.height - 81,
                         child: AnimatedList(
-                          // key: animatedListKey,
+                          key: animatedListKey,
                           itemBuilder: (context, index, animation) {
                             if (index ==
                                 Provider.of<DocumentProvider>(context)
                                         .allDocuments
                                         .length -
                                     1) {
-                              print("last");
                               return SizedBox(height: 100);
                             }
                             return buildDocumentCard(index, animation, context);
@@ -133,22 +132,6 @@ class _PDFListState extends State<PDFList> {
                         ));
                   },
                 ),
-                // child: AnimatedList(
-                //   physics: NeverScrollableScrollPhysics(),
-                //   itemBuilder: (context, index, animation) {
-                //     return Padding(
-                //       padding: const EdgeInsets.all(15.0),
-                //       child: Container(
-                //         height: 200,
-                //         decoration: BoxDecoration(
-                //           borderRadius: BorderRadius.circular(15),
-                //           color: Colors.amber,
-                //         ),
-                //       ),
-                //     );
-                //   },
-                //   initialItemCount: 10,
-                // ),
               ),
             ],
           )),
@@ -163,6 +146,7 @@ class _PDFListState extends State<PDFList> {
           onTap: () {
             Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => PDFScreen(
+                index: index,
                 document:
                     Provider.of<DocumentProvider>(context).allDocuments[index],
                 animatedListKey: animatedListKey,
@@ -170,27 +154,36 @@ class _PDFListState extends State<PDFList> {
             ));
           },
           child: Card(
-            color: ThemeData.dark().cardColor,
+            color: AppColor.listtileClr,
             elevation: 3,
             margin: EdgeInsets.only(left: 12, right: 12, bottom: 5, top: 5),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border(
+                Padding(
+                  padding: const EdgeInsets.only(top: 15, left: 10),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border(
                         left: BorderSide(color: Colors.grey[300]!),
                         right: BorderSide(color: Colors.grey[300]!),
-                        top: BorderSide(color: Colors.grey[300]!)),
-                  ),
-                  child: Image.file(
-                    File(Provider.of<DocumentProvider>(context)
-                        .allDocuments[index]
-                        .documentPath),
-                    height: 150,
-                    width: 130,
-                    fit: BoxFit.cover,
+                        top: BorderSide(color: Colors.grey[300]!),
+                        bottom: BorderSide(color: Colors.grey[300]!),
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: Image.file(
+                        File(Provider.of<DocumentProvider>(context)
+                            .allDocuments[index]
+                            .documentPath),
+                        height: 150,
+                        width: 130,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
                 ),
                 Column(
@@ -249,9 +242,14 @@ class _PDFListState extends State<PDFList> {
                             IconButton(
                                 icon: Icon(
                                   Icons.share,
-                                  // color: ThemeData.dark().accentColor,
+                                  color: AppColor.whiteClr,
                                 ),
                                 onPressed: () {
+                                  sharePdf(Provider.of<DocumentProvider>(
+                                          context,
+                                          listen: false)
+                                      .allDocuments[index]
+                                      .pdfPath);
                                   // shareDocument(Provider.of<DocumentProvider>(
                                   //         context,
                                   //         listen: false)
@@ -261,14 +259,24 @@ class _PDFListState extends State<PDFList> {
                             IconButton(
                               icon: Icon(
                                 Icons.cloud_upload,
-                                // color: ThemeData.dark().accentColor,
+                                color: AppColor.whiteClr,
                               ),
-                              onPressed: () {},
+                              onPressed: () async {
+                                // Navigator.pop(context);
+                                final pdf = File(Provider.of<DocumentProvider>(
+                                        context,
+                                        listen: false)
+                                    .allDocuments[index]
+                                    .pdfPath);
+                                await Printing.layoutPdf(
+                                    onLayout: (context) =>
+                                        pdf.readAsBytesSync());
+                              },
                             ),
                             IconButton(
                                 icon: Icon(
                                   Icons.more_vert,
-                                  // color: ThemeData.dark().accentColor,
+                                  color: AppColor.whiteClr,
                                 ),
                                 onPressed: () {
                                   showModalSheet(
@@ -307,6 +315,31 @@ class _PDFListState extends State<PDFList> {
     );
   }
 
+  Future<void> sharePdf(String PDFpath) async {
+    try {
+      // Replace 'your_pdf_file.pdf' with the actual name of your PDF file.
+      String pdfFileName = PDFpath;
+
+      // Get the directory where the PDF file is stored.
+      Directory appDocDir = await getApplicationDocumentsDirectory();
+      String pdfFilePath = PDFpath;
+      // String pdfFilePath = '${appDocDir.path}/$pdfFileName';
+
+      // Check if the PDF file exists.
+      if (await File(pdfFilePath).exists()) {
+        // Specify a subject for the share dialog (optional).
+        String subject = 'This File Shared From PDF Creator';
+
+        // Share the PDF file.
+        Share.shareFiles([pdfFilePath], subject: subject);
+      } else {
+        print('PDF file not found.');
+      }
+    } catch (e) {
+      print('Error sharing PDF: $e');
+    }
+  }
+
   // void shareDocument(String pdfPath) async {
   //   await FlutterShare.shareFile(title: "pdf", filePath: pdfPath);
   // }
@@ -322,6 +355,7 @@ class _PDFListState extends State<PDFList> {
       context: context!,
       builder: (context) {
         return Container(
+          color: AppColor.themeDark,
           child: ListView(
             shrinkWrap: true,
             children: <Widget>[
@@ -330,14 +364,19 @@ class _PDFListState extends State<PDFList> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Padding(
-                    padding: const EdgeInsets.only(left: 20, top: 15),
+                    padding: const EdgeInsets.only(left: 20, top: 10),
                     child: Container(
+                      height: MediaQuery.of(context).size.height * .08,
+                      width: MediaQuery.of(context).size.width * .17,
                       decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
                           border: Border.all(color: Colors.grey[300]!)),
-                      child: Image.file(
-                        new File(filePath!),
-                        height: 80,
-                        width: 50,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.file(
+                          File(filePath!),
+                          fit: BoxFit.fill,
+                        ),
                       ),
                     ),
                   ),
@@ -350,7 +389,10 @@ class _PDFListState extends State<PDFList> {
                         padding: EdgeInsets.only(left: 12, bottom: 12),
                         child: Text(
                           name!,
-                          style: TextStyle(color: Colors.black, fontSize: 18),
+                          style: TextStyle(
+                              color: AppColor.whiteClr,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -363,42 +405,70 @@ class _PDFListState extends State<PDFList> {
                                 dateTime!.month.toString() +
                                 "-" +
                                 dateTime.year.toString(),
-                            style: TextStyle(color: Colors.grey[400]),
+                            style: TextStyle(
+                              color: AppColor.whiteClr,
+                            ),
                           )),
                     ],
                   )
                 ],
               ),
               Divider(
-                thickness: 2,
+                thickness: 1,
+                indent: 10,
+                endIndent: 10,
+                color: AppColor.greyClr,
               ),
               ListTile(
-                leading: Icon(Icons.edit),
-                title: Text("Rename"),
+                leading: Icon(
+                  Icons.edit,
+                  color: AppColor.whiteClr,
+                ),
+                title: Text(
+                  "Rename",
+                  style: TextStyle(
+                    color: AppColor.whiteClr,
+                  ),
+                ),
                 onTap: () {
-                  // Navigator.pop(context);
-                  // showRenameDialog(
-                  //     index: index!, name: name, dateTime: dateTime);
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.print),
-                title: Text("Print"),
-                onTap: () async {
                   Navigator.pop(context);
-                  final pdf = File(pdfPath!);
-                  await Printing.layoutPdf(
-                      onLayout: (_) => pdf.readAsBytesSync());
+                  showRenameDialog(
+                      index: index!,
+                      name: name,
+                      dateTime: dateTime,
+                      context: context);
                 },
               ),
               // ListTile(
-              //   leading: Icon(Icons.delete),
-              //   title: Text("Delete"),
-              //   onTap: () {
+              //   leading: Icon(Icons.print),
+              //   title: Text("Print"),
+              //   onTap: () async {
               //     Navigator.pop(context);
-              //     showDeleteDialog1(index: index!, dateTime: dateTime);
+              //     final pdf = File(pdfPath!);
+              //     await Printing.layoutPdf(
+              //         onLayout: (_) => pdf.readAsBytesSync());
               //   },
-              // )
+              // ),
+              ListTile(
+                leading: Icon(
+                  Icons.delete,
+                  color: AppColor.whiteClr,
+                ),
+                title: Text(
+                  "Delete",
+                  style: TextStyle(
+                    color: AppColor.whiteClr,
+                  ),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  showDeleteDialog1(
+                    index: index!,
+                    dateTime: dateTime,
+                    context: context,
+                  );
+                },
+              )
             ],
           ),
         );
@@ -406,58 +476,119 @@ class _PDFListState extends State<PDFList> {
     );
   }
 
-  // void showRenameDialog(
-  //     {int? index, DateTime? dateTime, String? name, context}) {
-  //   TextEditingController controller = TextEditingController();
-  //   controller.text = name!;
-  //   controller.selection =
-  //       TextSelection(baseOffset: 0, extentOffset: controller.text.length);
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) => AlertDialog(
-  //       content: Container(
-  //           child: Column(
-  //         mainAxisSize: MainAxisSize.min,
-  //         mainAxisAlignment: MainAxisAlignment.start,
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: <Widget>[
-  //           Text("Rename"),
-  //           TextFormField(
-  //             controller: controller,
-  //             autofocus: true,
-  //             decoration: InputDecoration(
-  //                 suffix: IconButton(
-  //                     icon: Icon(Icons.clear),
-  //                     onPressed: () {
-  //                       controller.clear();
-  //                     })),
-  //           ),
-  //         ],
-  //       )),
-  //       actions: <Widget>[
-  //         MaterialButton(
-  //             shape: RoundedRectangleBorder(
-  //                 borderRadius: BorderRadius.circular(20)),
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: Text("Cancel")),
-  //         MaterialButton(
-  //             shape: RoundedRectangleBorder(
-  //                 borderRadius: BorderRadius.circular(20)),
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //               Provider.of<DocumentProvider>(context, listen: false)
-  //                   .renameDocument(
-  //                       index!,
-  //                       dateTime!.millisecondsSinceEpoch.toString(),
-  //                       controller.text);
-  //             },
-  //             child: Text("Rename")),
-  //       ],
-  //     ),
-  //   );
-  // }
+  void showDeleteDialog1({int? index, DateTime? dateTime, context}) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: Container(
+            child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text(
+              "Delete file",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Divider(
+              thickness: 2,
+            ),
+            Text(
+              "Are you sure you want to delete this file?",
+              style: TextStyle(color: Colors.grey[500]),
+            )
+          ],
+        )),
+        actions: <Widget>[
+          MaterialButton(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              "Cancel",
+              style: TextStyle(color: Colors.black),
+            ),
+          ),
+          MaterialButton(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            onPressed: () {
+              Navigator.of(context).pop();
+
+              Provider.of<DocumentProvider>(context, listen: false)
+                  .deleteDocument(
+                      index!, dateTime!.millisecondsSinceEpoch.toString());
+              Timer(Duration(milliseconds: 300), () {
+                animatedListKey.currentState?.removeItem(
+                    index,
+                    (context, animation) =>
+                        buildDocumentCard(index, animation, context));
+              });
+            },
+            child: Text(
+              "Delete",
+              style: TextStyle(color: Colors.red),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  void showRenameDialog(
+      {int? index, DateTime? dateTime, String? name, context}) {
+    TextEditingController controller = TextEditingController();
+    controller.text = name!;
+    controller.selection =
+        TextSelection(baseOffset: 0, extentOffset: controller.text.length);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: Container(
+            child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text("Rename"),
+            TextFormField(
+              controller: controller,
+              autofocus: true,
+              decoration: InputDecoration(
+                  suffix: IconButton(
+                      icon: Icon(Icons.clear),
+                      onPressed: () {
+                        controller.clear();
+                      })),
+            ),
+          ],
+        )),
+        actions: <Widget>[
+          MaterialButton(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("Cancel")),
+          MaterialButton(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
+              onPressed: () {
+                Navigator.of(context).pop();
+                Provider.of<DocumentProvider>(context, listen: false)
+                    .renameDocument(
+                        index!,
+                        dateTime!.millisecondsSinceEpoch.toString(),
+                        controller.text);
+              },
+              child: Text("Rename")),
+        ],
+      ),
+    );
+  }
 }
 
 class FunctionCard extends StatefulWidget {
@@ -475,7 +606,7 @@ class _FunctionCardState extends State<FunctionCard> {
 
   @override
   void initState() {
-    nameController.text = "Scan" + DateTime.now().toString();
+    nameController.text = "Scan " + DateTime.now().toString();
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
         nameController.selection = TextSelection(
@@ -549,7 +680,7 @@ class _FunctionCardState extends State<FunctionCard> {
 
                     Provider.of<DocumentProvider>(context, listen: false)
                         .saveDocument(
-                            name: nameController.text,
+                            name: nameController.text.trim(),
                             documentPath: _file!.path,
                             dateTime: DateTime.now(),
                             animatedListKey: animatedListKey,
@@ -570,11 +701,14 @@ class _FunctionCardState extends State<FunctionCard> {
     String imagePath = join((await getApplicationSupportDirectory()).path,
         "${(DateTime.now().millisecondsSinceEpoch / 1000).round()}.jpeg");
     String filePath = imagePath;
+    File? _file;
 
     String imageName = basenameWithoutExtension(filePath);
 
     print('Filename without extension: $imageName');
     print("======>${imagePath}");
+    final GlobalKey<AnimatedListState> animatedListKey =
+        GlobalKey<AnimatedListState>();
     bool success = false;
     try {
       success = await EdgeDetection.detectEdgeFromGallery(
@@ -591,28 +725,44 @@ class _FunctionCardState extends State<FunctionCard> {
 
     setState(() {
       if (success) {
-        _imagePath = imagePath;
-        // Navigator.of(context).pop();
+        _file = File(imagePath);
+        Navigator.of(context).pop();
 
-        // showDialog(
-        //   context: context,
-        //   builder: (BuildContext context) {
-        //     return AlertDialog(
-        //       title: Text('Dialog Title'),
-        //       content: Text('This is a dialog box!'),
-        //       actions: <Widget>[
-        //         // Add buttons to the dialog
-        //         TextButton(
-        //           onPressed: () {
-        //             // Close the dialog
-        //             Navigator.of(context).pop();
-        //           },
-        //           child: Text('Close'),
-        //         ),
-        //       ],
-        //     );
-        //   },
-        // );
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Create PDF'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    focusNode: _focusNode,
+                    style: TextStyle(color: Colors.black, fontSize: 20),
+                    controller: nameController,
+                  ), // Add buttons to the dialog
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () async {
+                    // Close the dialog
+
+                    Provider.of<DocumentProvider>(context, listen: false)
+                        .saveDocument(
+                            name: nameController.text.trim(),
+                            documentPath: _file!.path,
+                            dateTime: DateTime.now(),
+                            animatedListKey: animatedListKey,
+                            shareLink: '');
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Save PDF'),
+                ),
+              ],
+            );
+          },
+        );
       }
     });
   }
@@ -794,5 +944,3 @@ class DottedDivider extends StatelessWidget {
     );
   }
 }
-
-
