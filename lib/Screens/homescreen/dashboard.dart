@@ -570,7 +570,8 @@ class FunctionCard extends StatefulWidget {
 
 class _FunctionCardState extends State<FunctionCard> {
   String? _imagePath;
-  final _key = GlobalKey<ExpandableFabState>();
+  static GlobalKey<AnimatedListState> animatedListKey =
+      GlobalKey<AnimatedListState>();
   TextEditingController nameController = TextEditingController();
   final _focusNode = FocusNode();
 
@@ -588,83 +589,176 @@ class _FunctionCardState extends State<FunctionCard> {
     super.initState();
   }
 
+  // Future<void> getImageFromCamera(context) async {
+  //   bool isCameraGranted = await Permission.camera.request().isGranted;
+  //   File? _file;
+  //   if (!isCameraGranted) {
+  //     isCameraGranted =
+  //         await Permission.camera.request() == PermissionStatus.granted;
+  //   }
+  //
+  //   if (!isCameraGranted) {
+  //     // Have not permission to camera
+  //     return;
+  //   }
+  //
+  //   // Generate filepath for saving
+  //   String imagePath = join((await getApplicationSupportDirectory()).path,
+  //       "${(DateTime.now().millisecondsSinceEpoch / 1000).round()}.jpeg");
+  //   final GlobalKey<AnimatedListState> animatedListKey =
+  //       GlobalKey<AnimatedListState>();
+  //   bool success = false;
+  //
+  //   try {
+  //     //Make sure to await the call to detectEdge.
+  //     success = await EdgeDetection.detectEdge(
+  //       imagePath,
+  //       canUseGallery: true,
+  //       androidScanTitle: 'Scanning', // use custom localizations for android
+  //       androidCropTitle: 'Crop',
+  //       androidCropBlackWhiteTitle: 'Black White',
+  //       androidCropReset: 'Reset',
+  //     );
+  //     print("success: $success");
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  //   if (!mounted) return;
+  //
+  //   setState(() {
+  //     if (success) {
+  //       _file = File(imagePath);
+  //       Navigator.of(context).pop();
+  //       showDialog(
+  //         context: context,
+  //         builder: (BuildContext context) {
+  //           return AlertDialog(
+  //             title: Text('Create PDF'),
+  //             content: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               children: [
+  //                 TextFormField(
+  //                   focusNode: _focusNode,
+  //                   style: TextStyle(color: Colors.black, fontSize: 20),
+  //                   controller: nameController,
+  //                 ), // Add buttons to the dialog
+  //               ],
+  //             ),
+  //             actions: [
+  //               TextButton(
+  //                 onPressed: () async {
+  //                   // Close the dialog
+  //
+  //                   Provider.of<DocumentProvider>(context, listen: false)
+  //                       .saveDocument(
+  //                           name: nameController.text.trim(),
+  //                           documentPath: _file!.path,
+  //                           dateTime: DateTime.now(),
+  //                           animatedListKey: animatedListKey,
+  //                           shareLink: '');
+  //                   Navigator.of(context).pop();
+  //                 },
+  //                 child: Text('Save PDF'),
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     }
+  //   });
+  // }
   Future<void> getImageFromCamera(context) async {
     bool isCameraGranted = await Permission.camera.request().isGranted;
-    File? _file;
+    List<File> capturedImages = [];
+
     if (!isCameraGranted) {
       isCameraGranted =
           await Permission.camera.request() == PermissionStatus.granted;
     }
 
     if (!isCameraGranted) {
-      // Have not permission to camera
+      // Don't have permission to the camera
       return;
     }
 
-    // Generate filepath for saving
-    String imagePath = join((await getApplicationSupportDirectory()).path,
-        "${(DateTime.now().millisecondsSinceEpoch / 1000).round()}.jpeg");
     final GlobalKey<AnimatedListState> animatedListKey =
         GlobalKey<AnimatedListState>();
-    bool success = false;
 
-    try {
-      //Make sure to await the call to detectEdge.
-      success = await EdgeDetection.detectEdge(
-        imagePath,
-        canUseGallery: true,
-        androidScanTitle: 'Scanning', // use custom localizations for android
-        androidCropTitle: 'Crop',
-        androidCropBlackWhiteTitle: 'Black White',
-        androidCropReset: 'Reset',
-      );
-      print("success: $success");
-    } catch (e) {
-      print(e);
-    }
-    if (!mounted) return;
+    bool continueCapturing = true;
 
-    setState(() {
-      if (success) {
-        _file = File(imagePath);
-        Navigator.of(context).pop();
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Create PDF'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    focusNode: _focusNode,
-                    style: TextStyle(color: Colors.black, fontSize: 20),
-                    controller: nameController,
-                  ), // Add buttons to the dialog
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () async {
-                    // Close the dialog
+    while (continueCapturing) {
+      // Generate filepath for saving
+      String imagePath = join((await getApplicationSupportDirectory()).path,
+          "${(DateTime.now().millisecondsSinceEpoch / 1000).round()}.jpeg");
 
-                    Provider.of<DocumentProvider>(context, listen: false)
-                        .saveDocument(
-                            name: nameController.text.trim(),
-                            documentPath: _file!.path,
-                            dateTime: DateTime.now(),
-                            animatedListKey: animatedListKey,
-                            shareLink: '');
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('Save PDF'),
-                ),
-              ],
-            );
-          },
+      try {
+        // Make sure to await the call to detectEdge.
+        bool success = await EdgeDetection.detectEdge(
+          imagePath,
+          canUseGallery: true,
+          androidScanTitle: 'Scanning',
+          androidCropTitle: 'Crop',
+          androidCropBlackWhiteTitle: 'Black White',
+          androidCropReset: 'Reset',
         );
+
+        if (success) {
+          capturedImages.add(File(imagePath));
+        }
+      } catch (e) {
+        print(e);
       }
-    });
+
+      // Ask the user if they want to continue capturing or finish
+      bool shouldContinue = await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Create PDF'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  focusNode: _focusNode,
+                  style: TextStyle(color: Colors.black, fontSize: 20),
+                  controller: nameController,
+                ),
+                // Optionally display the captured images
+                if (capturedImages.isNotEmpty)
+                  Column(
+                    children: capturedImages.map((image) {
+                      return Image.file(image);
+                    }).toList(),
+                  ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  // Close the dialog and stop capturing
+                  continueCapturing = false;
+                  Navigator.of(context).pop(false);
+                },
+                child: Text('Finish'),
+              ),
+              TextButton(
+                onPressed: () {
+                  // Close the dialog and continue capturing
+                  Navigator.of(context).pop(true);
+                },
+                child: Text('Continue'),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (!shouldContinue) {
+        break; // Exit the loop if the user chooses to finish
+      }
+    }
+
+    // Create PDF with the captured images
   }
 
   Future<void> getImageFromGallery(context) async {
