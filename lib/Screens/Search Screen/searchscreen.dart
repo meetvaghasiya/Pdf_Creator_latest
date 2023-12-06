@@ -1,17 +1,17 @@
-import 'dart:async';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_share/flutter_share.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:pdf_creator/Screens/pdfscreen/pdfscreen.dart';
-import 'package:pdf_creator/model/documentmodel.dart';
-import 'package:pdf_creator/provider/documentprovider.dart';
-import 'package:printing/printing.dart';
-import 'package:provider/provider.dart';
+import '../../Utilities/classes.dart';
+import '../DashBoard Screen/dashboardCtrl.dart';
 
 class Search extends SearchDelegate {
   static GlobalKey<AnimatedListState> animatedListKey =
       GlobalKey<AnimatedListState>();
+
+  final DashCtrl _dashCtrl = Get.put(DashCtrl());
+
   @override
   List<Widget> buildActions(BuildContext context) {
     // TODO: implement buildActions
@@ -40,7 +40,7 @@ class Search extends SearchDelegate {
   Widget buildResults(BuildContext context) {
     // TODO: implement buildResults
     if (query.isEmpty) {
-      List<DocumentModel> documentList = getAllDocuments(context);
+      List<DocumentModel> documentList = _dashCtrl.allDocuments;
       return ListView.builder(
         itemBuilder: (context, index) => Padding(
           padding: const EdgeInsets.all(8.0),
@@ -61,7 +61,7 @@ class Search extends SearchDelegate {
         itemCount: documentList.length - 1,
       );
     } else {
-      List<DocumentModel> documentList = getAllDocuments(context)
+      List<DocumentModel> documentList = getAllDocuments(context, _dashCtrl)
           .where((element) => element.name.startsWith(query))
           .toList();
       return ListView.builder(
@@ -73,7 +73,7 @@ class Search extends SearchDelegate {
                 builder: (context) => PDFScreen(document: documentList[index]),
               ));
             },
-            leading: Image.file(new File(documentList[index].documentPath)),
+            leading: Image.file(File(documentList[index].documentPath)),
             title: RichText(
               text: TextSpan(
                   text: documentList[index].name.substring(0, query.length),
@@ -98,7 +98,7 @@ class Search extends SearchDelegate {
   @override
   Widget buildSuggestions(BuildContext context) {
     if (query.isEmpty) {
-      List<DocumentModel> documentList = getAllDocuments(context);
+      List<DocumentModel> documentList = getAllDocuments(context, _dashCtrl);
       return ListView.builder(
         itemBuilder: (context, index) => Padding(
           padding: const EdgeInsets.all(8.0),
@@ -131,7 +131,7 @@ class Search extends SearchDelegate {
         itemCount: documentList.length - 1,
       );
     } else {
-      List<DocumentModel> documentList = getAllDocuments(context)
+      List<DocumentModel> documentList = getAllDocuments(context, _dashCtrl)
           .where((element) => element.name.startsWith(query))
           .toList();
       return ListView.builder(
@@ -143,7 +143,7 @@ class Search extends SearchDelegate {
                 builder: (context) => PDFScreen(document: documentList[index]),
               ));
             },
-            leading: Image.file(new File(documentList[index].documentPath)),
+            leading: Image.file(File(documentList[index].documentPath)),
             title: RichText(
               text: TextSpan(
                   text: documentList[index].name.substring(0, query.length),
@@ -166,6 +166,6 @@ class Search extends SearchDelegate {
   }
 }
 
-List<DocumentModel> getAllDocuments(BuildContext context) {
-  return Provider.of<DocumentProvider>(context).allDocuments;
+List<DocumentModel> getAllDocuments(BuildContext context, dashCtrl) {
+  return dashCtrl.allDocuments;
 }

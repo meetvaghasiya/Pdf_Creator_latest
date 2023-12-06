@@ -4,23 +4,20 @@ import 'dart:io';
 
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_share/flutter_share.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:pdf_creator/All%20Widget/share.dart';
+import 'package:get/get.dart';
 import 'package:pdf_creator/Utilities/colors.dart';
-import 'package:pdf_creator/main.dart';
-import 'package:pdf_creator/model/documentmodel.dart';
-import 'package:pdf_creator/provider/documentprovider.dart';
 import 'package:printing/printing.dart';
-import 'package:provider/provider.dart';
-import 'package:share/share.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+
+import '../../Utilities/classes.dart';
+import '../DashBoard Screen/dashboardCtrl.dart';
 
 class PDFScreen extends StatefulWidget {
   DocumentModel document;
   var animatedListKey;
   final index;
-  PDFScreen({required this.document, this.animatedListKey, this.index});
+  PDFScreen(
+      {super.key, required this.document, this.animatedListKey, this.index});
 
   @override
   _PDFScreenState createState() => _PDFScreenState();
@@ -28,6 +25,7 @@ class PDFScreen extends StatefulWidget {
 
 class _PDFScreenState extends State<PDFScreen> {
   bool isShowDialog = false;
+  final DashCtrl _dashCtrl = Get.put(DashCtrl());
 
   @override
   void initState() {
@@ -55,7 +53,7 @@ class _PDFScreenState extends State<PDFScreen> {
   }
 
   String getName(int index) {
-    return Provider.of<DocumentProvider>(context).allDocuments[index].name;
+    return _dashCtrl.allDocuments[index].name;
     // int lastSlashIndex = widget.document.pdfPath.lastIndexOf('/');
     //
     // int dotIndex = widget.document.pdfPath.indexOf('.', lastSlashIndex);
@@ -92,7 +90,7 @@ class _PDFScreenState extends State<PDFScreen> {
               color: AppColor.whiteClr,
             ),
             onPressed: () async {
-              abcsharePDF(context, widget.index);
+              _dashCtrl.sharePDF(context, widget.index);
             },
           ),
           IconButton(
@@ -101,10 +99,7 @@ class _PDFScreenState extends State<PDFScreen> {
               color: AppColor.whiteClr,
             ),
             onPressed: () async {
-              final pdf = File(
-                  Provider.of<DocumentProvider>(context, listen: false)
-                      .allDocuments[widget.index]
-                      .pdfPath);
+              final pdf = File(_dashCtrl.allDocuments[widget.index].pdfPath);
               await Printing.layoutPdf(
                   onLayout: (context) => pdf.readAsBytesSync());
             },
@@ -164,11 +159,10 @@ class _PDFScreenState extends State<PDFScreen> {
                 setState(() {
                   widget.document.name = controller.text;
                 });
-                Provider.of<DocumentProvider>(context, listen: false)
-                    .renameDocument(
-                        index!,
-                        dateTime!.millisecondsSinceEpoch.toString(),
-                        controller.text);
+                _dashCtrl.renameDocument(
+                    index!,
+                    dateTime!.millisecondsSinceEpoch.toString(),
+                    controller.text);
               },
               child: Text("Rename")),
         ],
@@ -180,8 +174,7 @@ class _PDFScreenState extends State<PDFScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        content: Container(
-            child: Column(
+        content: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -198,7 +191,7 @@ class _PDFScreenState extends State<PDFScreen> {
               style: TextStyle(color: Colors.grey[500]),
             )
           ],
-        )),
+        ),
         actions: <Widget>[
           MaterialButton(
             shape:
@@ -217,9 +210,8 @@ class _PDFScreenState extends State<PDFScreen> {
             onPressed: () {
               Navigator.of(context).pop();
               Navigator.of(context).pop();
-              Provider.of<DocumentProvider>(context, listen: false)
-                  .deleteDocument(
-                      index!, dateTime!.millisecondsSinceEpoch.toString());
+              _dashCtrl.deleteDocument(
+                  index!, dateTime!.millisecondsSinceEpoch.toString());
               Timer(Duration(milliseconds: 300), () {
                 widget.animatedListKey.currentState
                     .removeItem(index, (context, animation) => SizedBox());

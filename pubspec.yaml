@@ -46,16 +46,16 @@ dependencies:
   flutter_document_scan_sdk: ^1.0.2
   image_size_getter:
   shared_preferences:
-  provider:
   flutter_isolate:
   pdf:
   flutter_share:
   share: ^2.0.4
-  printing:
   back_button_interceptor:
   sqflite:
   syncfusion_flutter_pdfviewer: ^23.2.6
-  multiple_images_picker: ^1.0.1
+  flutter_pdfview: 
+  get: ^4.6.6
+  printing: ^5.11.1
 
 dev_dependencies:
   flutter_test:

@@ -1,9 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
-import 'dart:typed_data';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_size_getter/image_size_getter.dart' as getter;
@@ -13,6 +10,7 @@ import '../croppainter/croppainter.dart';
 class CropImage extends StatefulWidget {
   File file;
   CropImage(this.file);
+  @override
   _CropImageState createState() => _CropImageState();
 }
 
@@ -24,7 +22,7 @@ class _CropImageState extends State<CropImage> {
   bool isFile = false;
   Offset? tl, tr, bl, br;
   bool isLoading = false;
-  MethodChannel channel = new MethodChannel('opencv');
+  MethodChannel channel = MethodChannel('opencv');
   @override
   void initState() {
     // TODO: implement initState
@@ -41,10 +39,10 @@ class _CropImageState extends State<CropImage> {
     imagePixelSize =
         getter.ImageSizeGetter.getSize(widget.file as getter.ImageInput)
             as Size?;
-    tl = new Offset(20, 20);
-    tr = new Offset(width! - 20, 20);
-    bl = new Offset(20, height! - 20);
-    br = new Offset(width! - 20, height! - 20);
+    tl = Offset(20, 20);
+    tr = Offset(width! - 20, 20);
+    bl = Offset(20, height! - 20);
+    br = Offset(width! - 20, height! - 20);
     setState(() {
       isFile = true;
     });
@@ -271,50 +269,50 @@ class _CropImageState extends State<CropImage> {
                                   setState(() {
                                     isLoading = true;
                                   });
-                                  double tl_x =
+                                  double tlX =
                                       (imagePixelSize!.width / width!) * tl!.dx;
-                                  double tr_x =
+                                  double trX =
                                       (imagePixelSize!.width / width!) * tr!.dx;
-                                  double bl_x =
+                                  double blX =
                                       (imagePixelSize!.width / width!) * bl!.dx;
-                                  double br_x =
+                                  double brX =
                                       (imagePixelSize!.width / width!) * br!.dx;
 
-                                  double tl_y =
+                                  double tlY =
                                       (imagePixelSize!.height / height!) *
                                           tl!.dy;
-                                  double tr_y =
+                                  double trY =
                                       (imagePixelSize!.height / height!) *
                                           tr!.dy;
-                                  double bl_y =
+                                  double blY =
                                       (imagePixelSize!.height / height!) *
                                           bl!.dy;
-                                  double br_y =
+                                  double brY =
                                       (imagePixelSize!.height / height!) *
                                           br!.dy;
                                   Timer(Duration(seconds: 1), () async {
                                     var bytesArray = await channel
                                         .invokeMethod('convertToGray', {
                                       'filePath': widget.file.path,
-                                      'tl_x': tl_x,
-                                      'tl_y': tl_y,
-                                      'tr_x': tr_x,
-                                      'tr_y': tr_y,
-                                      'bl_x': bl_x,
-                                      'bl_y': bl_y,
-                                      'br_x': br_x,
-                                      'br_y': br_y,
+                                      'tl_x': tlX,
+                                      'tl_y': tlY,
+                                      'tr_x': trX,
+                                      'tr_y': trY,
+                                      'bl_x': blX,
+                                      'bl_y': blY,
+                                      'br_x': brX,
+                                      'br_y': brY,
                                     });
                                     Navigator.of(context).pop([
                                       bytesArray,
-                                      tl_x,
-                                      tl_y,
-                                      tr_x,
-                                      tr_y,
-                                      bl_x,
-                                      bl_y,
-                                      br_x,
-                                      br_y
+                                      tlX,
+                                      tlY,
+                                      trX,
+                                      trY,
+                                      blX,
+                                      blY,
+                                      brX,
+                                      brY
                                     ]);
                                   });
                                 },
