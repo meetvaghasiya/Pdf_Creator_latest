@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_onboarding_slider/flutter_onboarding_slider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:pdf_creator/Screens/DashBoard%20Screen/dashboard.dart';
 import 'package:pdf_creator/Utilities/classes.dart';
@@ -23,12 +24,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       finishButtonText: "Let's Go",
       onFinish: () async {
         await _secureStorage.write(key: 'onboarding_status', value: 'finished');
-        Navigator.push(
-          context,
-          CupertinoPageRoute(
-            builder: (context) => const DashBoard(),
-          ),
-        );
+        Get.offAll(() => DashBoard(), transition: Transition.cupertino);
       },
       finishButtonStyle: FinishButtonStyle(
         shape: RoundedRectangleBorder(
@@ -36,14 +32,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         ),
         backgroundColor: kDarkBlueColor,
       ),
-      // trailingFunction: () {
-      // Navigator.push(
-      //   context,
-      //   CupertinoPageRoute(
-      //     builder: (context) => const HomeScreen(),
-      //   ),
-      // );
-      // },
       controllerColor: kDarkBlueColor,
       totalPage: 3,
       headerBackgroundColor: Colors.transparent,

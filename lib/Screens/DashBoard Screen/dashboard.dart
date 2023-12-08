@@ -11,7 +11,6 @@ import 'dart:async';
 import 'package:path/path.dart';
 import 'dashboardCtrl.dart';
 import 'package:printing/printing.dart';
-import 'package:intl/intl.dart';
 
 class DashBoard extends StatefulWidget {
   const DashBoard({super.key});
@@ -22,6 +21,7 @@ class DashBoard extends StatefulWidget {
 
 class _DashBoardState extends State<DashBoard> {
   final DashCtrl _dashCtrl = Get.put(DashCtrl());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,17 +76,13 @@ class _PDFListState extends State<PDFList> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
           ),
-          // height: MediaQuery.of(context).size.height * .1,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ListTile(
                 title: const Text(
                   "PDF History",
-                  style: TextStyle(
-                      // color: AppColor.whiteClr,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                 ),
                 trailing: IconButton(
                   icon: const Icon(Icons.search),
@@ -103,46 +99,28 @@ class _PDFListState extends State<PDFList> {
                       return SizedBox();
                     }
                     if (snapshot.hasError) {
-                      print("error");
                       return CircularProgressIndicator();
                     }
                     return SizedBox(
                         height: MediaQuery.of(context).size.height - 81,
                         child: Obx(
-                          () => ListView.builder(
-                            shrinkWrap: true,
-                            itemBuilder: (context, index) {
-                              return buildDocumentCard(index, context);
-                            },
-                            itemCount: _dashCtrl.allDocuments.length,
-                          ),
+                          () => _dashCtrl.allDocuments.length > 0
+                              ? ListView.builder(
+                                  shrinkWrap: true,
+                                  itemBuilder: (context, index) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(5.0),
+                                      child: buildDocumentCard(index, context),
+                                    );
+                                  },
+                                  itemCount: _dashCtrl.allDocuments.length,
+                                )
+                              : Center(
+                                  child: Text("No Data Found !"),
+                                ),
                         ));
                   },
                 ),
-                // child: FutureBuilder(
-                //   future: _dashCtrl.getDocuments(),
-                //   builder: (context, snapshot) {
-                //     if (!snapshot.hasData) {
-                //       return Center(child: Text("No Data"));
-                //     }
-                //     if (snapshot.hasError) {
-                //       print("error");
-                //       return CircularProgressIndicator();
-                //     }
-                //     return Container(
-                //         height: MediaQuery.of(context).size.height - 81,
-                //         child: AnimatedList(
-                //           key: animatedListKey,
-                //           itemBuilder: (context, index, animation) {
-                //             if (index == _dashCtrl.allDocuments.length - 1) {
-                //               return SizedBox(height: 100);
-                //             }
-                //             return buildDocumentCard(index, animation, context);
-                //           },
-                //           initialItemCount: _dashCtrl.allDocuments.length,
-                //         ));
-                //   },
-                // ),
               ),
             ],
           )),
@@ -164,10 +142,14 @@ class _PDFListState extends State<PDFList> {
         ));
       },
       child: Obx(
-        () => Card(
-          color: AppColor.listtileClr,
-          elevation: 3,
-          margin: const EdgeInsets.only(left: 5, right: 5, bottom: 5, top: 5),
+        () => Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            gradient: LinearGradient(
+              stops: [.25, .42],
+              colors: [AppColor.themeDark.withOpacity(.6), AppColor.themeDark],
+            ),
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,15 +185,16 @@ class _PDFListState extends State<PDFList> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Container(
+                        width: MediaQuery.of(context).size.width * .6,
                         padding: const EdgeInsets.all(12),
                         child: Text(
                           _dashCtrl.allDocuments[index].name,
                           style: const TextStyle(
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white,
-                              fontSize: 18),
-                          // maxLines: 2,
-                          // softWrap: false,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Container(
@@ -276,6 +259,61 @@ class _PDFListState extends State<PDFList> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void showRenameDialog(
+      {int? index, DateTime? dateTime, String? name, context}) {
+    TextEditingController controller = TextEditingController();
+    controller.text = name!;
+    controller.selection =
+        TextSelection(baseOffset: 0, extentOffset: controller.text.length);
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text("Rename"),
+            TextFormField(
+              controller: controller,
+              autofocus: true,
+              decoration: InputDecoration(
+                  suffix: IconButton(
+                      icon: Icon(Icons.clear),
+                      onPressed: () {
+                        controller.clear();
+                      })),
+            ),
+          ],
+        ),
+        actions: <Widget>[
+          MaterialButton(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("Cancel")),
+          MaterialButton(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
+              onPressed: () {
+                Navigator.of(context).pop();
+                setState(() {
+                  _dashCtrl.allDocuments[index!].name = controller.text;
+                });
+                _dashCtrl.renameDocument(
+                    index!,
+                    dateTime!.millisecondsSinceEpoch.toString(),
+                    controller.text);
+              },
+              child: Text("Rename")),
+        ],
       ),
     );
   }
@@ -450,57 +488,6 @@ class _PDFListState extends State<PDFList> {
       ),
     );
   }
-
-  void showRenameDialog(
-      {int? index, DateTime? dateTime, String? name, context}) {
-    TextEditingController controller = TextEditingController();
-    controller.text = name!;
-    controller.selection =
-        TextSelection(baseOffset: 0, extentOffset: controller.text.length);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            const Text("Rename"),
-            TextFormField(
-              controller: controller,
-              autofocus: true,
-              decoration: InputDecoration(
-                  suffix: IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        controller.clear();
-                      })),
-            ),
-          ],
-        ),
-        actions: <Widget>[
-          MaterialButton(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("Cancel")),
-          MaterialButton(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _dashCtrl.renameDocument(
-                    index!,
-                    dateTime!.millisecondsSinceEpoch.toString(),
-                    controller.text);
-              },
-              child: const Text("Rename")),
-        ],
-      ),
-    );
-  }
 }
 
 class FunctionCard extends StatefulWidget {
@@ -514,8 +501,6 @@ class _FunctionCardState extends State<FunctionCard> {
   TextEditingController nameController = TextEditingController();
   final _focusNode = FocusNode();
   final DashCtrl _dashCtrl = Get.find<DashCtrl>();
-  String formattedDate = DateFormat('dd-M-yyyy').format(DateTime.now());
-  String formattedTime = DateFormat('HH:mm:ss').format(DateTime.now());
 
   @override
   void initState() {
@@ -527,13 +512,12 @@ class _FunctionCardState extends State<FunctionCard> {
         );
       }
     });
-
     super.initState();
   }
 
-  Future<void> TakeImage(context) async {
+  Future<void> takeImage(BuildContext context) async {
     bool isCameraGranted = await Permission.camera.request().isGranted;
-    List capturedImages = [];
+    List<File> capturedImages = [];
 
     if (!isCameraGranted) {
       isCameraGranted =
@@ -541,13 +525,11 @@ class _FunctionCardState extends State<FunctionCard> {
     }
 
     if (!isCameraGranted) {
-      // Don't have permission to the camera
       return;
     }
 
     final GlobalKey<AnimatedListState> animatedListKey =
         GlobalKey<AnimatedListState>();
-
     bool continueCapturing = true;
 
     while (continueCapturing) {
@@ -565,110 +547,57 @@ class _FunctionCardState extends State<FunctionCard> {
 
       if (success) {
         capturedImages.add(File(imagePath));
-      }
-
-      final formkey = GlobalKey<FormState>();
-      bool shouldContinue = await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Generate PDF'),
-            content: Form(
-              key: formkey,
-              child: TextFormField(
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please Enter PDf Name";
-                  }
-                  return null;
-                },
-                focusNode: _focusNode,
-                style: const TextStyle(color: Colors.black, fontSize: 20),
-                controller: nameController
-                  ..text = "${formattedDate}_$formattedTime",
+        final formKey = GlobalKey<FormState>();
+        final TextEditingController nameController = TextEditingController();
+        await showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Generate PDF'),
+              content: Form(
+                key: formKey,
+                child: TextFormField(
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Please Enter PDF Name";
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(hintText: "Enter Name"),
+                  style: const TextStyle(color: Colors.black, fontSize: 20),
+                  controller: nameController,
+                ),
               ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  if (formkey.currentState!.validate()) {
-                    _dashCtrl.saveDocument(
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    if (formKey.currentState!.validate()) {
+                      _dashCtrl.saveDocument(
                         imageList: capturedImages,
                         name: nameController.text.trim(),
                         documentPath: capturedImages[0].path,
                         dateTime: DateTime.now(),
                         animatedListKey: animatedListKey,
-                        shareLink: '');
-                    continueCapturing = false;
-                    Navigator.of(context).pop(false);
-                  }
-                },
-                child: const Text('Create PDF'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(true);
-                },
-                child: const Text('Add Page'),
-              ),
-            ],
-          );
-        },
-      );
-      // bool shouldContinue = await showDialog(
-      //   context: context,
-      //   builder: (BuildContext context) {
-      //     return AlertDialog(
-      //       title: const Text('Generate PDF'),
-      //       content: Form(
-      //         key: formkey,
-      //         child: TextFormField(
-      //           validator: (value) {
-      //             if (value == null || value.isEmpty) {
-      //               return "Please Enter PDf Name";
-      //             }
-      //             return null;
-      //           },
-      //           focusNode: _focusNode,
-      //           style: const TextStyle(color: Colors.black, fontSize: 20),
-      //           controller: nameController,
-      //         ),
-      //       ),
-      //       actions: [
-      //         TextButton(
-      //           onPressed: () {
-      //             if (formkey.currentState!.validate()) {
-      //               _dashCtrl.saveDocument(
-      //                   imageList: capturedImages,
-      //                   name: nameController.text.trim(),
-      //                   documentPath: capturedImages[0].path,
-      //                   dateTime: DateTime.now(),
-      //                   animatedListKey: animatedListKey,
-      //                   shareLink: '');
-      //               continueCapturing = false;
-      //               Navigator.of(context).pop(false);
-      //               DateTime now = DateTime.now();
-      //               String formattedDate = DateFormat('dd-M-yyyy').format(now);
-      //               String formattedTime = DateFormat('HH:mm:ss').format(now);
-      //               print('Date: $formattedDate');
-      //               print('Time: $formattedTime');
-      //               nameController.text = "${formattedDate}_${formattedTime}";
-      //             }
-      //           },
-      //           child: const Text('Create PDF'),
-      //         ),
-      //         TextButton(
-      //           onPressed: () {
-      //             Navigator.of(context).pop(true);
-      //           },
-      //           child: const Text('Add Page'),
-      //         ),
-      //       ],
-      //     );
-      //   },
-      // );
-
-      if (!shouldContinue) {
+                        shareLink: '',
+                      );
+                      continueCapturing = false;
+                      Navigator.of(context).pop(false);
+                    }
+                  },
+                  child: const Text('Create PDF'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  child: const Text('Add Page'),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
         break;
       }
     }
@@ -730,12 +659,11 @@ class _FunctionCardState extends State<FunctionCard> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          10.0), // Adjust the radius as needed
+                      borderRadius: BorderRadius.circular(10.0),
                     ),
                   ),
                   onPressed: () {
-                    TakeImage(context);
+                    takeImage(context);
                   },
                   child: Text(
                     "Use Now",
@@ -759,7 +687,7 @@ class DottedDivider extends StatelessWidget {
     final h = MediaQuery.of(context).size.height;
     final w = MediaQuery.of(context).size.width;
     return SizedBox(
-      height: h * 0.003, // Adjust the height of the line as needed
+      height: h * 0.003,
       width: w * 0.25,
       child: ListView(
         scrollDirection: Axis.horizontal,

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pdf_creator/Utilities/colors.dart';
@@ -22,40 +21,10 @@ class PDFScreen extends StatefulWidget {
 }
 
 class _PDFScreenState extends State<PDFScreen> {
-  bool isShowDialog = false;
   final DashCtrl _dashCtrl = Get.put(DashCtrl());
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    BackButtonInterceptor.add(myInterceptor);
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    BackButtonInterceptor.remove(myInterceptor);
-  }
-
-  bool myInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
-    if (isShowDialog) {
-      setState(() {
-        isShowDialog = false;
-      });
-    } else {
-      Navigator.of(context).pop();
-    }
-    return true;
-  }
 
   String getName(int index) {
     return _dashCtrl.allDocuments[index].name;
-    // int lastSlashIndex = widget.document.pdfPath.lastIndexOf('/');
-    //
-    // int dotIndex = widget.document.pdfPath.indexOf('.', lastSlashIndex);
-    // return widget.document.pdfPath.substring(lastSlashIndex + 1, dotIndex);
   }
 
   @override

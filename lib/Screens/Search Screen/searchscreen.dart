@@ -24,7 +24,6 @@ class Search extends SearchDelegate {
 
   @override
   Widget buildLeading(BuildContext context) {
-    // TODO: implement buildLeading
     return IconButton(
       icon: AnimatedIcon(
           icon: AnimatedIcons.menu_arrow, progress: transitionAnimation),
@@ -36,7 +35,6 @@ class Search extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    // TODO: implement buildResults
     if (query.isEmpty) {
       List<DocumentModel> documentList = _dashCtrl.allDocuments;
       return ListView.builder(

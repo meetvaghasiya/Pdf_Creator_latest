@@ -4,17 +4,13 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:pdf_creator/Screens/onboardingscreen/onboardingscreen.dart';
-
 import 'Screens/DashBoard Screen/dashboard.dart';
-import 'Utilities/classes.dart';
+import 'package:page_transition/page_transition.dart';
 
 Future<void> main() async {
   await GetStorage.init();
-
   WidgetsFlutterBinding.ensureInitialized();
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
-
-  // Read the onboarding status from secure storage
   String? onboardingStatus =
       await _secureStorage.read(key: 'onboarding_status');
 
@@ -42,6 +38,7 @@ class MyApp extends StatelessWidget {
         splashIconSize: 400,
         splashTransition: SplashTransition.scaleTransition,
         curve: Curves.easeInOutCubic,
+        pageTransitionType: PageTransitionType.rightToLeft,
         duration: 1000,
         screenFunction: () async {
           return showOnboarding ? OnboardingScreen() : const DashBoard();

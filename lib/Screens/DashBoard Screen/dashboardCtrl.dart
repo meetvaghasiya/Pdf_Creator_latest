@@ -15,7 +15,6 @@ class DashCtrl extends GetxController {
   RxBool nameIsValid = true.obs;
   RxList<DocumentModel> allDocuments = <DocumentModel>[].obs;
 
-  // Use GetStorage instance
   final GetStorage box = GetStorage();
 
   Future<void> sharePDF(context, int index) async {
@@ -32,15 +31,12 @@ class DashCtrl extends GetxController {
 
       // Share the PDF file
       await Share.shareFiles([tempPDF.path], text: 'Sharing PDF File');
-    } else {
-      print('PDF file does not exist.');
     }
   }
 
-  Future<bool> getDocuments() async {
+  Future getDocuments() async {
     allDocuments = <DocumentModel>[].obs;
 
-    // Use GetStorage to retrieve data
     box.getKeys().forEach((key) {
       var jsonDocument = json.decode(box.read(key) ?? '{}');
       DocumentModel document = DocumentModel(
@@ -59,7 +55,7 @@ class DashCtrl extends GetxController {
 
   void saveDocument({
     required String name,
-    required String documentPath,
+    required documentPath,
     required List imageList,
     required DateTime dateTime,
     required String shareLink,
@@ -96,8 +92,6 @@ class DashCtrl extends GetxController {
       "shareLink": document.shareLink,
       "pdfPath": document.pdfPath,
     });
-
-    // Use GetStorage to store data
     box.write(
         document.dateTime.millisecondsSinceEpoch.toString(), jsonDocument);
 
@@ -114,24 +108,20 @@ class DashCtrl extends GetxController {
       allDocuments.removeAt(index);
     });
 
-    // Use GetStorage to remove data
     box.remove(key);
   }
 
   void renameDocument(int index, String key, String changedName) async {
-    allDocuments[index].name = changedName;
-
-    // Use GetStorage to remove and store data
     box.remove(key);
 
+    allDocuments[index].name = changedName;
     String jsonDocument = json.encode({
-      "name": allDocuments[index].name,
+      "name": changedName,
       "documentPath": allDocuments[index].documentPath,
       "dateTime": allDocuments[index].dateTime.toString(),
       "shareLink": allDocuments[index].shareLink,
       "pdfPath": allDocuments[index].pdfPath,
     });
-
     box.write(key, jsonDocument);
 
     Timer(Duration(milliseconds: 800), () {});
