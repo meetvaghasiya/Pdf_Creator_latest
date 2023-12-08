@@ -1,23 +1,34 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_onboarding_slider/flutter_onboarding_slider.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:pdf_creator/Screens/DashBoard%20Screen/dashboard.dart';
+import 'package:pdf_creator/Utilities/classes.dart';
 
-class MyHome extends StatelessWidget {
+class OnboardingScreen extends StatefulWidget {
+  const OnboardingScreen({super.key});
+
+  @override
+  State<OnboardingScreen> createState() => _OnboardingScreenState();
+}
+
+class _OnboardingScreenState extends State<OnboardingScreen> {
   final Color kDarkBlueColor = const Color(0xFF053149);
-
-  const MyHome({super.key});
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   @override
   Widget build(BuildContext context) {
     return OnBoardingSlider(
       finishButtonText: "Let's Go",
-      onFinish: () {
-        // Navigator.push(
-        //   context,
-        //   CupertinoPageRoute(
-        //     builder: (context) => const HomeScreen(),
-        //   ),
-        // );
+      onFinish: () async {
+        await _secureStorage.write(key: 'onboarding_status', value: 'finished');
+        Navigator.push(
+          context,
+          CupertinoPageRoute(
+            builder: (context) => const DashBoard(),
+          ),
+        );
       },
       finishButtonStyle: FinishButtonStyle(
         shape: RoundedRectangleBorder(
@@ -25,29 +36,29 @@ class MyHome extends StatelessWidget {
         ),
         backgroundColor: kDarkBlueColor,
       ),
-      trailingFunction: () {
-        // Navigator.push(
-        //   context,
-        //   CupertinoPageRoute(
-        //     builder: (context) => const HomeScreen(),
-        //   ),
-        // );
-      },
+      // trailingFunction: () {
+      // Navigator.push(
+      //   context,
+      //   CupertinoPageRoute(
+      //     builder: (context) => const HomeScreen(),
+      //   ),
+      // );
+      // },
       controllerColor: kDarkBlueColor,
       totalPage: 3,
       headerBackgroundColor: Colors.transparent,
       pageBackgroundColor: Colors.transparent,
       background: [
         Image.asset(
-          'assets/images/pdf_logo.jpeg',
+          'assets/images/onboardingone.jpg',
           height: 350,
         ),
         Image.asset(
-          'assets/images/pdf_logo.jpeg',
+          'assets/images/onboardingtwo.jpg',
           height: 350,
         ),
         Image.asset(
-          'assets/images/pdf_logo.jpeg',
+          'assets/images/onboardingthree.png',
           height: 350,
         ),
       ],
@@ -65,7 +76,7 @@ class MyHome extends StatelessWidget {
                 height: 480,
               ),
               Text(
-                'On your way...',
+                'Welcome to PDF Creator',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: kDarkBlueColor,
@@ -77,7 +88,7 @@ class MyHome extends StatelessWidget {
                 height: 20,
               ),
               const Text(
-                'to find the perfect looking Onboarding for your app?',
+                'Begin with a warm welcome and introduce users to your PDF creator app.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.black26,
@@ -100,7 +111,7 @@ class MyHome extends StatelessWidget {
                 height: 480,
               ),
               Text(
-                'You’ve reached your destination.',
+                'Effortless PDF Creation',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: kDarkBlueColor,
@@ -112,7 +123,7 @@ class MyHome extends StatelessWidget {
                 height: 20,
               ),
               const Text(
-                'Sliding with animation',
+                'Explain how your app simplifies the process and saves users time.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.black26,
@@ -135,7 +146,7 @@ class MyHome extends StatelessWidget {
                 height: 480,
               ),
               Text(
-                'Start now!',
+                'Organize and Share Seamlessly',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: kDarkBlueColor,
@@ -147,7 +158,7 @@ class MyHome extends StatelessWidget {
                 height: 20,
               ),
               const Text(
-                'Where everything is possible and customize your onboarding.',
+                'Showcase how your app facilitates organization and sharing of PDF documents.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.black26,

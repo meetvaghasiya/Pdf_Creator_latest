@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:io';
-
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -106,7 +104,7 @@ class _PDFScreenState extends State<PDFScreen> {
           ),
         ],
       ),
-      body: Container(
+      body: SizedBox(
         height: double.infinity,
         width: double.infinity,
         child: SfPdfViewer.file(
@@ -124,8 +122,7 @@ class _PDFScreenState extends State<PDFScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        content: Container(
-            child: Column(
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -142,7 +139,7 @@ class _PDFScreenState extends State<PDFScreen> {
                       })),
             ),
           ],
-        )),
+        ),
         actions: <Widget>[
           MaterialButton(
               shape: RoundedRectangleBorder(

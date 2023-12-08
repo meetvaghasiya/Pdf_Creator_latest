@@ -45,7 +45,6 @@ dependencies:
   path_provider: ^2.1.1
   flutter_document_scan_sdk: ^1.0.2
   image_size_getter:
-  shared_preferences:
   flutter_isolate:
   pdf:
   flutter_share:
@@ -56,10 +55,19 @@ dependencies:
   flutter_pdfview: 
   get: ^4.6.6
   printing: ^5.11.1
+  intl:
+  get_storage: ^2.1.1
+  flutter_secure_storage: ^9.0.0
+  shared_preferences:
+  flutter_launcher_icons: ^0.13.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/PDFCretorlogo.png"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

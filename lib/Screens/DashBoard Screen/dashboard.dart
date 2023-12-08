@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:edge_detection/edge_detection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/instance_manager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf_creator/Screens/Search%20Screen/searchscreen.dart';
 import 'package:pdf_creator/Screens/pdfscreen/pdfscreen.dart';
@@ -12,6 +11,7 @@ import 'dart:async';
 import 'package:path/path.dart';
 import 'dashboardCtrl.dart';
 import 'package:printing/printing.dart';
+import 'package:intl/intl.dart';
 
 class DashBoard extends StatefulWidget {
   const DashBoard({super.key});
@@ -106,56 +106,68 @@ class _PDFListState extends State<PDFList> {
                       print("error");
                       return CircularProgressIndicator();
                     }
-                    return Container(
+                    return SizedBox(
                         height: MediaQuery.of(context).size.height - 81,
-                        child: AnimatedList(
-                          key: animatedListKey,
-                          itemBuilder: (context, index, animation) {
-                            if (index == _dashCtrl.allDocuments.length - 1) {
-                              return SizedBox(height: 100);
-                            }
-                            return buildDocumentCard(index, animation, context);
-                          },
-                          initialItemCount: _dashCtrl.allDocuments.length,
+                        child: Obx(
+                          () => ListView.builder(
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              return buildDocumentCard(index, context);
+                            },
+                            itemCount: _dashCtrl.allDocuments.length,
+                          ),
                         ));
                   },
                 ),
-                // Expanded(
-                //   child: AnimatedList(
-                //     key: animatedListKey,
-                //     itemBuilder: (context, index, animation) {
-                //       if (index == _dashCtrl.allDocuments.length - 1) {
-                //         return const SizedBox(height: 100);
-                //       }
-                //       return Obx(
-                //           () => buildDocumentCard(index, animation, context));
-                //     },
-                //     initialItemCount: _dashCtrl.allDocuments.length,
-                //   ),
-                // )
+                // child: FutureBuilder(
+                //   future: _dashCtrl.getDocuments(),
+                //   builder: (context, snapshot) {
+                //     if (!snapshot.hasData) {
+                //       return Center(child: Text("No Data"));
+                //     }
+                //     if (snapshot.hasError) {
+                //       print("error");
+                //       return CircularProgressIndicator();
+                //     }
+                //     return Container(
+                //         height: MediaQuery.of(context).size.height - 81,
+                //         child: AnimatedList(
+                //           key: animatedListKey,
+                //           itemBuilder: (context, index, animation) {
+                //             if (index == _dashCtrl.allDocuments.length - 1) {
+                //               return SizedBox(height: 100);
+                //             }
+                //             return buildDocumentCard(index, animation, context);
+                //           },
+                //           initialItemCount: _dashCtrl.allDocuments.length,
+                //         ));
+                //   },
+                // ),
               ),
             ],
           )),
     );
   }
 
-  Widget buildDocumentCard(int index, Animation<double> animation, context) {
-    return SizeTransition(
-      sizeFactor: animation,
-      child: GestureDetector(
-        onTap: () {
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => PDFScreen(
-              index: index,
-              document: _dashCtrl.allDocuments[index],
-              animatedListKey: animatedListKey,
-            ),
-          ));
-        },
-        child: Card(
+  Widget buildDocumentCard(
+    int index,
+    context,
+  ) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => PDFScreen(
+            index: index,
+            document: _dashCtrl.allDocuments[index],
+            animatedListKey: animatedListKey,
+          ),
+        ));
+      },
+      child: Obx(
+        () => Card(
           color: AppColor.listtileClr,
           elevation: 3,
-          margin: const EdgeInsets.only(left: 12, right: 12, bottom: 5, top: 5),
+          margin: const EdgeInsets.only(left: 5, right: 5, bottom: 5, top: 5),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,28 +203,30 @@ class _PDFListState extends State<PDFList> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Container(
-                        width: 150,
                         padding: const EdgeInsets.all(12),
                         child: Text(
                           _dashCtrl.allDocuments[index].name,
                           style: const TextStyle(
-                              color: Colors.white, fontSize: 18),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                              fontSize: 18),
+                          // maxLines: 2,
+                          // softWrap: false,
                         ),
                       ),
                       Container(
-                          padding: const EdgeInsets.only(left: 12),
-                          child: Text(
-                            "${_dashCtrl.allDocuments[index].dateTime.day}-${_dashCtrl.allDocuments[index].dateTime.month}-${_dashCtrl.allDocuments[index].dateTime.year}",
-                            style: TextStyle(color: Colors.grey[400]),
-                          )),
+                        padding: const EdgeInsets.only(left: 12),
+                        child: Text(
+                          " ${_dashCtrl.allDocuments[index].dateTime.day}-${_dashCtrl.allDocuments[index].dateTime.month}-${_dashCtrl.allDocuments[index].dateTime.year} ${_dashCtrl.allDocuments[index].dateTime.hour}:${_dashCtrl.allDocuments[index].dateTime.minute}:${_dashCtrl.allDocuments[index].dateTime.second}",
+                          style: TextStyle(color: AppColor.whiteClr),
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(
                     height: 60,
                   ),
-                  Container(
+                  SizedBox(
                       width: MediaQuery.of(context).size.width - 180,
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -322,7 +336,7 @@ class _PDFListState extends State<PDFList> {
                       Container(
                           padding: const EdgeInsets.only(left: 12),
                           child: Text(
-                            "${dateTime!.day}-${dateTime!.month}-${dateTime.year}",
+                            "${dateTime!.day}-${dateTime.month}-${dateTime.year}",
                             style: TextStyle(
                               color: AppColor.whiteClr,
                             ),
@@ -388,15 +402,14 @@ class _PDFListState extends State<PDFList> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        content: Container(
-            child: Column(
+        content: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             const Text(
               "Delete file",
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const Divider(
               thickness: 2,
@@ -406,7 +419,7 @@ class _PDFListState extends State<PDFList> {
               style: TextStyle(color: Colors.grey[500]),
             )
           ],
-        )),
+        ),
         actions: <Widget>[
           MaterialButton(
             shape:
@@ -427,12 +440,6 @@ class _PDFListState extends State<PDFList> {
 
               _dashCtrl.deleteDocument(
                   index!, dateTime!.millisecondsSinceEpoch.toString());
-              Timer(const Duration(milliseconds: 300), () {
-                animatedListKey.currentState?.removeItem(
-                    index,
-                    (context, animation) =>
-                        buildDocumentCard(index, animation, context));
-              });
             },
             child: const Text(
               "Delete",
@@ -504,16 +511,14 @@ class FunctionCard extends StatefulWidget {
 }
 
 class _FunctionCardState extends State<FunctionCard> {
-  String? _imagePath;
-  static GlobalKey<AnimatedListState> animatedListKey =
-      GlobalKey<AnimatedListState>();
   TextEditingController nameController = TextEditingController();
   final _focusNode = FocusNode();
   final DashCtrl _dashCtrl = Get.find<DashCtrl>();
+  String formattedDate = DateFormat('dd-M-yyyy').format(DateTime.now());
+  String formattedTime = DateFormat('HH:mm:ss').format(DateTime.now());
 
   @override
   void initState() {
-    nameController.text = "Scan " + DateTime.now().toString();
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
         nameController.selection = TextSelection(
@@ -522,6 +527,7 @@ class _FunctionCardState extends State<FunctionCard> {
         );
       }
     });
+
     super.initState();
   }
 
@@ -545,49 +551,57 @@ class _FunctionCardState extends State<FunctionCard> {
     bool continueCapturing = true;
 
     while (continueCapturing) {
-      // Generate filepath for saving
       String imagePath = join((await getApplicationSupportDirectory()).path,
           "${(DateTime.now().millisecondsSinceEpoch / 1000).round()}.jpeg");
 
-      try {
-        // Make sure to await the call to detectEdge.
-        bool success = await EdgeDetection.detectEdge(
-          imagePath,
-          canUseGallery: true,
-          androidScanTitle: 'Scanning',
-          androidCropTitle: 'Crop',
-          androidCropBlackWhiteTitle: 'Black White',
-          androidCropReset: 'Reset',
-        );
+      bool success = await EdgeDetection.detectEdge(
+        imagePath,
+        canUseGallery: true,
+        androidScanTitle: 'Scanning',
+        androidCropTitle: 'Crop',
+        androidCropBlackWhiteTitle: 'Black White',
+        androidCropReset: 'Reset',
+      );
 
-        if (success) {
-          capturedImages.add(File(imagePath));
-        }
-      } catch (e) {}
+      if (success) {
+        capturedImages.add(File(imagePath));
+      }
 
-      // Ask the user if they want to continue capturing or finish
+      final formkey = GlobalKey<FormState>();
       bool shouldContinue = await showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Generate PDF'),
-            content: TextFormField(
-              focusNode: _focusNode,
-              style: const TextStyle(color: Colors.black, fontSize: 20),
-              controller: nameController,
+            content: Form(
+              key: formkey,
+              child: TextFormField(
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Please Enter PDf Name";
+                  }
+                  return null;
+                },
+                focusNode: _focusNode,
+                style: const TextStyle(color: Colors.black, fontSize: 20),
+                controller: nameController
+                  ..text = "${formattedDate}_$formattedTime",
+              ),
             ),
             actions: [
               TextButton(
                 onPressed: () {
-                  _dashCtrl.saveDocument(
-                      imageList: capturedImages,
-                      name: nameController.text.trim(),
-                      documentPath: capturedImages[0].path,
-                      dateTime: DateTime.now(),
-                      animatedListKey: animatedListKey,
-                      shareLink: '');
-                  continueCapturing = false;
-                  Navigator.of(context).pop(false);
+                  if (formkey.currentState!.validate()) {
+                    _dashCtrl.saveDocument(
+                        imageList: capturedImages,
+                        name: nameController.text.trim(),
+                        documentPath: capturedImages[0].path,
+                        dateTime: DateTime.now(),
+                        animatedListKey: animatedListKey,
+                        shareLink: '');
+                    continueCapturing = false;
+                    Navigator.of(context).pop(false);
+                  }
                 },
                 child: const Text('Create PDF'),
               ),
@@ -601,9 +615,61 @@ class _FunctionCardState extends State<FunctionCard> {
           );
         },
       );
+      // bool shouldContinue = await showDialog(
+      //   context: context,
+      //   builder: (BuildContext context) {
+      //     return AlertDialog(
+      //       title: const Text('Generate PDF'),
+      //       content: Form(
+      //         key: formkey,
+      //         child: TextFormField(
+      //           validator: (value) {
+      //             if (value == null || value.isEmpty) {
+      //               return "Please Enter PDf Name";
+      //             }
+      //             return null;
+      //           },
+      //           focusNode: _focusNode,
+      //           style: const TextStyle(color: Colors.black, fontSize: 20),
+      //           controller: nameController,
+      //         ),
+      //       ),
+      //       actions: [
+      //         TextButton(
+      //           onPressed: () {
+      //             if (formkey.currentState!.validate()) {
+      //               _dashCtrl.saveDocument(
+      //                   imageList: capturedImages,
+      //                   name: nameController.text.trim(),
+      //                   documentPath: capturedImages[0].path,
+      //                   dateTime: DateTime.now(),
+      //                   animatedListKey: animatedListKey,
+      //                   shareLink: '');
+      //               continueCapturing = false;
+      //               Navigator.of(context).pop(false);
+      //               DateTime now = DateTime.now();
+      //               String formattedDate = DateFormat('dd-M-yyyy').format(now);
+      //               String formattedTime = DateFormat('HH:mm:ss').format(now);
+      //               print('Date: $formattedDate');
+      //               print('Time: $formattedTime');
+      //               nameController.text = "${formattedDate}_${formattedTime}";
+      //             }
+      //           },
+      //           child: const Text('Create PDF'),
+      //         ),
+      //         TextButton(
+      //           onPressed: () {
+      //             Navigator.of(context).pop(true);
+      //           },
+      //           child: const Text('Add Page'),
+      //         ),
+      //       ],
+      //     );
+      //   },
+      // );
 
       if (!shouldContinue) {
-        break; // Exit the loop if the user chooses to finish
+        break;
       }
     }
   }
@@ -686,11 +752,13 @@ class _FunctionCardState extends State<FunctionCard> {
 }
 
 class DottedDivider extends StatelessWidget {
+  const DottedDivider({super.key});
+
   @override
   Widget build(BuildContext context) {
     final h = MediaQuery.of(context).size.height;
     final w = MediaQuery.of(context).size.width;
-    return Container(
+    return SizedBox(
       height: h * 0.003, // Adjust the height of the line as needed
       width: w * 0.25,
       child: ListView(

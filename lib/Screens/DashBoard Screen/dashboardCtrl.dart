@@ -4,15 +4,19 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart'; // Import get_storage
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:share/share.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pdf/widgets.dart' as pw;
 import '../../Utilities/classes.dart';
 
 class DashCtrl extends GetxController {
-  List<DocumentModel> allDocuments = [];
+  RxBool nameIsValid = true.obs;
+  RxList<DocumentModel> allDocuments = <DocumentModel>[].obs;
+
+  // Use GetStorage instance
+  final GetStorage box = GetStorage();
 
   Future<void> sharePDF(context, int index) async {
     String pdfPath = allDocuments[index].pdfPath;
@@ -34,26 +38,22 @@ class DashCtrl extends GetxController {
   }
 
   Future<bool> getDocuments() async {
-    allDocuments = [];
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    sharedPreferences.getKeys().forEach((key) {
-      var jsonDocument = json.decode(sharedPreferences.getString(key)!);
+    allDocuments = <DocumentModel>[].obs;
+
+    // Use GetStorage to retrieve data
+    box.getKeys().forEach((key) {
+      var jsonDocument = json.decode(box.read(key) ?? '{}');
       DocumentModel document = DocumentModel(
-          name: jsonDocument['name'],
-          documentPath: jsonDocument['documentPath'],
-          dateTime: DateTime.parse(jsonDocument['dateTime']),
-          pdfPath: jsonDocument['pdfPath'],
-          shareLink: jsonDocument['shareLink']);
+        name: jsonDocument['name'],
+        documentPath: jsonDocument['documentPath'],
+        dateTime: DateTime.parse(jsonDocument['dateTime']),
+        pdfPath: jsonDocument['pdfPath'],
+        shareLink: jsonDocument['shareLink'],
+      );
       allDocuments.add(document);
     });
+
     allDocuments.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-    DocumentModel document = DocumentModel(
-        name: "",
-        documentPath: "",
-        dateTime: DateTime.utc(1969, 7, 20, 20, 18, 04),
-        pdfPath: "",
-        shareLink: "");
-    allDocuments.add(document);
     return true;
   }
 
@@ -75,28 +75,32 @@ class DashCtrl extends GetxController {
         },
       ));
     }
+
     final tempDir = await getApplicationDocumentsDirectory();
     String pdfPath = "${tempDir.path}/$name.pdf";
     final file = File(pdfPath);
     await file.writeAsBytes(await pdf.save());
+
     DocumentModel document = DocumentModel(
-        name: name,
-        documentPath: documentPath,
-        dateTime: dateTime,
-        pdfPath: pdfPath,
-        shareLink: shareLink);
+      name: name,
+      documentPath: documentPath,
+      dateTime: dateTime,
+      pdfPath: pdfPath,
+      shareLink: shareLink,
+    );
 
     String jsonDocument = json.encode({
       "name": document.name,
       "documentPath": document.documentPath,
       "dateTime": document.dateTime.toString(),
       "shareLink": document.shareLink,
-      "pdfPath": document.pdfPath
+      "pdfPath": document.pdfPath,
     });
 
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    sharedPreferences.setString(
+    // Use GetStorage to store data
+    box.write(
         document.dateTime.millisecondsSinceEpoch.toString(), jsonDocument);
+
     allDocuments.add(document);
     allDocuments.sort((a, b) => b.dateTime.compareTo(a.dateTime));
 
@@ -109,23 +113,27 @@ class DashCtrl extends GetxController {
     Timer(Duration(milliseconds: 300), () {
       allDocuments.removeAt(index);
     });
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    await sharedPreferences.remove(key);
+
+    // Use GetStorage to remove data
+    box.remove(key);
   }
 
   void renameDocument(int index, String key, String changedName) async {
     allDocuments[index].name = changedName;
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    await sharedPreferences.remove(key);
+
+    // Use GetStorage to remove and store data
+    box.remove(key);
 
     String jsonDocument = json.encode({
       "name": allDocuments[index].name,
       "documentPath": allDocuments[index].documentPath,
       "dateTime": allDocuments[index].dateTime.toString(),
       "shareLink": allDocuments[index].shareLink,
-      "pdfPath": allDocuments[index].pdfPath
+      "pdfPath": allDocuments[index].pdfPath,
     });
-    await sharedPreferences.setString(key, jsonDocument);
+
+    box.write(key, jsonDocument);
+
     Timer(Duration(milliseconds: 800), () {});
   }
 }

@@ -9,7 +9,7 @@ import '../croppainter/croppainter.dart';
 
 class CropImage extends StatefulWidget {
   File file;
-  CropImage(this.file);
+  CropImage(this.file, {super.key});
   @override
   _CropImageState createState() => _CropImageState();
 }
@@ -243,11 +243,11 @@ class _CropImageState extends State<CropImage> {
                       color: Colors.blue,
                     ),
                     child: isLoading
-                        ? Container(
+                        ? SizedBox(
                             width: 60.0,
                             height: 20.0,
                             child: Center(
-                              child: Container(
+                              child: SizedBox(
                                 width: 20,
                                 height: 20,
                                 child: CircularProgressIndicator(
@@ -317,11 +317,11 @@ class _CropImageState extends State<CropImage> {
                                   });
                                 },
                               )
-                            : Container(
+                            : SizedBox(
                                 width: 60,
                                 height: 20.0,
                                 child: Center(
-                                    child: Container(
+                                    child: SizedBox(
                                         height: 20,
                                         width: 20,
                                         child: CircularProgressIndicator(

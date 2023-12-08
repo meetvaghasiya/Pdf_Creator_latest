@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:pdf_creator/Screens/pdfscreen/pdfscreen.dart';
 import '../../Utilities/classes.dart';
 import '../DashBoard Screen/dashboardCtrl.dart';
@@ -14,7 +13,6 @@ class Search extends SearchDelegate {
 
   @override
   List<Widget> buildActions(BuildContext context) {
-    // TODO: implement buildActions
     return [
       IconButton(
           icon: Icon(Icons.clear),
@@ -55,10 +53,10 @@ class Search extends SearchDelegate {
             leading: Image.file(File(documentList[index].documentPath)),
             title: Text(documentList[index].name),
             subtitle: Text(
-                "${documentList[index].dateTime.day.toString()}/${documentList[index].dateTime.month.toString()}/${documentList[index].dateTime.year.toString()}"),
+                "${documentList[index].dateTime.day.toString()}-${documentList[index].dateTime.month.toString()}-${documentList[index].dateTime.year.toString()}  ${documentList[index].dateTime.hour.toString()}:${documentList[index].dateTime.minute.toString()}:${documentList[index].dateTime.second.toString()}"),
           ),
         ),
-        itemCount: documentList.length - 1,
+        itemCount: documentList.length,
       );
     } else {
       List<DocumentModel> documentList = getAllDocuments(context, _dashCtrl)
@@ -87,7 +85,7 @@ class Search extends SearchDelegate {
                   ]),
             ),
             subtitle: Text(
-                "${documentList[index].dateTime.day.toString()}/${documentList[index].dateTime.month.toString()}/${documentList[index].dateTime.year.toString()}"),
+                "${documentList[index].dateTime.day.toString()}-${documentList[index].dateTime.month.toString()}-${documentList[index].dateTime.year.toString()}  ${documentList[index].dateTime.hour.toString()}:${documentList[index].dateTime.minute.toString()}:${documentList[index].dateTime.second.toString()}"),
           ),
         ),
         itemCount: documentList.length,
@@ -125,10 +123,10 @@ class Search extends SearchDelegate {
             ),
             title: Text(documentList[index].name),
             subtitle: Text(
-                "${documentList[index].dateTime.day.toString()}/${documentList[index].dateTime.month.toString()}/${documentList[index].dateTime.year.toString()}"),
+                "${documentList[index].dateTime.day.toString()}-${documentList[index].dateTime.month.toString()}-${documentList[index].dateTime.year.toString()}  ${documentList[index].dateTime.hour.toString()}:${documentList[index].dateTime.minute.toString()}:${documentList[index].dateTime.second.toString()}"),
           ),
         ),
-        itemCount: documentList.length - 1,
+        itemCount: documentList.length,
       );
     } else {
       List<DocumentModel> documentList = getAllDocuments(context, _dashCtrl)
@@ -143,7 +141,20 @@ class Search extends SearchDelegate {
                 builder: (context) => PDFScreen(document: documentList[index]),
               ));
             },
-            leading: Image.file(File(documentList[index].documentPath)),
+            leading: Container(
+              height: MediaQuery.of(context).size.height * .2,
+              width: MediaQuery.of(context).size.width * .17,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.file(
+                  File(documentList[index].documentPath),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
             title: RichText(
               text: TextSpan(
                   text: documentList[index].name.substring(0, query.length),
@@ -157,7 +168,7 @@ class Search extends SearchDelegate {
                   ]),
             ),
             subtitle: Text(
-                "${documentList[index].dateTime.day.toString()}/${documentList[index].dateTime.month.toString()}/${documentList[index].dateTime.year.toString()}"),
+                "${documentList[index].dateTime.day.toString()}-${documentList[index].dateTime.month.toString()}-${documentList[index].dateTime.year.toString()}  ${documentList[index].dateTime.hour.toString()}:${documentList[index].dateTime.minute.toString()}:${documentList[index].dateTime.second.toString()}"),
           ),
         ),
         itemCount: documentList.length,
