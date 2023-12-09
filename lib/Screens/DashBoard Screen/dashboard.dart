@@ -22,6 +22,7 @@ class DashBoard extends StatefulWidget {
 }
 
 class _DashBoardState extends State<DashBoard> {
+  // ignore: unused_field
   final DashCtrl _dashCtrl = Get.put(DashCtrl());
 
   @override
@@ -125,7 +126,7 @@ class _PDFListState extends State<PDFList> {
                     return SizedBox(
                         height: MediaQuery.of(context).size.height - 81,
                         child: Obx(
-                          () => _dashCtrl.allDocuments.length > 0
+                          () => _dashCtrl.allDocuments.isNotEmpty
                               ? ListView.builder(
                                   shrinkWrap: true,
                                   itemBuilder: (context, index) {
@@ -222,7 +223,7 @@ class _PDFListState extends State<PDFList> {
                         padding: const EdgeInsets.only(left: 12),
                         child: Text(
                           // "${formattedDate} ${formattedTime}",
-                          " ${_dashCtrl.allDocuments[index].dateTime.day}-${_dashCtrl.allDocuments[index].dateTime.month}-${_dashCtrl.allDocuments[index].dateTime.year} ${_dashCtrl.allDocuments[index].dateTime.hour}:${_dashCtrl.allDocuments[index].dateTime.minute}:${_dashCtrl.allDocuments[index].dateTime.second}",
+                          _dashCtrl.allDocuments[index].dateTime,
                           style: TextStyle(color: AppColor.whiteClr),
                         ),
                       ),
@@ -267,8 +268,9 @@ class _PDFListState extends State<PDFList> {
                                     index: index,
                                     filePath: _dashCtrl
                                         .allDocuments[index].documentPath,
-                                    dateTime:
-                                        _dashCtrl.allDocuments[index].dateTime,
+                                    dateTime: _dashCtrl
+                                        .allDocuments[index].dateTime
+                                        .toString(),
                                     context: context,
                                     name: _dashCtrl.allDocuments[index].name,
                                     pdfPath:
@@ -285,8 +287,7 @@ class _PDFListState extends State<PDFList> {
     );
   }
 
-  void showRenameDialog(
-      {int? index, DateTime? dateTime, String? name, context}) {
+  void showRenameDialog({int? index, String? dateTime, String? name, context}) {
     TextEditingController controller = TextEditingController();
     controller.text = name!;
     controller.selection =
@@ -330,9 +331,7 @@ class _PDFListState extends State<PDFList> {
                   _dashCtrl.allDocuments[index!].name = controller.text;
                 });
                 _dashCtrl.renameDocument(
-                    index!,
-                    dateTime!.millisecondsSinceEpoch.toString(),
-                    controller.text);
+                    index!, dateTime.toString(), controller.text);
               },
               child: Text("Rename")),
         ],
@@ -344,7 +343,7 @@ class _PDFListState extends State<PDFList> {
       {int? index,
       String? filePath,
       String? name,
-      DateTime? dateTime,
+      String? dateTime,
       BuildContext? context,
       String? pdfPath}) {
     showModalBottomSheet(
@@ -396,7 +395,7 @@ class _PDFListState extends State<PDFList> {
                       Container(
                           padding: const EdgeInsets.only(left: 12),
                           child: Text(
-                            "${dateTime!.day}-${dateTime.month}-${dateTime.year}",
+                            _dashCtrl.allDocuments[index!].dateTime,
                             style: TextStyle(
                               color: AppColor.whiteClr,
                             ),
@@ -425,7 +424,7 @@ class _PDFListState extends State<PDFList> {
                 onTap: () {
                   Navigator.pop(context);
                   showRenameDialog(
-                      index: index!,
+                      index: index,
                       name: name,
                       dateTime: dateTime,
                       context: context);
@@ -445,7 +444,7 @@ class _PDFListState extends State<PDFList> {
                 onTap: () {
                   Navigator.pop(context);
                   showDeleteDialog1(
-                    index: index!,
+                    index: index,
                     dateTime: dateTime,
                     context: context,
                   );
@@ -458,7 +457,7 @@ class _PDFListState extends State<PDFList> {
     );
   }
 
-  void showDeleteDialog1({int? index, DateTime? dateTime, context}) {
+  void showDeleteDialog1({int? index, String? dateTime, context}) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -498,8 +497,7 @@ class _PDFListState extends State<PDFList> {
             onPressed: () {
               Navigator.of(context).pop();
 
-              _dashCtrl.deleteDocument(
-                  index!, dateTime!.millisecondsSinceEpoch.toString());
+              _dashCtrl.deleteDocument(index!, dateTime.toString().toString());
             },
             child: const Text(
               "Delete",
@@ -594,12 +592,16 @@ class _FunctionCardState extends State<FunctionCard> {
               actions: [
                 TextButton(
                   onPressed: () {
+                    String formattedDate =
+                        DateFormat('dd-MM-yyyy').format(DateTime.now());
+                    String formattedTime =
+                        DateFormat('hh:mm:ss a').format(DateTime.now());
                     if (formKey.currentState!.validate()) {
                       _dashCtrl.saveDocument(
                         imageList: capturedImages,
                         name: nameController.text.trim(),
                         documentPath: capturedImages[0].path,
-                        dateTime: DateTime.now(),
+                        dateTime: '$formattedDate $formattedTime',
                         animatedListKey: animatedListKey,
                         shareLink: '',
                       );

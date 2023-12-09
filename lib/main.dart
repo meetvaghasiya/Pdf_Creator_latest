@@ -10,9 +10,8 @@ import 'package:page_transition/page_transition.dart';
 Future<void> main() async {
   await GetStorage.init();
   WidgetsFlutterBinding.ensureInitialized();
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
-  String? onboardingStatus =
-      await _secureStorage.read(key: 'onboarding_status');
+  const FlutterSecureStorage secureStorage = FlutterSecureStorage();
+  String? onboardingStatus = await secureStorage.read(key: 'onboarding_status');
 
   runApp(MyApp(
     showOnboarding: onboardingStatus != 'finished',

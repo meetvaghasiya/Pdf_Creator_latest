@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:share/share.dart';
@@ -42,14 +41,17 @@ class DashCtrl extends GetxController {
       DocumentModel document = DocumentModel(
         name: jsonDocument['name'],
         documentPath: jsonDocument['documentPath'],
-        dateTime: DateTime.parse(jsonDocument['dateTime']),
+        dateTime: jsonDocument['dateTime'],
         pdfPath: jsonDocument['pdfPath'],
         shareLink: jsonDocument['shareLink'],
       );
       allDocuments.add(document);
     });
 
-    allDocuments.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+    allDocuments.sort((a, b) {
+      return b.dateTime.compareTo(a.dateTime);
+    });
+
     return true;
   }
 
@@ -57,7 +59,7 @@ class DashCtrl extends GetxController {
     required String name,
     required documentPath,
     required List imageList,
-    required DateTime dateTime,
+    required dateTime,
     required String shareLink,
     required GlobalKey<AnimatedListState> animatedListKey,
   }) async {
@@ -92,8 +94,7 @@ class DashCtrl extends GetxController {
       "shareLink": document.shareLink,
       "pdfPath": document.pdfPath,
     });
-    box.write(
-        document.dateTime.millisecondsSinceEpoch.toString(), jsonDocument);
+    box.write(document.dateTime.toString(), jsonDocument);
 
     allDocuments.add(document);
     allDocuments.sort((a, b) => b.dateTime.compareTo(a.dateTime));

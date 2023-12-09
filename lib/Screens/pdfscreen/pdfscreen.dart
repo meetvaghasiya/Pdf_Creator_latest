@@ -1,16 +1,13 @@
-import 'dart:async';
 import 'dart:io';
-
+import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:get/get.dart';
-import 'package:path/path.dart';
 import 'package:pdf_creator/Utilities/colors.dart';
 import 'package:printing/printing.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import '../../Utilities/classes.dart';
 import '../DashBoard Screen/dashboardCtrl.dart';
 
+// ignore: must_be_immutable
 class PDFScreen extends StatefulWidget {
   DocumentModel document;
   var animatedListKey;
@@ -28,18 +25,20 @@ class PDFScreen extends StatefulWidget {
 
 class _PDFScreenState extends State<PDFScreen> {
   final DashCtrl _dashCtrl = Get.put(DashCtrl());
+  PDFDocument? doc;
+  load() async {
+    doc = await PDFDocument.fromFile(File(widget.document.pdfPath));
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    load();
+    super.initState();
+  }
 
   String getName(int index) {
     return _dashCtrl.allDocuments[index].name;
-  }
-
-  final Pdfctlr _pdfctlr = Get.put(Pdfctlr());
-  late PDFViewController _pdfViewController;
-  String name() {
-    String filePath = widget.document.pdfPath;
-    String fileName;
-    // Use the 'basename' function from the path package to get the filename
-    return fileName = basename(filePath);
   }
 
   @override
@@ -88,62 +87,64 @@ class _PDFScreenState extends State<PDFScreen> {
           ),
         ],
       ),
-      body:
+      body: Center(
+        child: doc != null
+            ? PDFViewer(
+                document: doc!,
+                pickerButtonColor: AppColor.themeDark,
+                lazyLoad: false,
+                navigationBuilder:
+                    (context, page, totalPages, jumpToPage, animateToPage) {
+                  return Container(
+                    height: Get.height * .07,
+                    decoration: BoxDecoration(
+                        color: AppColor.themeDark.withOpacity(.8)),
+                    child: ButtonBar(
+                      alignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        IconButton(
+                          icon: Icon(
+                            Icons.first_page,
+                            color: AppColor.whiteClr,
+                          ),
+                          onPressed: () {
+                            jumpToPage(page: 0);
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.arrow_back,
+                            color: AppColor.whiteClr,
+                          ),
+                          onPressed: () {
+                            animateToPage(page: page! - 2);
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.arrow_forward,
+                            color: AppColor.whiteClr,
+                          ),
+                          onPressed: () {
+                            animateToPage(page: page);
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.last_page,
+                            color: AppColor.whiteClr,
+                          ),
+                          onPressed: () {
+                            jumpToPage(page: totalPages! - 1);
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              )
+            : CircularProgressIndicator(color: AppColor.themeDark),
+      ),
     );
   }
-}
-
-// SizedBox(
-//   height: double.infinity,
-//   width: double.infinity,
-// child: SfPdfViewer.file(
-//   File(widget.document.pdfPath),
-// ),
-//   )
-
-// appBar: AppBar(
-//   automaticallyImplyLeading: false,
-//   leading: IconButton(
-//     onPressed: () {
-//       Navigator.of(context).pop();
-//     },
-//     icon: Icon(
-//       Icons.arrow_back_ios_new,
-//       color: AppColor.whiteClr,
-//     ),
-//   ),
-//   backgroundColor: AppColor.themeDark,
-//   title: Text(
-//     getName(widget.index),
-//     style: TextStyle(
-//       fontWeight: FontWeight.w500,
-//       color: AppColor.whiteClr,
-//     ),
-//   ),
-//   actions: <Widget>[
-//     IconButton(
-//       icon: Icon(
-//         Icons.share,
-//         color: AppColor.whiteClr,
-//       ),
-//       onPressed: () async {
-//         _dashCtrl.sharePDF(context, widget.index);
-//       },
-//     ),
-//     IconButton(
-//       icon: Icon(
-//         Icons.cloud_upload,
-//         color: AppColor.whiteClr,
-//       ),
-//       onPressed: () async {
-//         final pdf = File(_dashCtrl.allDocuments[widget.index].pdfPath);
-//         await Printing.layoutPdf(
-//             onLayout: (context) => pdf.readAsBytesSync());
-//       },
-//     ),
-//   ],
-// ),
-
-class Pdfctlr extends GetxController {
-  RxBool isDocumentLoaded = false.obs;
 }

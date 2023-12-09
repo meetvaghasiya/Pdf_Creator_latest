@@ -50,8 +50,7 @@ class Search extends SearchDelegate {
             },
             leading: Image.file(File(documentList[index].documentPath)),
             title: Text(documentList[index].name),
-            subtitle: Text(
-                "${documentList[index].dateTime.day.toString()}-${documentList[index].dateTime.month.toString()}-${documentList[index].dateTime.year.toString()}  ${documentList[index].dateTime.hour.toString()}:${documentList[index].dateTime.minute.toString()}:${documentList[index].dateTime.second.toString()}"),
+            subtitle: Text(_dashCtrl.allDocuments[index].dateTime),
           ),
         ),
         itemCount: documentList.length,
@@ -64,27 +63,28 @@ class Search extends SearchDelegate {
         itemBuilder: (context, index) => Padding(
           padding: const EdgeInsets.all(8.0),
           child: ListTile(
-            onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => PDFScreen(document: documentList[index]),
-              ));
-            },
-            leading: Image.file(File(documentList[index].documentPath)),
-            title: RichText(
-              text: TextSpan(
-                  text: documentList[index].name.substring(0, query.length),
-                  style: TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.bold),
-                  children: [
-                    TextSpan(
-                        text: documentList[index].name.substring(query.length),
-                        style: TextStyle(
-                            color: Colors.grey, fontWeight: FontWeight.normal))
-                  ]),
-            ),
-            subtitle: Text(
-                "${documentList[index].dateTime.day.toString()}-${documentList[index].dateTime.month.toString()}-${documentList[index].dateTime.year.toString()}  ${documentList[index].dateTime.hour.toString()}:${documentList[index].dateTime.minute.toString()}:${documentList[index].dateTime.second.toString()}"),
-          ),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) =>
+                      PDFScreen(document: documentList[index]),
+                ));
+              },
+              leading: Image.file(File(documentList[index].documentPath)),
+              title: RichText(
+                text: TextSpan(
+                    text: documentList[index].name.substring(0, query.length),
+                    style: TextStyle(
+                        color: Colors.black, fontWeight: FontWeight.bold),
+                    children: [
+                      TextSpan(
+                          text:
+                              documentList[index].name.substring(query.length),
+                          style: TextStyle(
+                              color: Colors.grey,
+                              fontWeight: FontWeight.normal))
+                    ]),
+              ),
+              subtitle: Text(_dashCtrl.allDocuments[index].dateTime)),
         ),
         itemCount: documentList.length,
       );
@@ -99,30 +99,28 @@ class Search extends SearchDelegate {
         itemBuilder: (context, index) => Padding(
           padding: const EdgeInsets.all(8.0),
           child: ListTile(
-            onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) =>
-                    PDFScreen(document: documentList[index], index: index),
-              ));
-            },
-            leading: Container(
-              height: MediaQuery.of(context).size.height * .2,
-              width: MediaQuery.of(context).size.width * .17,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image.file(
-                  File(documentList[index].documentPath),
-                  fit: BoxFit.cover,
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) =>
+                      PDFScreen(document: documentList[index], index: index),
+                ));
+              },
+              leading: Container(
+                height: MediaQuery.of(context).size.height * .2,
+                width: MediaQuery.of(context).size.width * .17,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.file(
+                    File(documentList[index].documentPath),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-            ),
-            title: Text(documentList[index].name),
-            subtitle: Text(
-                "${documentList[index].dateTime.day.toString()}-${documentList[index].dateTime.month.toString()}-${documentList[index].dateTime.year.toString()}  ${documentList[index].dateTime.hour.toString()}:${documentList[index].dateTime.minute.toString()}:${documentList[index].dateTime.second.toString()}"),
-          ),
+              title: Text(documentList[index].name),
+              subtitle: Text(_dashCtrl.allDocuments[index].dateTime)),
         ),
         itemCount: documentList.length,
       );
@@ -165,8 +163,7 @@ class Search extends SearchDelegate {
                             color: Colors.grey, fontWeight: FontWeight.normal))
                   ]),
             ),
-            subtitle: Text(
-                "${documentList[index].dateTime.day.toString()}-${documentList[index].dateTime.month.toString()}-${documentList[index].dateTime.year.toString()}  ${documentList[index].dateTime.hour.toString()}:${documentList[index].dateTime.minute.toString()}:${documentList[index].dateTime.second.toString()}"),
+            subtitle: Text(_dashCtrl.allDocuments[index].dateTime),
           ),
         ),
         itemCount: documentList.length,
