@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:edge_detection/edge_detection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf_creator/Screens/Search%20Screen/searchscreen.dart';
 import 'package:pdf_creator/Screens/pdfscreen/pdfscreen.dart';
@@ -28,7 +30,6 @@ class _DashBoardState extends State<DashBoard> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: AppColor.themeDark,
-        centerTitle: true,
         title: Text(
           "Dashboard",
           style: TextStyle(
@@ -36,6 +37,26 @@ class _DashBoardState extends State<DashBoard> {
               fontSize: 18,
               fontWeight: FontWeight.w500),
         ),
+        actions: [
+          FutureBuilder<PackageInfo>(
+            future: PackageInfo.fromPlatform(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return Text(
+                  'V ${snapshot.data!.version}',
+                  style: TextStyle(color: AppColor.whiteClr),
+                );
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else {
+                return CircularProgressIndicator();
+              }
+            },
+          ),
+          SizedBox(
+            width: 10,
+          ),
+        ],
       ),
       backgroundColor: AppColor.themeDark,
       body: NestedScrollView(
@@ -200,6 +221,7 @@ class _PDFListState extends State<PDFList> {
                       Container(
                         padding: const EdgeInsets.only(left: 12),
                         child: Text(
+                          // "${formattedDate} ${formattedTime}",
                           " ${_dashCtrl.allDocuments[index].dateTime.day}-${_dashCtrl.allDocuments[index].dateTime.month}-${_dashCtrl.allDocuments[index].dateTime.year} ${_dashCtrl.allDocuments[index].dateTime.hour}:${_dashCtrl.allDocuments[index].dateTime.minute}:${_dashCtrl.allDocuments[index].dateTime.second}",
                           style: TextStyle(color: AppColor.whiteClr),
                         ),
