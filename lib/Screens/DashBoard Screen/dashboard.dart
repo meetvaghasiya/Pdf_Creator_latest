@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:edge_detection/edge_detection.dart';
+// import 'package:edge_detection/edge_detection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -535,97 +535,97 @@ class _FunctionCardState extends State<FunctionCard> {
     super.initState();
   }
 
-  Future<void> takeImage(BuildContext context) async {
-    bool isCameraGranted = await Permission.camera.request().isGranted;
-    List<File> capturedImages = [];
-
-    if (!isCameraGranted) {
-      isCameraGranted =
-          await Permission.camera.request() == PermissionStatus.granted;
-    }
-
-    if (!isCameraGranted) {
-      return;
-    }
-
-    final GlobalKey<AnimatedListState> animatedListKey =
-        GlobalKey<AnimatedListState>();
-    bool continueCapturing = true;
-
-    while (continueCapturing) {
-      String imagePath = join((await getApplicationSupportDirectory()).path,
-          "${(DateTime.now().millisecondsSinceEpoch / 1000).round()}.jpeg");
-
-      bool success = await EdgeDetection.detectEdge(
-        imagePath,
-        canUseGallery: true,
-        androidScanTitle: 'Scanning',
-        androidCropTitle: 'Crop',
-        androidCropBlackWhiteTitle: 'Black White',
-        androidCropReset: 'Reset',
-      );
-
-      if (success) {
-        capturedImages.add(File(imagePath));
-        final formKey = GlobalKey<FormState>();
-        final TextEditingController nameController = TextEditingController();
-        await showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Generate PDF'),
-              content: Form(
-                key: formKey,
-                child: TextFormField(
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Please Enter PDF Name";
-                    }
-                    return null;
-                  },
-                  decoration: InputDecoration(hintText: "Enter Name"),
-                  style: const TextStyle(color: Colors.black, fontSize: 20),
-                  controller: nameController,
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    String formattedDate =
-                        DateFormat('dd-MM-yyyy').format(DateTime.now());
-                    String formattedTime =
-                        DateFormat('hh:mm:ss a').format(DateTime.now());
-                    if (formKey.currentState!.validate()) {
-                      _dashCtrl.saveDocument(
-                        imageList: capturedImages,
-                        name: nameController.text.trim(),
-                        documentPath: capturedImages[0].path,
-                        dateTime: '$formattedDate $formattedTime',
-                        animatedListKey: animatedListKey,
-                        shareLink: '',
-                      );
-                      continueCapturing = false;
-                      Navigator.of(context).pop(false);
-                    }
-                  },
-                  child: const Text('Create PDF'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(true);
-                  },
-                  child: const Text('Add Page'),
-                ),
-              ],
-            );
-          },
-        );
-      } else {
-        break;
-      }
-    }
-  }
+  // Future<void> takeImage(BuildContext context) async {
+  //   bool isCameraGranted = await Permission.camera.request().isGranted;
+  //   List<File> capturedImages = [];
+  //
+  //   if (!isCameraGranted) {
+  //     isCameraGranted =
+  //         await Permission.camera.request() == PermissionStatus.granted;
+  //   }
+  //
+  //   if (!isCameraGranted) {
+  //     return;
+  //   }
+  //
+  //   final GlobalKey<AnimatedListState> animatedListKey =
+  //       GlobalKey<AnimatedListState>();
+  //   bool continueCapturing = true;
+  //
+  //   while (continueCapturing) {
+  //     String imagePath = join((await getApplicationSupportDirectory()).path,
+  //         "${(DateTime.now().millisecondsSinceEpoch / 1000).round()}.jpeg");
+  //
+  //     bool success = await EdgeDetection.detectEdge(
+  //       imagePath,
+  //       canUseGallery: true,
+  //       androidScanTitle: 'Scanning',
+  //       androidCropTitle: 'Crop',
+  //       androidCropBlackWhiteTitle: 'Black White',
+  //       androidCropReset: 'Reset',
+  //     );
+  //
+  //     if (success) {
+  //       capturedImages.add(File(imagePath));
+  //       final formKey = GlobalKey<FormState>();
+  //       final TextEditingController nameController = TextEditingController();
+  //       await showDialog(
+  //         barrierDismissible: false,
+  //         context: context,
+  //         builder: (BuildContext context) {
+  //           return AlertDialog(
+  //             title: const Text('Generate PDF'),
+  //             content: Form(
+  //               key: formKey,
+  //               child: TextFormField(
+  //                 validator: (value) {
+  //                   if (value == null || value.trim().isEmpty) {
+  //                     return "Please Enter PDF Name";
+  //                   }
+  //                   return null;
+  //                 },
+  //                 decoration: InputDecoration(hintText: "Enter Name"),
+  //                 style: const TextStyle(color: Colors.black, fontSize: 20),
+  //                 controller: nameController,
+  //               ),
+  //             ),
+  //             actions: [
+  //               TextButton(
+  //                 onPressed: () {
+  //                   String formattedDate =
+  //                       DateFormat('dd-MM-yyyy').format(DateTime.now());
+  //                   String formattedTime =
+  //                       DateFormat('hh:mm:ss a').format(DateTime.now());
+  //                   if (formKey.currentState!.validate()) {
+  //                     _dashCtrl.saveDocument(
+  //                       imageList: capturedImages,
+  //                       name: nameController.text.trim(),
+  //                       documentPath: capturedImages[0].path,
+  //                       dateTime: '$formattedDate $formattedTime',
+  //                       animatedListKey: animatedListKey,
+  //                       shareLink: '',
+  //                     );
+  //                     continueCapturing = false;
+  //                     Navigator.of(context).pop(false);
+  //                   }
+  //                 },
+  //                 child: const Text('Create PDF'),
+  //               ),
+  //               TextButton(
+  //                 onPressed: () {
+  //                   Navigator.of(context).pop(true);
+  //                 },
+  //                 child: const Text('Add Page'),
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     } else {
+  //       break;
+  //     }
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -687,7 +687,7 @@ class _FunctionCardState extends State<FunctionCard> {
                     ),
                   ),
                   onPressed: () {
-                    takeImage(context);
+                    // takeImage(context);
                   },
                   child: Text(
                     "Use Now",
