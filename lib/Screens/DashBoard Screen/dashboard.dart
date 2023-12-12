@@ -1,16 +1,13 @@
 import 'dart:io';
-// import 'package:edge_detection/edge_detection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:package_info/package_info.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:pdf_creator/Screens/Search%20Screen/searchscreen.dart';
 import 'package:pdf_creator/Screens/pdfscreen/pdfscreen.dart';
+import 'package:pdf_creator/Utilities/classes.dart';
 import 'package:pdf_creator/Utilities/colors.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'dart:async';
-import 'package:path/path.dart';
 import 'dashboardCtrl.dart';
 import 'package:printing/printing.dart';
 
@@ -532,8 +529,23 @@ class _FunctionCardState extends State<FunctionCard> {
         );
       }
     });
+    // initPlatformState();
     super.initState();
   }
+
+  // List<String> _pictures = [];
+  // Future<void> initPlatformState() async {
+  //   List<String> pictures;
+  //   try {
+  //     pictures = await CunningDocumentScanner.getPictures(true) ?? [];
+  //     if (!mounted) return;
+  //     setState(() {
+  //       _pictures = pictures;
+  //     });
+  //   } catch (exception) {
+  //     // Handle exception here
+  //   }
+  // }
 
   // Future<void> takeImage(BuildContext context) async {
   //   bool isCameraGranted = await Permission.camera.request().isGranted;
@@ -627,6 +639,63 @@ class _FunctionCardState extends State<FunctionCard> {
   //   }
   // }
 
+  List<XFile>? _selectedImages;
+  Future<void> pickAndCropImages() async {
+    List<XFile>? images = await ImagePicker().pickMultiImage(
+      imageQuality: 80,
+      maxWidth: 800,
+      maxHeight: 800,
+    );
+
+    if (images != null && images.isNotEmpty) {
+      List<XFile?> croppedImages = [];
+
+      for (var image in images) {
+        XFile? croppedImage = await cropImage(image.path);
+        if (croppedImage != null) {
+          croppedImages.add(croppedImage);
+        }
+      }
+
+      setState(() {
+        _selectedImages = croppedImages.cast<XFile>();
+      });
+    }
+  }
+
+  Future<XFile?> cropImage(String imagePath) async {
+    CroppedFile? croppedFile = await ImageCropper().cropImage(
+      sourcePath: imagePath,
+      aspectRatioPresets: [
+        CropAspectRatioPreset.square,
+        CropAspectRatioPreset.ratio3x2,
+        CropAspectRatioPreset.original,
+        CropAspectRatioPreset.ratio4x3,
+        CropAspectRatioPreset.ratio16x9
+      ],
+      uiSettings: [
+        AndroidUiSettings(
+            toolbarTitle: 'Cropper',
+            toolbarColor: Colors.deepOrange,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false),
+        IOSUiSettings(
+          title: 'Cropper',
+        ),
+        WebUiSettings(
+          context: context,
+        ),
+      ],
+    );
+
+    if (croppedFile != null) {
+      return XFile(croppedFile.path);
+    }
+
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final h = MediaQuery.of(context).size.height;
@@ -687,7 +756,84 @@ class _FunctionCardState extends State<FunctionCard> {
                     ),
                   ),
                   onPressed: () {
-                    // takeImage(context);
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return Container(
+                          height: h * .21,
+                          decoration: BoxDecoration(
+                            color: AppColor.themeDark,
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              topRight: Radius.circular(20),
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              ListTile(
+                                title: Text(
+                                  'Create PDF From',
+                                  style: TextStyle(
+                                    color: AppColor.whiteClr,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                trailing: GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Icon(
+                                    Icons.cancel_outlined,
+                                    color: AppColor.whiteClr,
+                                  ),
+                                ),
+                              ),
+                              Card(
+                                color: AppColor.themeDark.withOpacity(.5),
+                                child: ListTile(
+                                  title: Text(
+                                    'Take Photo',
+                                    style: TextStyle(
+                                      color: AppColor.whiteClr,
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  trailing: Icon(
+                                    Icons.camera_alt_outlined,
+                                    color: AppColor.whiteClr,
+                                  ),
+                                  onTap: () {
+                                    getCamera.getPictures(true);
+                                  },
+                                ),
+                              ),
+                              Card(
+                                color: AppColor.themeDark.withOpacity(.5),
+                                child: ListTile(
+                                  title: Text(
+                                    'Choose Photo',
+                                    style: TextStyle(
+                                      color: AppColor.whiteClr,
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  trailing: Icon(
+                                    Icons.photo_camera_back_outlined,
+                                    color: AppColor.whiteClr,
+                                  ),
+                                  onTap: () {
+                                    pickAndCropImages();
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
                   },
                   child: Text(
                     "Use Now",

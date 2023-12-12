@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:pdf_creator/Screens/onboardingscreen/onboardingscreen.dart';
+import 'package:pdf_creator/Utilities/classes.dart';
 import 'Screens/DashBoard Screen/dashboard.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -40,7 +41,7 @@ class MyApp extends StatelessWidget {
         pageTransitionType: PageTransitionType.rightToLeft,
         duration: 1000,
         screenFunction: () async {
-          return showOnboarding ? OnboardingScreen() : const DashBoard();
+          return showOnboarding ? OnboardingScreen() : DashBoard();
         },
       ),
     );
