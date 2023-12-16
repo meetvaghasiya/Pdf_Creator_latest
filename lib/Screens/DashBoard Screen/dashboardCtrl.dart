@@ -58,7 +58,7 @@ class DashCtrl extends GetxController {
   void saveDocument({
     required String name,
     required documentPath,
-    required List imageList,
+    required List<File> imageList,
     required dateTime,
     required String shareLink,
     required GlobalKey<AnimatedListState> animatedListKey,
