@@ -1,17 +1,13 @@
-import 'dart:developer';
-import 'dart:ffi';
 import 'dart:io';
-import 'dart:ui';
-
+import 'dart:ui' as ui;
 import 'package:crop_image/crop_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pdf_creator/Screens/DashBoard%20Screen/dashboardCtrl.dart';
 import 'package:pdf_creator/Screens/Gallery%20Crop/gallerycropcntl.dart';
 import 'package:pdf_creator/Utilities/colors.dart';
-import 'package:flutter/material.dart';
-import 'dart:io';
 
 class GalleryCropScreen extends StatefulWidget {
   const GalleryCropScreen({Key? key, this.images}) : super(key: key);
@@ -207,91 +203,85 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
 
   Future<void> _finished() async {
     DashCtrl _dashCtrl = Get.put(DashCtrl());
-    // try {
-    final image = await _CropCtrl.controller.value.croppedImage();
-    _CropCtrl.croppedList.add(image);
+    try {
+      ui.Image bitmap = await _CropCtrl.controller.value.croppedBitmap();
 
-    if (_CropCtrl.selectedIndex.value < _CropCtrl.ImgLst.length) {
-      _CropCtrl.ImgLst.removeAt(_CropCtrl.selectedIndex.value);
+      var data = await bitmap.toByteData(format: ui.ImageByteFormat.png);
+      var bytes = data!.buffer.asUint8List();
+
+      // Directory tempDir = await getTemporaryDirectory();
+      // File file = File('${tempDir.path}/name.png');
+      // await file.writeAsBytes(bytes);
+
+      _CropCtrl.croppedList.add(bytes);
+      if (_CropCtrl.selectedIndex.value < _CropCtrl.ImgLst.length) {
+        _CropCtrl.ImgLst.removeAt(_CropCtrl.selectedIndex.value);
+      }
+
+      if (_CropCtrl.ImgLst.isNotEmpty) {
+        _CropCtrl.selectedIndex.value = 0;
+      }
+
+      // if (_CropCtrl.ImgLst.isEmpty && _CropCtrl.selectedIndex.value == 0) {
+      //   Get.back();
+      //   final GlobalKey<AnimatedListState> animatedListKey =
+      //       GlobalKey<AnimatedListState>();
+      //   final formKey = GlobalKey<FormState>();
+      //   final TextEditingController nameController = TextEditingController();
+      //   await showDialog(
+      //     barrierDismissible: false,
+      //     context: context,
+      //     builder: (BuildContext context) {
+      //       return AlertDialog(
+      //         title: const Text('Generate PDF'),
+      //         content: Form(
+      //           key: formKey,
+      //           child: TextFormField(
+      //             validator: (value) {
+      //               if (value == null || value.trim().isEmpty) {
+      //                 return "Please Enter PDF Name";
+      //               }
+      //               return null;
+      //             },
+      //             decoration: InputDecoration(hintText: "Enter Name"),
+      //             style: const TextStyle(color: Colors.black, fontSize: 20),
+      //             controller: nameController,
+      //           ),
+      //         ),
+      //         actions: [
+      //           TextButton(
+      //             onPressed: () {
+      //               String formattedDate =
+      //                   DateFormat('dd-MM-yyyy').format(DateTime.now());
+      //               String formattedTime =
+      //                   DateFormat('hh:mm:ss a').format(DateTime.now());
+      //               if (formKey.currentState!.validate()) {
+      //                 _dashCtrl.saveDocument(
+      //                   imageList: _CropCtrl.croppedList,
+      //                   name: nameController.text.trim(),
+      //                   documentPath: _selectedImages[0].path,
+      //                   dateTime: '$formattedDate $formattedTime',
+      //                   animatedListKey: animatedListKey,
+      //                   shareLink: '',
+      //                 );
+      //                 Navigator.of(context).pop();
+      //               }
+      //             },
+      //             child: const Text('Create PDF'),
+      //           ),
+      //           TextButton(
+      //             onPressed: () {
+      //               Navigator.of(context).pop(true);
+      //             },
+      //             child: const Text('Add Page'),
+      //           ),
+      //         ],
+      //       );
+      //     },
+      //   );
+      // }
+    } catch (e) {
+      print('Error while cropping image: $e');
     }
-
-    if (_CropCtrl.ImgLst.isNotEmpty) {
-      _CropCtrl.selectedIndex.value = 0;
-    }
-
-    if (_CropCtrl.ImgLst.length == 0 && _CropCtrl.selectedIndex.value == 0) {
-      var data = _CropCtrl.croppedList.map((image) {
-        if (image is Image) {
-          ImageProvider<Object> uiImageProvider = image.image;
-          if (uiImageProvider is FileImage) {
-            return File(uiImageProvider.file.path);
-          } else {
-            throw ArgumentError('Invalid UiImageProvider type');
-          }
-        } else {
-          throw ArgumentError('Invalid type in _CropCtrl.croppedList');
-        }
-      }).toList();
-
-      Get.back();
-      final GlobalKey<AnimatedListState> animatedListKey =
-          GlobalKey<AnimatedListState>();
-      final formKey = GlobalKey<FormState>();
-      final TextEditingController nameController = TextEditingController();
-      await showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Generate PDF'),
-            content: Form(
-              key: formKey,
-              child: TextFormField(
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Please Enter PDF Name";
-                  }
-                  return null;
-                },
-                decoration: InputDecoration(hintText: "Enter Name"),
-                style: const TextStyle(color: Colors.black, fontSize: 20),
-                controller: nameController,
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  String formattedDate =
-                      DateFormat('dd-MM-yyyy').format(DateTime.now());
-                  String formattedTime =
-                      DateFormat('hh:mm:ss a').format(DateTime.now());
-                  if (formKey.currentState!.validate()) {
-                    _dashCtrl.saveDocument(
-                      imageList: data,
-                      name: nameController.text.trim(),
-                      documentPath: data[0].path,
-                      dateTime: '$formattedDate $formattedTime',
-                      animatedListKey: animatedListKey,
-                      shareLink: '',
-                    );
-                    Navigator.of(context).pop();
-                  }
-                },
-                child: const Text('Create PDF'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(true);
-                },
-                child: const Text('Add Page'),
-              ),
-            ],
-          );
-        },
-      );
-    }
-    // } catch (e) {
-    //   print('Error while cropping image: $e');
-    // }
   }
 }

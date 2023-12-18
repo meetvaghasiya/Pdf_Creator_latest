@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -103,6 +104,49 @@ class DashCtrl extends GetxController {
       animatedListKey.currentState?.insertItem(0);
     });
   }
+
+  // void saveDocumentGallery({
+  //   required String name,
+  //   required List imageList,
+  //   required String dateTime,
+  //   required GlobalKey<AnimatedListState> animatedListKey,
+  // }) async {
+  //   final pdf = pw.Document();
+  //   for (var imageBytes in imageList) {
+  //     pdf.addPage(pw.Page(
+  //       pageFormat: PdfPageFormat(2480, 3508),
+  //       build: (pw.Context context) {
+  //         return pw.Image(pw.MemoryImage(imageBytes), fit: pw.BoxFit.fitWidth);
+  //       },
+  //     ));
+  //   }
+  //
+  //   final tempDir = await getTemporaryDirectory();
+  //   String pdfPath = "${tempDir.path}/$name.pdf";
+  //   final file = File(pdfPath);
+  //   await file.writeAsBytes(await pdf.save());ß
+  //
+  //   DocumentModel document = DocumentModel(
+  //     name: name,
+  //     dateTime: dateTime,
+  //     pdfPath: pdfPath,
+  //     documentPath: imageList[0].toString(),
+  //   );
+  //
+  //   String jsonDocument = json.encode({
+  //     "name": document.name,
+  //     "dateTime": document.dateTime,
+  //     "pdfPath": document.pdfPath,
+  //   });
+  //   box.write(dateTime, jsonDocument);
+  //
+  //   allDocuments.add(document);
+  //   allDocuments.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+  //
+  //   Timer(const Duration(milliseconds: 500), () {
+  //     animatedListKey.currentState?.insertItem(0);
+  //   });
+  // }
 
   void deleteDocument(int index, String key) async {
     Timer(Duration(milliseconds: 300), () {
