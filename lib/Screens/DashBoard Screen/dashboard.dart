@@ -4,13 +4,13 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info/package_info.dart';
-import 'package:pdf_creator/Screens/Gallery%20Crop/gallerycropcntl.dart';
 import 'package:pdf_creator/Screens/Search%20Screen/searchscreen.dart';
 import 'package:pdf_creator/Screens/pdfscreen/pdfscreen.dart';
 import 'package:pdf_creator/Utilities/classes.dart';
 import 'package:pdf_creator/Utilities/colors.dart';
 import 'package:pdf_creator/Screens/Gallery%20Crop/gallerycropscreen.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../../Utilities/utilities.dart';
 import 'dashboardCtrl.dart';
 import 'package:printing/printing.dart';
 
@@ -64,8 +64,8 @@ class _DashBoardState extends State<DashBoard> {
         physics: const BouncingScrollPhysics(),
         headerSliverBuilder: (context, innerBoxIsScrolled) {
           return [
-            const SliverToBoxAdapter(
-              child: FunctionCard(),
+            SliverToBoxAdapter(
+              child: FunctionCard(cnt: context),
             ),
           ];
         },
@@ -511,8 +511,8 @@ class _PDFListState extends State<PDFList> {
 }
 
 class FunctionCard extends StatefulWidget {
-  const FunctionCard({super.key});
-
+  const FunctionCard({super.key, this.cnt});
+  final cnt;
   @override
   State<FunctionCard> createState() => _FunctionCardState();
 }
@@ -536,267 +536,36 @@ class _FunctionCardState extends State<FunctionCard> {
     super.initState();
   }
 
-  // Future<void> takeImage(BuildContext context) async {
-  //   bool isCameraGranted = await Permission.camera.request().isGranted;
-  //   List<File> capturedImages = [];
-
-  //   if (!isCameraGranted) {
-  //     isCameraGranted =
-  //         await Permission.camera.request() == PermissionStatus.granted;
-  //   }
-
-  //   if (!isCameraGranted) {
-  //     return;
-  //   }
-
-  //   final GlobalKey<AnimatedListState> animatedListKey =
-  //       GlobalKey<AnimatedListState>();
-  //   bool continueCapturing = true;
-
-  //   while (continueCapturing) {
-  //     String imagePath = join((await getApplicationSupportDirectory()).path,
-  //         "${(DateTime.now().millisecondsSinceEpoch / 1000).round()}.jpeg");
-
-  //     bool success = await EdgeDetection.detectEdge(
-  //       imagePath,
-  //       canUseGallery: true,
-  //       androidScanTitle: 'Scanning',
-  //       androidCropTitle: 'Crop',
-  //       androidCropBlackWhiteTitle: 'Black White',
-  //       androidCropReset: 'Reset',
-  //     );
-
-  //     if (success) {
-  //       capturedImages.add(File(imagePath));
-  //       final formKey = GlobalKey<FormState>();
-  //       final TextEditingController nameController = TextEditingController();
-  //       await showDialog(
-  //         barrierDismissible: false,
-  //         context: context,
-  //         builder: (BuildContext context) {
-  //           return AlertDialog(
-  //             title: const Text('Generate PDF'),
-  //             content: Form(
-  //               key: formKey,
-  //               child: TextFormField(
-  //                 validator: (value) {
-  //                   if (value == null || value.trim().isEmpty) {
-  //                     return "Please Enter PDF Name";
-  //                   }
-  //                   return null;
-  //                 },
-  //                 decoration: InputDecoration(hintText: "Enter Name"),
-  //                 style: const TextStyle(color: Colors.black, fontSize: 20),
-  //                 controller: nameController,
-  //               ),
-  //             ),
-  //             actions: [
-  //               TextButton(
-  //                 onPressed: () {
-  //                   String formattedDate =
-  //                       DateFormat('dd-MM-yyyy').format(DateTime.now());
-  //                   String formattedTime =
-  //                       DateFormat('hh:mm:ss a').format(DateTime.now());
-  //                   if (formKey.currentState!.validate()) {
-  //                     _dashCtrl.saveDocument(
-  //                       imageList: capturedImages,
-  //                       name: nameController.text.trim(),
-  //                       documentPath: capturedImages[0].path,
-  //                       dateTime: '$formattedDate $formattedTime',
-  //                       animatedListKey: animatedListKey,
-  //                       shareLink: '',
-  //                     );
-  //                     continueCapturing = false;
-  //                     Navigator.of(context).pop(false);
-  //                   }
-  //                 },
-  //                 child: const Text('Create PDF'),
-  //               ),
-  //               TextButton(
-  //                 onPressed: () {
-  //                   Navigator.of(context).pop(true);
-  //                 },
-  //                 child: const Text('Add Page'),
-  //               ),
-  //             ],
-  //           );
-  //         },
-  //       );
-  //     } else {
-  //       break;
-  //     }
-  //   }
-  // }
-
-  // List<File> _selectedImages = [];
-
-  // _imgFromGallery() async {
-  //   Map<Permission, PermissionStatus> statuses = await [
-  //     Permission.storage,
-  //   ].request();
-  //   if (statuses[Permission.storage]!.isGranted) {
-  //     final picker = ImagePicker();
-  //     List<XFile>? result = await picker.pickMultiImage(
-  //       imageQuality: 50,
-  //     );
-  //     if (result != null) {
-  //       for (var image in result) {
-  //         _cropImage(File(image.path));
-  //       }
-  //     }
-  //   } else {
-  //     print('No permission provided');
-  //   }
-  // }
-
-  // _cropImage(File imgFile) async {
-  //   print("4rgtgfd+==>${imgFile.path}");
-  //   final croppedFile = await ImageCropper().cropImage(
-  //     sourcePath: imgFile.path,
-  //     aspectRatioPresets: Platform.isAndroid
-  //         ? [
-  //             CropAspectRatioPreset.square,
-  //             CropAspectRatioPreset.ratio3x2,
-  //             CropAspectRatioPreset.original,
-  //             CropAspectRatioPreset.ratio4x3,
-  //             CropAspectRatioPreset.ratio16x9,
-  //           ]
-  //         : [
-  //             CropAspectRatioPreset.original,
-  //             CropAspectRatioPreset.square,
-  //             CropAspectRatioPreset.ratio3x2,
-  //             CropAspectRatioPreset.ratio4x3,
-  //             CropAspectRatioPreset.ratio5x3,
-  //             CropAspectRatioPreset.ratio5x4,
-  //             CropAspectRatioPreset.ratio7x5,
-  //             CropAspectRatioPreset.ratio16x9,
-  //           ],
-  //     uiSettings: [
-  //       AndroidUiSettings(
-  //         toolbarTitle: "Image Cropper",
-  //         toolbarColor: AppColor.themeDark,
-  //         toolbarWidgetColor: Colors.white,
-  //         initAspectRatio: CropAspectRatioPreset.original,
-  //         lockAspectRatio: false,
-  //       ),
-  //       IOSUiSettings(
-  //         title: "Image Cropper",
-  //       )
-  //     ],
-  //   );
-
-  //   if (croppedFile != null) {
-  //     setState(() async {
-  //       print("abc==>${_selectedImages}");
-  //       _selectedImages.add(File(croppedFile.path));
-  //       final GlobalKey<AnimatedListState> animatedListKey =
-  //           GlobalKey<AnimatedListState>();
-  //       final formKey = GlobalKey<FormState>();
-  //       final TextEditingController nameController = TextEditingController();
-  //       await showDialog(
-  //         barrierDismissible: false,
-  //         context: context,
-  //         builder: (BuildContext context) {
-  //           return AlertDialog(
-  //             title: const Text('Generate PDF'),
-  //             content: Form(
-  //               key: formKey,
-  //               child: TextFormField(
-  //                 validator: (value) {
-  //                   if (value == null || value.trim().isEmpty) {
-  //                     return "Please Enter PDF Name";
-  //                   }
-  //                   return null;
-  //                 },
-  //                 decoration: InputDecoration(hintText: "Enter Name"),
-  //                 style: const TextStyle(color: Colors.black, fontSize: 20),
-  //                 controller: nameController,
-  //               ),
-  //             ),
-  //             actions: [
-  //               TextButton(
-  //                 onPressed: () {
-  //                   print("path==>${croppedFile.path}");
-  //                   String formattedDate =
-  //                       DateFormat('dd-MM-yyyy').format(DateTime.now());
-  //                   String formattedTime =
-  //                       DateFormat('hh:mm:ss a').format(DateTime.now());
-  //                   if (formKey.currentState!.validate()) {
-  //                     _dashCtrl.saveDocument(
-  //                       imageList: _selectedImages,
-  //                       name: nameController.text.trim(),
-  //                       documentPath: _selectedImages[0].path,
-  //                       dateTime: '$formattedDate $formattedTime',
-  //                       animatedListKey: animatedListKey,
-  //                       shareLink: '',
-  //                     );
-  //                     Navigator.of(context).pop();
-  //                   }
-  //                 },
-  //                 child: const Text('Create PDF'),
-  //               ),
-  //               TextButton(
-  //                 onPressed: () {
-  //                   Navigator.of(context).pop(true);
-  //                 },
-  //                 child: const Text('Add Page'),
-  //               ),
-  //             ],
-  //           );
-  //         },
-  //       );
-  //     });
-  //   }
-  // }
-
   List<XFile>? receivedFiles = [];
   List<File> croppedFiles = [];
 
-  _imgFromGallery() async {
+  _imgFromGallery(BuildContext context, cnt) async {
     Map<Permission, PermissionStatus> statuses = await [
       Permission.storage,
     ].request();
 
     if (statuses[Permission.storage]!.isGranted) {
       final picker = ImagePicker();
-      List<XFile>? result = await picker.pickMultiImage(
-        imageQuality: 50,
-      );
-
-      if (result != null) {
-        Get.to(() => GalleryCropScreen(images: result,));
+      List<XFile>? result = await picker.pickMultiImage();
+      print(result);
+      if (result.isNotEmpty) {
+        Navigator.of(cnt, rootNavigator: true).pop();
+        Get.to(() => GalleryCropScreen(images: result, cnt: cnt));
       } else {
-        print('No images selected');
+        Navigator.of(cnt, rootNavigator: true).pop();
+        Get.back();
       }
     } else {
       print('No storage permission provided');
     }
   }
 
-
-
-  // Future<void> _gallery() async {
-  //   try {
-  //     List<String>? imagePaths = await getGallery.getPictures(true);
-
-  //     if (imagePaths != null && imagePaths.isNotEmpty) {
-  //       await _showDialog(imagePaths);
-  //     } else {
-  //       // Handle the case where no images were selected or captured
-  //     }
-  //   } catch (e) {
-  //     // Handle the case where permission is not granted
-  //     print('Permission not granted: $e');
-  //   }
-  // }
-
-
   Future<void> _captureAndShowDialog() async {
     try {
       List<String>? imagePaths = await getCamera.getPictures(true);
 
       if (imagePaths != null && imagePaths.isNotEmpty) {
-        await _showDialog(imagePaths);
+        await _dashCtrl.showRenameDialog(imagePaths, context);
       } else {
         // Handle the case where no images were selected or captured
       }
@@ -806,78 +575,11 @@ class _FunctionCardState extends State<FunctionCard> {
     }
   }
 
-  Future<void> _showDialog(List<String> imagePaths) async {
-    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-    final TextEditingController nameController = TextEditingController();
-    final GlobalKey<AnimatedListState> animatedListKey =
-        GlobalKey<AnimatedListState>();
-
-    await showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Generate PDF'),
-          content: Form(
-            key: formKey,
-            child: TextFormField(
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return "Please Enter PDF Name";
-                }
-                return null;
-              },
-              decoration: InputDecoration(hintText: "Enter Name"),
-              style: const TextStyle(color: Colors.black, fontSize: 20),
-              controller: nameController,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                print("path==>${imagePaths}");
-                String formattedDate =
-                    DateFormat('dd-MM-yyyy').format(DateTime.now());
-                String formattedTime =
-                    DateFormat('hh:mm:ss a').format(DateTime.now());
-
-                if (formKey.currentState!.validate()) {
-                  // Convert image paths to File objects
-                  List<File> imageFiles =
-                      imagePaths.map((path) => File(path)).toList();
-
-                  // Assuming you have a function to create the PDF using imageFiles
-                  _dashCtrl.saveDocument(
-                    imageList: imageFiles,
-                    name: nameController.text.trim(),
-                    documentPath: imageFiles[0]
-                        .path, // You might want to adjust this based on your logic
-                    dateTime: '$formattedDate $formattedTime',
-                    animatedListKey: animatedListKey,
-                    shareLink: '',
-                  );
-
-                  Navigator.of(context).pop(); // Close the dialog
-                }
-              },
-              child: const Text('Create PDF'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(true); // Close the dialog
-              },
-              child: const Text('Add Page'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final h = MediaQuery.of(context).size.height;
     final w = MediaQuery.of(context).size.width;
+    _dashCtrl.cntx!.value = context;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Card(
@@ -1007,7 +709,9 @@ class _FunctionCardState extends State<FunctionCard> {
                                     color: AppColor.whiteClr,
                                   ),
                                   onTap: () async {
-                                    _imgFromGallery();
+                                    Get.back();
+                                    showLoadingDialog(widget.cnt);
+                                    _imgFromGallery(context, widget.cnt);
                                   },
                                 ),
                               ),

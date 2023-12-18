@@ -85,6 +85,10 @@ class getGallery {
   }
 }
 
+class CropController {
+  List<Image> croppedList = [];
+}
+
 
 // class HomeScreen extends StatefulWidget {
 //   const HomeScreen({Key? key}) : super(key: key);

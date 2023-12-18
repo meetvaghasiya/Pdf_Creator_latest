@@ -8,10 +8,12 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf_creator/Screens/DashBoard%20Screen/dashboardCtrl.dart';
 import 'package:pdf_creator/Screens/Gallery%20Crop/gallerycropcntl.dart';
 import 'package:pdf_creator/Utilities/colors.dart';
+import 'package:pdf_creator/Utilities/utilities.dart';
 
 class GalleryCropScreen extends StatefulWidget {
-  const GalleryCropScreen({Key? key, this.images}) : super(key: key);
+  const GalleryCropScreen({Key? key, this.images, this.cnt}) : super(key: key);
   final images;
+  final cnt;
 
   @override
   State<GalleryCropScreen> createState() => _GalleryCropScreenState();
@@ -19,7 +21,7 @@ class GalleryCropScreen extends StatefulWidget {
 
 class _GalleryCropScreenState extends State<GalleryCropScreen> {
   final _CropCtrl = Get.put(galleryCropCntl());
-
+  List<File> croppedList = [];
   @override
   void initState() {
     _CropCtrl.ImgLst.addAll(widget.images);
@@ -29,14 +31,35 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.themeDark,
-      appBar: AppBar(),
+      backgroundColor: AppColor.themeDark.withOpacity(.3),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          onPressed: () {
+            Get.back();
+          },
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: AppColor.themeDark.withOpacity(.7),
+        title: Obx(
+          () => Text(
+            "${_CropCtrl.ImgLst.length} Images",
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
       body: Column(
         children: [
           SizedBox(
             height: 200,
             child: Obx(
               () => ListView.builder(
+                physics: BouncingScrollPhysics(),
                 itemCount: _CropCtrl.ImgLst.length,
                 shrinkWrap: true,
                 scrollDirection: Axis.horizontal,
@@ -51,19 +74,35 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
                       key:
                           UniqueKey(), // Use UniqueKey for better widget identification
                       padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width / 3.1,
-                        decoration: BoxDecoration(
-                          color: _CropCtrl.selectedIndex.value == index
-                              ? Colors.blue
-                              : Colors.grey,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: Image.file(
-                            File(_CropCtrl.ImgLst[index].path),
-                            fit: BoxFit.cover,
+                      child: Obx(
+                        () => Container(
+                          width: MediaQuery.of(context).size.width / 3.1,
+                          decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(.5),
+                                offset: ui.Offset(.6, .6),
+                                blurStyle: BlurStyle.outer,
+                                spreadRadius: .5,
+                                blurRadius: .9,
+                              ),
+                            ],
+                            border: _CropCtrl.selectedIndex.value == index
+                                ? Border.all(color: Colors.white)
+                                : null,
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(3.0),
+                            child: Container(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.file(
+                                  File(_CropCtrl.ImgLst[index].path),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -74,7 +113,7 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
             ),
           ),
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.05,
+            height: MediaQuery.of(context).size.height * 0.01,
           ),
           Obx(() {
             return Padding(
@@ -83,8 +122,20 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
               padding: const EdgeInsets.all(8.0),
               child: Container(
                 width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.4,
-                color: Colors.grey,
+                height: MediaQuery.of(context).size.height * 0.5,
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(.5),
+                      offset: ui.Offset(.6, .6),
+                      blurStyle: BlurStyle.outer,
+                      spreadRadius: .5,
+                      blurRadius: .9,
+                    ),
+                  ],
+                  color: Colors.black.withOpacity(.5),
+                  borderRadius: BorderRadius.circular(15),
+                ),
                 child: (_CropCtrl.selectedIndex < _CropCtrl.ImgLst.length)
                     ? CropImage(
                         paddingSize: 25.0,
@@ -112,15 +163,10 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
         children: [
           IconButton(
             icon: Icon(
-              Icons.close,
+              Icons.delete_outline_rounded,
               color: AppColor.whiteClr,
             ),
-            onPressed: () {
-              _CropCtrl.controller.value.rotation = CropRotation.up;
-              _CropCtrl.controller.value.crop =
-                  const Rect.fromLTRB(0.1, 0.1, 0.9, 0.9);
-              _CropCtrl.controller.value.aspectRatio = 1.0;
-            },
+            onPressed: _deleteImage,
           ),
           IconButton(
             icon: Icon(
@@ -138,13 +184,25 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
           ),
           IconButton(
             icon: Icon(
+              Icons.close,
+              color: AppColor.whiteClr,
+            ),
+            onPressed: () {
+              _CropCtrl.controller.value.rotation = CropRotation.up;
+              _CropCtrl.controller.value.crop =
+                  const Rect.fromLTRB(0.1, 0.1, 0.9, 0.9);
+              _CropCtrl.controller.value.aspectRatio = 1.0;
+            },
+          ),
+          IconButton(
+            icon: Icon(
               Icons.rotate_90_degrees_cw_outlined,
               color: AppColor.whiteClr,
             ),
             onPressed: _rotateRight,
           ),
           TextButton(
-            onPressed: _finished,
+            onPressed: () => _finished(context),
             child: Text(
               'Done',
               style: TextStyle(
@@ -201,87 +259,45 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
 
   Future<void> _rotateRight() async => _CropCtrl.controller.value.rotateRight();
 
-  Future<void> _finished() async {
-    DashCtrl _dashCtrl = Get.put(DashCtrl());
-    try {
-      ui.Image bitmap = await _CropCtrl.controller.value.croppedBitmap();
+  Future<void> _deleteImage() async {
+    _CropCtrl.ImgLst.removeAt(_CropCtrl.selectedIndex.value);
+    if (_cropCtrl.ImgLst.isEmpty) {
+      Get.back();
+    }
+  }
 
+  final galleryCropCntl _cropCtrl = Get.put(galleryCropCntl());
+  final DashCtrl _dashCtrl = Get.put(DashCtrl());
+
+  Future<void> _finished(BuildContext context) async {
+    try {
+      showLoadingDialog(context);
+      ui.Image bitmap = await _CropCtrl.controller.value.croppedBitmap();
       var data = await bitmap.toByteData(format: ui.ImageByteFormat.png);
       var bytes = data!.buffer.asUint8List();
+      Directory tempDir = await getTemporaryDirectory();
+      File file =
+          File('${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.png');
+      await file.writeAsBytes(bytes);
 
-      // Directory tempDir = await getTemporaryDirectory();
-      // File file = File('${tempDir.path}/name.png');
-      // await file.writeAsBytes(bytes);
+      croppedList.add(file);
 
-      _CropCtrl.croppedList.add(bytes);
-      if (_CropCtrl.selectedIndex.value < _CropCtrl.ImgLst.length) {
-        _CropCtrl.ImgLst.removeAt(_CropCtrl.selectedIndex.value);
+      if (_cropCtrl.selectedIndex.value < _cropCtrl.ImgLst.length) {
+        Get.back();
+        _cropCtrl.ImgLst.removeAt(_cropCtrl.selectedIndex.value);
       }
 
-      if (_CropCtrl.ImgLst.isNotEmpty) {
-        _CropCtrl.selectedIndex.value = 0;
+      if (_cropCtrl.ImgLst.isNotEmpty) {
+        _cropCtrl.selectedIndex.value = 0;
       }
 
-      // if (_CropCtrl.ImgLst.isEmpty && _CropCtrl.selectedIndex.value == 0) {
-      //   Get.back();
-      //   final GlobalKey<AnimatedListState> animatedListKey =
-      //       GlobalKey<AnimatedListState>();
-      //   final formKey = GlobalKey<FormState>();
-      //   final TextEditingController nameController = TextEditingController();
-      //   await showDialog(
-      //     barrierDismissible: false,
-      //     context: context,
-      //     builder: (BuildContext context) {
-      //       return AlertDialog(
-      //         title: const Text('Generate PDF'),
-      //         content: Form(
-      //           key: formKey,
-      //           child: TextFormField(
-      //             validator: (value) {
-      //               if (value == null || value.trim().isEmpty) {
-      //                 return "Please Enter PDF Name";
-      //               }
-      //               return null;
-      //             },
-      //             decoration: InputDecoration(hintText: "Enter Name"),
-      //             style: const TextStyle(color: Colors.black, fontSize: 20),
-      //             controller: nameController,
-      //           ),
-      //         ),
-      //         actions: [
-      //           TextButton(
-      //             onPressed: () {
-      //               String formattedDate =
-      //                   DateFormat('dd-MM-yyyy').format(DateTime.now());
-      //               String formattedTime =
-      //                   DateFormat('hh:mm:ss a').format(DateTime.now());
-      //               if (formKey.currentState!.validate()) {
-      //                 _dashCtrl.saveDocument(
-      //                   imageList: _CropCtrl.croppedList,
-      //                   name: nameController.text.trim(),
-      //                   documentPath: _selectedImages[0].path,
-      //                   dateTime: '$formattedDate $formattedTime',
-      //                   animatedListKey: animatedListKey,
-      //                   shareLink: '',
-      //                 );
-      //                 Navigator.of(context).pop();
-      //               }
-      //             },
-      //             child: const Text('Create PDF'),
-      //           ),
-      //           TextButton(
-      //             onPressed: () {
-      //               Navigator.of(context).pop(true);
-      //             },
-      //             child: const Text('Add Page'),
-      //           ),
-      //         ],
-      //       );
-      //     },
-      //   );
-      // }
+      if (_cropCtrl.ImgLst.isEmpty && _cropCtrl.selectedIndex.value == 0) {
+        Get.back();
+        await _dashCtrl.showRenameDialog(croppedList, context);
+      }
     } catch (e) {
       print('Error while cropping image: $e');
     }
   }
+
 }

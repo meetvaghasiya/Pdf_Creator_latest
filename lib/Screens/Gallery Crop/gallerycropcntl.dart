@@ -11,5 +11,5 @@ class galleryCropCntl extends GetxController {
     defaultCrop: const Rect.fromLTRB(0.1, 0.1, 0.9, 0.9),
   ).obs;
   RxList ImgLst = [].obs;
-  RxList croppedList = [].obs;
+
 }
