@@ -18,7 +18,7 @@ class DashCtrl extends GetxController {
   RxBool nameIsValid = true.obs;
   RxList<DocumentModel> allDocuments = <DocumentModel>[].obs;
   Rx<TextEditingController> nameController = TextEditingController().obs;
-
+  RxBool isLoading = false.obs;
   final GetStorage box = GetStorage();
 
   Future<void> sharePDF(context, int index) async {
@@ -32,8 +32,8 @@ class DashCtrl extends GetxController {
   }
 
   Future getDocuments() async {
+    isLoading.value = true;
     allDocuments = <DocumentModel>[].obs;
-
     box.getKeys().forEach((key) {
       var jsonDocument = json.decode(box.read(key) ?? '{}');
       DocumentModel document = DocumentModel(
@@ -48,7 +48,7 @@ class DashCtrl extends GetxController {
     allDocuments.sort((a, b) {
       return b.dateTime.compareTo(a.dateTime);
     });
-
+    isLoading.value = false;
     return true;
   }
 
@@ -82,21 +82,18 @@ class DashCtrl extends GetxController {
             TextButton(
               onPressed: () async {
                 if (formKey.currentState!.validate()) {
-                  Navigator.of(Get.context!).pop();
-
+                  Navigator.of(context).pop();
                   String formattedDate =
                       DateFormat('dd-MM-yyyy').format(DateTime.now());
                   String formattedTime =
                       DateFormat('hh:mm:ss a').format(DateTime.now());
                   List<File>? imageFiles;
-
                   if (!isGallery) {
                     imageFiles = imagePaths.map((path) => File(path)).toList();
                   } else {
                     imageFiles = imagePaths.cast<File>();
                   }
-
-                  saveDocument(
+                  await saveDocument(
                     imageList: imageFiles,
                     name: nameController.value.text.trim(),
                     documentPath: imageFiles[0].path,
@@ -112,87 +109,46 @@ class DashCtrl extends GetxController {
     );
   }
 
-  Future saveDocument({
+  Future<void> saveDocument({
     required String name,
     required documentPath,
     required List<File> imageList,
     required dateTime,
   }) async {
-    showLoadingDialog(Get.context!);
-    final pdf = pw.Document();
-    for (var img in imageList) {
-      final image = img.readAsBytesSync();
-      pdf.addPage(pw.Page(
-        pageFormat: PdfPageFormat(2480, 3508),
-        build: (pw.Context context) {
-          return pw.Image(pw.MemoryImage(image), fit: pw.BoxFit.fitWidth);
-        },
-      ));
-    }
+      final pdf = pw.Document();
+      for (var img in imageList) {
+        final image = img.readAsBytesSync();
+        pdf.addPage(pw.Page(
+          pageFormat: PdfPageFormat(2480, 3508),
+          build: (pw.Context context) {
+            return pw.Image(pw.MemoryImage(image), fit: pw.BoxFit.fitWidth);
+          },
+        ));
+      }
 
-    final tempDir = await getApplicationDocumentsDirectory();
-    String pdfPath = "${tempDir.path}/$name.pdf";
-    final file = File(pdfPath);
-    await file.writeAsBytes(await pdf.save());
+      final tempDir = await getApplicationDocumentsDirectory();
+      String pdfPath = "${tempDir.path}/$name.pdf";
+      final file = File(pdfPath);
+      await file.writeAsBytes(await pdf.save());
 
-    DocumentModel document = DocumentModel(
-      name: name,
-      documentPath: documentPath,
-      dateTime: dateTime,
-      pdfPath: pdfPath,
-    );
+      DocumentModel document = DocumentModel(
+        name: name,
+        documentPath: documentPath,
+        dateTime: dateTime,
+        pdfPath: pdfPath,
+      );
 
-    String jsonDocument = json.encode({
-      "name": document.name,
-      "documentPath": document.documentPath,
-      "dateTime": document.dateTime.toString(),
-      "pdfPath": document.pdfPath,
-    });
-    box.write(document.dateTime.toString(), jsonDocument);
+      String jsonDocument = json.encode({
+        "name": document.name,
+        "documentPath": document.documentPath,
+        "dateTime": document.dateTime.toString(),
+        "pdfPath": document.pdfPath,
+      });
+      box.write(document.dateTime.toString(), jsonDocument);
 
-    allDocuments.add(document);
-    allDocuments.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-    Navigator.of(Get.context!).pop();
-  }
+      allDocuments.add(document);
+      allDocuments.sort((a, b) => b.dateTime.compareTo(a.dateTime));
 
-  void saveDocumentGallery({
-    required String name,
-    required documentPath,
-    required List imageList,
-    required String dateTime,
-    required GlobalKey<AnimatedListState> animatedListKey,
-  }) async {
-    final pdf = pw.Document();
-    for (var imageBytes in imageList) {
-      pdf.addPage(pw.Page(
-        pageFormat: PdfPageFormat(2480, 3508),
-        build: (pw.Context context) {
-          return pw.Image(pw.MemoryImage(imageBytes), fit: pw.BoxFit.fitWidth);
-        },
-      ));
-    }
-
-    final tempDir = await getTemporaryDirectory();
-    String pdfPath = "${tempDir.path}/$name.pdf";
-    final file = File(pdfPath);
-    await file.writeAsBytes(await pdf.save());
-
-    DocumentModel document = DocumentModel(
-      name: name,
-      dateTime: dateTime,
-      pdfPath: pdfPath,
-      documentPath: documentPath,
-    );
-
-    String jsonDocument = json.encode({
-      "name": document.name,
-      "dateTime": document.dateTime,
-      "pdfPath": document.pdfPath,
-    });
-    box.write(dateTime, jsonDocument);
-
-    allDocuments.add(document);
-    allDocuments.sort((a, b) => b.dateTime.compareTo(a.dateTime));
   }
 
   void deleteDocument(int index, String key) async {

@@ -48,6 +48,7 @@ dependencies:
   flutter_secure_storage: 9.0.0
   flutter_launcher_icons: ^0.13.1
   package_info: 2.0.2
+  device_info_plus: ^9.1.1
   advance_pdf_viewer2: ^2.0.5+1
   cunning_document_scanner: ^1.1.4
   image_picker: ^1.0.4

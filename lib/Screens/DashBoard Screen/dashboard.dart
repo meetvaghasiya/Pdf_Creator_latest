@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -85,6 +86,11 @@ class _PDFListState extends State<PDFList> {
   static GlobalKey<AnimatedListState> animatedListKey =
       GlobalKey<AnimatedListState>();
   final DashCtrl _dashCtrl = Get.find<DashCtrl>();
+  @override
+  void initState() {
+    _dashCtrl.getDocuments();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,36 +120,24 @@ class _PDFListState extends State<PDFList> {
                 ),
               ),
               Expanded(
-                child: FutureBuilder(
-                  future: _dashCtrl.getDocuments(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return SizedBox();
-                    }
-                    if (snapshot.hasError) {
-                      return CircularProgressIndicator();
-                    }
-                    return SizedBox(
-                        height: MediaQuery.of(context).size.height - 81,
-                        child: Obx(
-                          () => _dashCtrl.allDocuments.isNotEmpty
-                              ? ListView.builder(
-                                  shrinkWrap: true,
-                                  itemBuilder: (context, index) {
-                                    return Padding(
-                                      padding: const EdgeInsets.all(5.0),
-                                      child: buildDocumentCard(index, context),
-                                    );
-                                  },
-                                  itemCount: _dashCtrl.allDocuments.length,
-                                )
-                              : Center(
-                                  child: Text("No Data Found !"),
-                                ),
-                        ));
-                  },
-                ),
-              ),
+                  child: Obx(
+                () => _dashCtrl.isLoading.value
+                    ? Center(child: CircularProgressIndicator())
+                    : _dashCtrl.allDocuments.isNotEmpty
+                        ? ListView.builder(
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: buildDocumentCard(index, context),
+                              );
+                            },
+                            itemCount: _dashCtrl.allDocuments.length,
+                          )
+                        : Center(
+                            child: Text("No Data Found !"),
+                          ),
+              ))
             ],
           )),
     );
@@ -176,109 +170,111 @@ class _PDFListState extends State<PDFList> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(top: 15, left: 10),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border(
-                      left: BorderSide(color: Colors.grey[300]!),
-                      right: BorderSide(color: Colors.grey[300]!),
-                      top: BorderSide(color: Colors.grey[300]!),
-                      bottom: BorderSide(color: Colors.grey[300]!),
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 12, left: 10),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border(
+                        left: BorderSide(color: Colors.grey[300]!),
+                        right: BorderSide(color: Colors.grey[300]!),
+                        top: BorderSide(color: Colors.grey[300]!),
+                        bottom: BorderSide(color: Colors.grey[300]!),
+                      ),
                     ),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                    child: Image.file(
-                      File(_dashCtrl.allDocuments[index].documentPath),
-                      height: 150,
-                      width: 130,
-                      fit: BoxFit.cover,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: Image.file(
+                        File(_dashCtrl.allDocuments[index].documentPath),
+                        height: 150,
+                        width: 130,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Container(
+              Expanded(
+                flex: 3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Container(
+                      width: MediaQuery.of(context).size.width * .5,
+                      padding: const EdgeInsets.all(12),
+                      child: Text(
+                        _dashCtrl.allDocuments[index].name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.only(left: 12),
+                      child: Text(
+                        // "${formattedDate} ${formattedTime}",
+                        _dashCtrl.allDocuments[index].dateTime,
+                        style: TextStyle(color: AppColor.whiteClr),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 60,
+                    ),
+                    SizedBox(
                         width: MediaQuery.of(context).size.width * .6,
-                        padding: const EdgeInsets.all(12),
-                        child: Text(
-                          _dashCtrl.allDocuments[index].name,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.only(left: 12),
-                        child: Text(
-                          // "${formattedDate} ${formattedTime}",
-                          _dashCtrl.allDocuments[index].dateTime,
-                          style: TextStyle(color: AppColor.whiteClr),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 60,
-                  ),
-                  SizedBox(
-                      width: MediaQuery.of(context).size.width - 180,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          IconButton(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            IconButton(
+                                icon: Icon(
+                                  Icons.share,
+                                  color: AppColor.whiteClr,
+                                ),
+                                onPressed: () {
+                                  _dashCtrl.sharePDF(context, index);
+                                }),
+                            IconButton(
                               icon: Icon(
-                                Icons.share,
+                                Icons.cloud_upload,
                                 color: AppColor.whiteClr,
                               ),
-                              onPressed: () {
-                                _dashCtrl.sharePDF(context, index);
-                              }),
-                          IconButton(
-                            icon: Icon(
-                              Icons.cloud_upload,
-                              color: AppColor.whiteClr,
+                              onPressed: () async {
+                                final pdf =
+                                    File(_dashCtrl.allDocuments[index].pdfPath);
+                                await Printing.layoutPdf(
+                                    onLayout: (context) =>
+                                        pdf.readAsBytesSync());
+                              },
                             ),
-                            onPressed: () async {
-                              final pdf =
-                                  File(_dashCtrl.allDocuments[index].pdfPath);
-                              await Printing.layoutPdf(
-                                  onLayout: (context) => pdf.readAsBytesSync());
-                            },
-                          ),
-                          IconButton(
-                              icon: Icon(
-                                Icons.more_vert,
-                                color: AppColor.whiteClr,
-                              ),
-                              onPressed: () {
-                                showModalSheet(
-                                    index: index,
-                                    filePath: _dashCtrl
-                                        .allDocuments[index].documentPath,
-                                    dateTime: _dashCtrl
-                                        .allDocuments[index].dateTime
-                                        .toString(),
-                                    context: context,
-                                    name: _dashCtrl.allDocuments[index].name,
-                                    pdfPath:
-                                        _dashCtrl.allDocuments[index].pdfPath);
-                              })
-                        ],
-                      ))
-                ],
+                            IconButton(
+                                icon: Icon(
+                                  Icons.more_vert,
+                                  color: AppColor.whiteClr,
+                                ),
+                                onPressed: () {
+                                  showModalSheet(
+                                      index: index,
+                                      filePath: _dashCtrl
+                                          .allDocuments[index].documentPath,
+                                      dateTime: _dashCtrl
+                                          .allDocuments[index].dateTime
+                                          .toString(),
+                                      context: context,
+                                      name: _dashCtrl.allDocuments[index].name,
+                                      pdfPath: _dashCtrl
+                                          .allDocuments[index].pdfPath);
+                                })
+                          ],
+                        ))
+                  ],
+                ),
               ),
             ],
           ),
@@ -540,23 +536,41 @@ class _FunctionCardState extends State<FunctionCard> {
   List<File> croppedFiles = [];
 
   _imgFromGallery(BuildContext context, cnt) async {
+    final picker = ImagePicker();
+
     Map<Permission, PermissionStatus> statuses = await [
       Permission.storage,
+      Permission.photos,
     ].request();
-
-    if (statuses[Permission.storage]!.isGranted) {
-      final picker = ImagePicker();
+    final deviceInfoPlugin = DeviceInfoPlugin();
+    BaseDeviceInfo deviceInfo = await deviceInfoPlugin.deviceInfo;
+    Map<String, dynamic> allInfo = deviceInfo.data;
+    if (allInfo['version']['sdkInt'] >= 32) {
+      if (statuses[Permission.photos] != PermissionStatus.granted) {
+        await Permission.photos.request();
+      } else if (statuses[Permission.photos] != PermissionStatus.denied ||
+          statuses[Permission.photos] != PermissionStatus.permanentlyDenied) {
+        openAppSettings();
+      }
+    } else {
+      if (statuses[Permission.storage] != PermissionStatus.granted) {
+        await Permission.storage.request();
+      } else if (statuses[Permission.storage] != PermissionStatus.denied ||
+          statuses[Permission.storage] != PermissionStatus.permanentlyDenied) {
+        openAppSettings();
+      }
+    }
+    if (allInfo['version']['sdkInt'] >= 32 &&
+            statuses[Permission.photos] == PermissionStatus.granted ||
+        statuses[Permission.storage] == PermissionStatus.granted) {
       List<XFile>? result = await picker.pickMultiImage();
       print(result);
       if (result.isNotEmpty) {
-        Navigator.of(cnt, rootNavigator: true).pop();
+        LoadingDialog.hide(cnt);
         Get.to(() => GalleryCropScreen(images: result, cnt: cnt));
       } else {
-        Navigator.of(cnt, rootNavigator: true).pop();
-        Get.back();
+        LoadingDialog.hide(cnt);
       }
-    } else {
-      print('No storage permission provided');
     }
   }
 
@@ -636,7 +650,6 @@ class _FunctionCardState extends State<FunctionCard> {
                       context: context,
                       builder: (BuildContext context) {
                         final h = MediaQuery.of(context).size.height;
-
                         return Container(
                           height: h * 0.25, // Adjust the height as needed
                           decoration: BoxDecoration(
@@ -706,7 +719,7 @@ class _FunctionCardState extends State<FunctionCard> {
                                   ),
                                   onTap: () async {
                                     Get.back();
-                                    showLoadingDialog(widget.cnt);
+                                    LoadingDialog.show(widget.cnt);
                                     _imgFromGallery(context, widget.cnt);
                                   },
                                 ),

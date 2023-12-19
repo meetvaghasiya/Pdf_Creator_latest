@@ -21,19 +21,36 @@ class GalleryCropScreen extends StatefulWidget {
 
 class _GalleryCropScreenState extends State<GalleryCropScreen> {
   final _CropCtrl = Get.put(galleryCropCntl());
+  final _focusNode = FocusNode();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
   List<File> croppedList = [];
   @override
   void initState() {
     _CropCtrl.ImgLst.addAll(widget.images);
     super.initState();
+    _dashCtrl.nameController.value.text = DateTime.now().toString();
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus) {
+        _dashCtrl.nameController.value.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: _dashCtrl.nameController.value.text.length,
+        );
+      }
+    });
   }
+
+  String formattedTime = DateFormat('hh:mm:ss a').format(DateTime.now());
+  String formattedDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: AppColor.themeDark.withOpacity(.3),
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        centerTitle: true,
         leading: IconButton(
           onPressed: () {
             Get.back();
@@ -44,11 +61,28 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
           ),
         ),
         backgroundColor: AppColor.themeDark.withOpacity(.7),
-        title: Obx(
-          () => Text(
-            "${_CropCtrl.ImgLst.length} Images",
-            style: TextStyle(
-              color: Colors.white,
+        title: Form(
+          key: formKey,
+          child: Obx(
+            () => Card(
+              color: AppColor.themeDark.withOpacity(.1),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    suffixIcon: Icon(Icons.edit,color: Colors.white,),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Please Enter PDF Name";
+                    }
+                    return null;
+                  },
+                  focusNode: _focusNode,
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                  controller: _dashCtrl.nameController.value,
+                ),
+              ),
             ),
           ),
         ),
@@ -56,7 +90,7 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
       body: Column(
         children: [
           SizedBox(
-            height: 200,
+            height: 170,
             child: Obx(
               () => ListView.builder(
                 physics: BouncingScrollPhysics(),
@@ -202,7 +236,9 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
             onPressed: _rotateRight,
           ),
           TextButton(
-            onPressed: () => _finished(context),
+            onPressed: () {
+              _finished(context);
+            },
             child: Text(
               'Done',
               style: TextStyle(
@@ -261,8 +297,30 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
 
   Future<void> _deleteImage() async {
     _CropCtrl.ImgLst.removeAt(_CropCtrl.selectedIndex.value);
+    if (_cropCtrl.selectedIndex.value > 0) {
+      _CropCtrl.selectedIndex.value = _CropCtrl.selectedIndex.value - 1;
+    }
+
     if (_cropCtrl.ImgLst.isEmpty) {
-      Get.back();
+      // Get.back();
+      if (croppedList.isNotEmpty) {
+        LoadingDialog.show(context);
+        if (formKey.currentState!.validate()) {
+          Navigator.of(context).pop();
+
+          await _dashCtrl.saveDocument(
+            imageList: croppedList,
+            name: _dashCtrl.nameController.value.text.trim(),
+            documentPath: croppedList[0].path,
+            dateTime: '$formattedDate $formattedTime',
+          );
+
+
+        }
+        LoadingDialog.hide(context);
+      } else {
+        Get.back();
+      }
     }
   }
 
@@ -271,7 +329,7 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
 
   Future<void> _finished(BuildContext context) async {
     try {
-      showLoadingDialog(context);
+      LoadingDialog.show(context);
       ui.Image bitmap = await _CropCtrl.controller.value.croppedBitmap();
       var data = await bitmap.toByteData(format: ui.ImageByteFormat.png);
       var bytes = data!.buffer.asUint8List();
@@ -283,7 +341,7 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
       croppedList.add(file);
 
       if (_cropCtrl.selectedIndex.value < _cropCtrl.ImgLst.length) {
-        Get.back();
+        LoadingDialog.hide(context);
         _cropCtrl.ImgLst.removeAt(_cropCtrl.selectedIndex.value);
       }
 
@@ -293,7 +351,21 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
 
       if (_cropCtrl.ImgLst.isEmpty && _cropCtrl.selectedIndex.value == 0) {
         // Get.back();
-        await _dashCtrl.showRenameDialog(croppedList, context,true);
+        LoadingDialog.show(context);
+        if (formKey.currentState!.validate()) {
+          Navigator.of(context).pop();
+
+          await _dashCtrl.saveDocument(
+            imageList: croppedList,
+            name: _dashCtrl.nameController.value.text.trim(),
+            documentPath: croppedList[0].path,
+            dateTime: '$formattedDate $formattedTime',
+          );
+
+
+        }
+        LoadingDialog.hide(context);
+
       }
     } catch (e) {
       print('Error while cropping image: $e');
