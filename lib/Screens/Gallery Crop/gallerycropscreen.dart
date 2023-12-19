@@ -292,12 +292,11 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
       }
 
       if (_cropCtrl.ImgLst.isEmpty && _cropCtrl.selectedIndex.value == 0) {
-        Get.back();
-        await _dashCtrl.showRenameDialog(croppedList, context);
+        // Get.back();
+        await _dashCtrl.showRenameDialog(croppedList, context,true);
       }
     } catch (e) {
       print('Error while cropping image: $e');
     }
   }
-
 }

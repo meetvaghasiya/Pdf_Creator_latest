@@ -565,12 +565,9 @@ class _FunctionCardState extends State<FunctionCard> {
       List<String>? imagePaths = await getCamera.getPictures(true);
 
       if (imagePaths != null && imagePaths.isNotEmpty) {
-        await _dashCtrl.showRenameDialog(imagePaths, context);
-      } else {
-        // Handle the case where no images were selected or captured
+        await _dashCtrl.showRenameDialog(imagePaths, context, false);
       }
     } catch (e) {
-      // Handle the case where permission is not granted
       print('Permission not granted: $e');
     }
   }
@@ -579,7 +576,6 @@ class _FunctionCardState extends State<FunctionCard> {
   Widget build(BuildContext context) {
     final h = MediaQuery.of(context).size.height;
     final w = MediaQuery.of(context).size.width;
-    _dashCtrl.cntx!.value = context;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Card(

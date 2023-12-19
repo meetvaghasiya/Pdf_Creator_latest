@@ -17,23 +17,16 @@ import '../../Utilities/classes.dart';
 class DashCtrl extends GetxController {
   RxBool nameIsValid = true.obs;
   RxList<DocumentModel> allDocuments = <DocumentModel>[].obs;
-  Rx<BuildContext>? cntx;
+  Rx<TextEditingController> nameController = TextEditingController().obs;
 
   final GetStorage box = GetStorage();
 
   Future<void> sharePDF(context, int index) async {
     String pdfPath = allDocuments[index].pdfPath;
-
-    // Check if the PDF file exists
     if (await File(pdfPath).exists()) {
-      // Get the temporary directory
       Directory tempDir = await getTemporaryDirectory();
-
-      // Create a copy of the PDF file in the temporary directory
       File tempPDF = File('${tempDir.path}/${allDocuments[index].name}.pdf');
       await File(pdfPath).copy(tempPDF.path);
-
-      // Share the PDF file
       await Share.shareFiles([tempPDF.path], text: 'Sharing PDF File');
     }
   }
@@ -48,7 +41,6 @@ class DashCtrl extends GetxController {
         documentPath: jsonDocument['documentPath'],
         dateTime: jsonDocument['dateTime'],
         pdfPath: jsonDocument['pdfPath'],
-        shareLink: jsonDocument['shareLink'],
       );
       allDocuments.add(document);
     });
@@ -60,11 +52,9 @@ class DashCtrl extends GetxController {
     return true;
   }
 
-  Future<void> showRenameDialog(List imagePaths,context) async {
+  Future<void> showRenameDialog(List imagePaths, context, isGallery) async {
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-    final TextEditingController nameController = TextEditingController();
-    final GlobalKey<AnimatedListState> animatedListKey =
-        GlobalKey<AnimatedListState>();
+    nameController.value.clear();
 
     await showDialog(
       barrierDismissible: false,
@@ -74,54 +64,47 @@ class DashCtrl extends GetxController {
           title: const Text('Generate PDF'),
           content: Form(
             key: formKey,
-            child: TextFormField(
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return "Please Enter PDF Name";
-                }
-                return null;
-              },
-              decoration: InputDecoration(hintText: "Enter Name"),
-              style: const TextStyle(color: Colors.black, fontSize: 20),
-              controller: nameController,
+            child: Obx(
+              () => TextFormField(
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Please Enter PDF Name";
+                  }
+                  return null;
+                },
+                decoration: InputDecoration(hintText: "Enter Name"),
+                style: const TextStyle(color: Colors.black, fontSize: 20),
+                controller: nameController.value,
+              ),
             ),
           ),
           actions: [
             TextButton(
               onPressed: () async {
-                Navigator.of(context, rootNavigator: true).pop();
-                showLoadingDialog(cntx!.value);
-                String formattedDate =
-                    DateFormat('dd-MM-yyyy').format(DateTime.now());
-                String formattedTime =
-                    DateFormat('hh:mm:ss a').format(DateTime.now());
-
                 if (formKey.currentState!.validate()) {
-                  // Convert image paths to File objects
-                  List<File> imageFiles =
-                      imagePaths.map((path) => File(path)).toList();
+                  Navigator.of(Get.context!).pop();
 
-                  // Assuming you have a function to create the PDF using imageFiles
+                  String formattedDate =
+                      DateFormat('dd-MM-yyyy').format(DateTime.now());
+                  String formattedTime =
+                      DateFormat('hh:mm:ss a').format(DateTime.now());
+                  List<File>? imageFiles;
+
+                  if (!isGallery) {
+                    imageFiles = imagePaths.map((path) => File(path)).toList();
+                  } else {
+                    imageFiles = imagePaths.cast<File>();
+                  }
+
                   saveDocument(
                     imageList: imageFiles,
-                    name: nameController.text.trim(),
-                    documentPath: imageFiles[0]
-                        .path, // You might want to adjust this based on your logic
+                    name: nameController.value.text.trim(),
+                    documentPath: imageFiles[0].path,
                     dateTime: '$formattedDate $formattedTime',
-                    animatedListKey: animatedListKey,
-                    shareLink: '',
                   );
-
-                  Navigator.of(cntx!.value).pop(); // Close the dialog
                 }
               },
               child: const Text('Create PDF'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(true); // Close the dialog
-              },
-              child: const Text('Add Page'),
             ),
           ],
         );
@@ -129,14 +112,13 @@ class DashCtrl extends GetxController {
     );
   }
 
-  void saveDocument({
+  Future saveDocument({
     required String name,
     required documentPath,
     required List<File> imageList,
     required dateTime,
-    required String shareLink,
-    required GlobalKey<AnimatedListState> animatedListKey,
   }) async {
+    showLoadingDialog(Get.context!);
     final pdf = pw.Document();
     for (var img in imageList) {
       final image = img.readAsBytesSync();
@@ -158,24 +140,19 @@ class DashCtrl extends GetxController {
       documentPath: documentPath,
       dateTime: dateTime,
       pdfPath: pdfPath,
-      shareLink: shareLink,
     );
 
     String jsonDocument = json.encode({
       "name": document.name,
       "documentPath": document.documentPath,
       "dateTime": document.dateTime.toString(),
-      "shareLink": document.shareLink,
       "pdfPath": document.pdfPath,
     });
     box.write(document.dateTime.toString(), jsonDocument);
 
     allDocuments.add(document);
     allDocuments.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-
-    Timer(const Duration(milliseconds: 500), () {
-      animatedListKey.currentState?.insertItem(0);
-    });
+    Navigator.of(Get.context!).pop();
   }
 
   void saveDocumentGallery({
@@ -216,10 +193,6 @@ class DashCtrl extends GetxController {
 
     allDocuments.add(document);
     allDocuments.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-
-    Timer(const Duration(milliseconds: 500), () {
-      animatedListKey.currentState?.insertItem(0);
-    });
   }
 
   void deleteDocument(int index, String key) async {
@@ -238,7 +211,6 @@ class DashCtrl extends GetxController {
       "name": changedName,
       "documentPath": allDocuments[index].documentPath,
       "dateTime": allDocuments[index].dateTime.toString(),
-      "shareLink": allDocuments[index].shareLink,
       "pdfPath": allDocuments[index].pdfPath,
     });
     box.write(key, jsonDocument);
