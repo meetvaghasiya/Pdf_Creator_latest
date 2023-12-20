@@ -1,15 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
-import 'package:pdf_creator/Utilities/utilities.dart';
 import 'package:share/share.dart';
 import 'package:pdf/widgets.dart' as pw;
 import '../../Utilities/classes.dart';
@@ -32,7 +29,6 @@ class DashCtrl extends GetxController {
   }
 
   Future getDocuments() async {
-    isLoading.value = true;
     allDocuments = <DocumentModel>[].obs;
     box.getKeys().forEach((key) {
       var jsonDocument = json.decode(box.read(key) ?? '{}');
@@ -48,7 +44,6 @@ class DashCtrl extends GetxController {
     allDocuments.sort((a, b) {
       return b.dateTime.compareTo(a.dateTime);
     });
-    isLoading.value = false;
     return true;
   }
 
@@ -115,40 +110,39 @@ class DashCtrl extends GetxController {
     required List<File> imageList,
     required dateTime,
   }) async {
-      final pdf = pw.Document();
-      for (var img in imageList) {
-        final image = img.readAsBytesSync();
-        pdf.addPage(pw.Page(
-          pageFormat: PdfPageFormat(2480, 3508),
-          build: (pw.Context context) {
-            return pw.Image(pw.MemoryImage(image), fit: pw.BoxFit.fitWidth);
-          },
-        ));
-      }
+    final pdf = pw.Document();
+    for (var img in imageList) {
+      final image = img.readAsBytesSync();
+      pdf.addPage(pw.Page(
+        pageFormat: PdfPageFormat(2480, 3508),
+        build: (pw.Context context) {
+          return pw.Image(pw.MemoryImage(image), fit: pw.BoxFit.fitWidth);
+        },
+      ));
+    }
 
-      final tempDir = await getApplicationDocumentsDirectory();
-      String pdfPath = "${tempDir.path}/$name.pdf";
-      final file = File(pdfPath);
-      await file.writeAsBytes(await pdf.save());
+    final tempDir = await getApplicationDocumentsDirectory();
+    String pdfPath = "${tempDir.path}/$name.pdf";
+    final file = File(pdfPath);
+    await file.writeAsBytes(await pdf.save());
 
-      DocumentModel document = DocumentModel(
-        name: name,
-        documentPath: documentPath,
-        dateTime: dateTime,
-        pdfPath: pdfPath,
-      );
+    DocumentModel document = DocumentModel(
+      name: name,
+      documentPath: documentPath,
+      dateTime: dateTime,
+      pdfPath: pdfPath,
+    );
 
-      String jsonDocument = json.encode({
-        "name": document.name,
-        "documentPath": document.documentPath,
-        "dateTime": document.dateTime.toString(),
-        "pdfPath": document.pdfPath,
-      });
-      box.write(document.dateTime.toString(), jsonDocument);
+    String jsonDocument = json.encode({
+      "name": document.name,
+      "documentPath": document.documentPath,
+      "dateTime": document.dateTime.toString(),
+      "pdfPath": document.pdfPath,
+    });
+    box.write(document.dateTime.toString(), jsonDocument);
 
-      allDocuments.add(document);
-      allDocuments.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-
+    allDocuments.add(document);
+    allDocuments.sort((a, b) => b.dateTime.compareTo(a.dateTime));
   }
 
   void deleteDocument(int index, String key) async {

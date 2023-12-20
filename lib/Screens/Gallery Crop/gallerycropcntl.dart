@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:ui';
 import 'package:crop_image/crop_image.dart';
 import 'package:get/get.dart';
@@ -11,5 +10,4 @@ class galleryCropCntl extends GetxController {
     defaultCrop: const Rect.fromLTRB(0.1, 0.1, 0.9, 0.9),
   ).obs;
   RxList ImgLst = [].obs;
-
 }

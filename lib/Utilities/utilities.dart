@@ -40,6 +40,26 @@ class LoadingDialog {
     Navigator.of(context).pop();
   }
 }
+
+class ErrorSnackbar {
+  void showSnackbar(context, msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: Colors.red,
+        content: Row(
+          children: [
+            Icon(
+              Icons.error_outline,
+              color: Colors.white,
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            Text(msg)
+          ],
+        )));
+  }
+}
+
 class CustomProgressIndicatorWidget extends StatelessWidget {
   const CustomProgressIndicatorWidget({
     Key? key,
@@ -52,8 +72,7 @@ class CustomProgressIndicatorWidget extends StatelessWidget {
       child: Container(
         height: 100,
         constraints: BoxConstraints.expand(),
-        decoration: BoxDecoration(
-            color: Color.fromARGB(100, 105, 105, 105)),
+        decoration: BoxDecoration(color: Color.fromARGB(100, 105, 105, 105)),
         child: FittedBox(
           fit: BoxFit.none,
           child: SizedBox(

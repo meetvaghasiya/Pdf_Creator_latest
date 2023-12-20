@@ -3,7 +3,6 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:package_info/package_info.dart';
 import 'package:pdf_creator/Screens/Search%20Screen/searchscreen.dart';
 import 'package:pdf_creator/Screens/pdfscreen/pdfscreen.dart';
@@ -542,27 +541,39 @@ class _FunctionCardState extends State<FunctionCard> {
       Permission.storage,
       Permission.photos,
     ].request();
-    final deviceInfoPlugin = DeviceInfoPlugin();
-    BaseDeviceInfo deviceInfo = await deviceInfoPlugin.deviceInfo;
-    Map<String, dynamic> allInfo = deviceInfo.data;
-    if (allInfo['version']['sdkInt'] >= 32) {
-      if (statuses[Permission.photos] != PermissionStatus.granted) {
-        await Permission.photos.request();
-      } else if (statuses[Permission.photos] != PermissionStatus.denied ||
-          statuses[Permission.photos] != PermissionStatus.permanentlyDenied) {
-        openAppSettings();
+    if (Platform.isAndroid) {
+      final deviceInfoPlugin = DeviceInfoPlugin();
+      BaseDeviceInfo deviceInfo = await deviceInfoPlugin.deviceInfo;
+      Map<String, dynamic> allInfo = deviceInfo.data;
+      if (allInfo['version']['sdkInt'] >= 32) {
+        if (statuses[Permission.photos] != PermissionStatus.granted) {
+          await Permission.photos.request();
+        } else if (statuses[Permission.photos] != PermissionStatus.denied ||
+            statuses[Permission.photos] != PermissionStatus.permanentlyDenied) {
+          openAppSettings();
+        }
+      } else {
+        if (statuses[Permission.storage] != PermissionStatus.granted) {
+          await Permission.storage.request();
+        } else if (statuses[Permission.storage] != PermissionStatus.denied ||
+            statuses[Permission.storage] !=
+                PermissionStatus.permanentlyDenied) {
+          openAppSettings();
+        }
+      }
+      if (allInfo['version']['sdkInt'] >= 32 &&
+              statuses[Permission.photos] == PermissionStatus.granted ||
+          statuses[Permission.storage] == PermissionStatus.granted) {
+        List<XFile>? result = await picker.pickMultiImage();
+        print(result);
+        if (result.isNotEmpty) {
+          LoadingDialog.hide(cnt);
+          Get.to(() => GalleryCropScreen(images: result, cnt: cnt));
+        } else {
+          LoadingDialog.hide(cnt);
+        }
       }
     } else {
-      if (statuses[Permission.storage] != PermissionStatus.granted) {
-        await Permission.storage.request();
-      } else if (statuses[Permission.storage] != PermissionStatus.denied ||
-          statuses[Permission.storage] != PermissionStatus.permanentlyDenied) {
-        openAppSettings();
-      }
-    }
-    if (allInfo['version']['sdkInt'] >= 32 &&
-            statuses[Permission.photos] == PermissionStatus.granted ||
-        statuses[Permission.storage] == PermissionStatus.granted) {
       List<XFile>? result = await picker.pickMultiImage();
       print(result);
       if (result.isNotEmpty) {

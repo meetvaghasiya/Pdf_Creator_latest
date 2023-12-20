@@ -3,8 +3,10 @@ import 'dart:ui' as ui;
 import 'package:crop_image/crop_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pdf_creator/Screens/DashBoard%20Screen/dashboard.dart';
 import 'package:pdf_creator/Screens/DashBoard%20Screen/dashboardCtrl.dart';
 import 'package:pdf_creator/Screens/Gallery%20Crop/gallerycropcntl.dart';
 import 'package:pdf_creator/Utilities/colors.dart';
@@ -29,7 +31,7 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
   void initState() {
     _CropCtrl.ImgLst.addAll(widget.images);
     super.initState();
-    _dashCtrl.nameController.value.text = DateTime.now().toString();
+    _dashCtrl.nameController.value.clear();
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
         _dashCtrl.nameController.value.selection = TextSelection(
@@ -52,6 +54,7 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
         automaticallyImplyLeading: false,
         centerTitle: true,
         leading: IconButton(
+          tooltip: "Exit",
           onPressed: () {
             Get.back();
           },
@@ -64,24 +67,37 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
         title: Form(
           key: formKey,
           child: Obx(
-            () => Card(
-              color: AppColor.themeDark.withOpacity(.1),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextFormField(
-                  decoration: InputDecoration(
-                    suffixIcon: Icon(Icons.edit,color: Colors.white,),
+            () => Container(
+              margin: EdgeInsets.only(bottom: 3),
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                cursorColor: Colors.white,
+                cursorHeight: 20,
+                decoration: InputDecoration(
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: Colors.white)),
+                  errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: Colors.white)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: Colors.white)),
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: Colors.white)),
+                  hintStyle: TextStyle(color: Colors.white.withOpacity(.5)),
+                  hintText: "Enter PDF Name",
+                  suffixIcon: Icon(
+                    Icons.edit,
+                    color: Colors.white,
                   ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Please Enter PDF Name";
-                    }
-                    return null;
-                  },
-                  focusNode: _focusNode,
-                  style: TextStyle(color: Colors.white, fontSize: 20),
-                  controller: _dashCtrl.nameController.value,
                 ),
+                focusNode: _focusNode,
+                style: TextStyle(color: Colors.white, fontSize: 20),
+                controller: _dashCtrl.nameController.value,
               ),
             ),
           ),
@@ -296,31 +312,32 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
   Future<void> _rotateRight() async => _CropCtrl.controller.value.rotateRight();
 
   Future<void> _deleteImage() async {
-    _CropCtrl.ImgLst.removeAt(_CropCtrl.selectedIndex.value);
+    LoadingDialog.show(context);
+    if (_dashCtrl.nameController.value.text.trim().isNotEmpty &&
+        _cropCtrl.ImgLst.length != 1) {
+      _CropCtrl.ImgLst.removeAt(_CropCtrl.selectedIndex.value);
+      Get.back();
+    }
     if (_cropCtrl.selectedIndex.value > 0) {
       _CropCtrl.selectedIndex.value = _CropCtrl.selectedIndex.value - 1;
     }
 
-    if (_cropCtrl.ImgLst.isEmpty) {
-      // Get.back();
-      if (croppedList.isNotEmpty) {
-        LoadingDialog.show(context);
-        if (formKey.currentState!.validate()) {
-          Navigator.of(context).pop();
-
-          await _dashCtrl.saveDocument(
-            imageList: croppedList,
-            name: _dashCtrl.nameController.value.text.trim(),
-            documentPath: croppedList[0].path,
-            dateTime: '$formattedDate $formattedTime',
-          );
-
-
-        }
-        LoadingDialog.hide(context);
+    if (croppedList.isNotEmpty) {
+      if (_dashCtrl.nameController.value.text.trim().isNotEmpty &&
+          _cropCtrl.ImgLst.length == 1) {
+        Get.offAll(() => DashBoard());
+        await _dashCtrl.saveDocument(
+          imageList: croppedList,
+          name: _dashCtrl.nameController.value.text.trim(),
+          documentPath: croppedList[0].path,
+          dateTime: '$formattedDate $formattedTime',
+        );
       } else {
-        Get.back();
+        LoadingDialog.hide(context);
+        ErrorSnackbar().showSnackbar(context, "Please Enter Name");
       }
+    } else {
+      Get.back();
     }
   }
 
@@ -338,11 +355,16 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
           File('${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.png');
       await file.writeAsBytes(bytes);
 
-      croppedList.add(file);
-
       if (_cropCtrl.selectedIndex.value < _cropCtrl.ImgLst.length) {
-        LoadingDialog.hide(context);
-        _cropCtrl.ImgLst.removeAt(_cropCtrl.selectedIndex.value);
+        if (_dashCtrl.nameController.value.text.trim().isNotEmpty ||
+            _cropCtrl.ImgLst.length != 1) {
+          croppedList.add(file);
+          LoadingDialog.hide(context);
+          _cropCtrl.ImgLst.removeAt(_cropCtrl.selectedIndex.value);
+        } else {
+          LoadingDialog.hide(context);
+          ErrorSnackbar().showSnackbar(context, "Please Enter Name");
+        }
       }
 
       if (_cropCtrl.ImgLst.isNotEmpty) {
@@ -350,22 +372,13 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
       }
 
       if (_cropCtrl.ImgLst.isEmpty && _cropCtrl.selectedIndex.value == 0) {
-        // Get.back();
-        LoadingDialog.show(context);
-        if (formKey.currentState!.validate()) {
-          Navigator.of(context).pop();
-
-          await _dashCtrl.saveDocument(
-            imageList: croppedList,
-            name: _dashCtrl.nameController.value.text.trim(),
-            documentPath: croppedList[0].path,
-            dateTime: '$formattedDate $formattedTime',
-          );
-
-
-        }
-        LoadingDialog.hide(context);
-
+        Get.offAll(() => DashBoard());
+        await _dashCtrl.saveDocument(
+          imageList: croppedList,
+          name: _dashCtrl.nameController.value.text.trim(),
+          documentPath: croppedList[0].path,
+          dateTime: '$formattedDate $formattedTime',
+        );
       }
     } catch (e) {
       print('Error while cropping image: $e');

@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:get/get.dart';
 import 'package:pdf_creator/Utilities/colors.dart';
 import 'package:printing/printing.dart';
@@ -25,17 +27,12 @@ class PDFScreen extends StatefulWidget {
 
 class _PDFScreenState extends State<PDFScreen> {
   final DashCtrl _dashCtrl = Get.put(DashCtrl());
-  PDFDocument? doc;
-  load() async {
-    doc = await PDFDocument.fromFile(File(widget.document.pdfPath));
-    setState(() {});
-  }
-
-  @override
-  void initState() {
-    load();
-    super.initState();
-  }
+  int? pages = 0;
+  int? currentPage = 0;
+  bool isReady = false;
+  String errorMessage = '';
+  final Completer<PDFViewController> _controller =
+      Completer<PDFViewController>();
 
   String getName(int index) {
     return _dashCtrl.allDocuments[index].name;
@@ -87,63 +84,73 @@ class _PDFScreenState extends State<PDFScreen> {
           ),
         ],
       ),
-      body: Center(
-        child: doc != null
-            ? PDFViewer(
-                document: doc!,
-                pickerButtonColor: AppColor.themeDark,
-                lazyLoad: false,
-                navigationBuilder:
-                    (context, page, totalPages, jumpToPage, animateToPage) {
-                  return Container(
-                    height: Get.height * .07,
-                    decoration: BoxDecoration(
-                        color: AppColor.themeDark.withOpacity(.8)),
-                    child: ButtonBar(
-                      alignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        IconButton(
-                          icon: Icon(
-                            Icons.first_page,
-                            color: AppColor.whiteClr,
-                          ),
-                          onPressed: () {
-                            jumpToPage(page: 0);
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.arrow_back,
-                            color: AppColor.whiteClr,
-                          ),
-                          onPressed: () {
-                            animateToPage(page: page! - 2);
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.arrow_forward,
-                            color: AppColor.whiteClr,
-                          ),
-                          onPressed: () {
-                            animateToPage(page: page);
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.last_page,
-                            color: AppColor.whiteClr,
-                          ),
-                          onPressed: () {
-                            jumpToPage(page: totalPages! - 1);
-                          },
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              )
-            : CircularProgressIndicator(color: AppColor.themeDark),
+      body: Stack(
+        children: <Widget>[
+          PDFView(
+            filePath: widget.document.pdfPath,
+            enableSwipe: true,
+            autoSpacing: false,
+            pageFling: true,
+            pageSnap: false, fitEachPage: false,
+            defaultPage: currentPage!,
+            fitPolicy: FitPolicy.BOTH,
+            preventLinkNavigation:
+                false, // if set to true the link is handled in flutter
+            onRender: (pages) {
+              setState(() {
+                pages = pages;
+                isReady = true;
+              });
+            },
+            onError: (error) {
+              setState(() {
+                errorMessage = error.toString();
+              });
+              print(error.toString());
+            },
+            onPageError: (page, error) {
+              setState(() {
+                errorMessage = '$page: ${error.toString()}';
+              });
+              print('$page: ${error.toString()}');
+            },
+            onViewCreated: (PDFViewController pdfViewController) {
+              _controller.complete(pdfViewController);
+            },
+            onLinkHandler: (String? uri) {
+              print('goto uri: $uri');
+            },
+            onPageChanged: (int? page, int? total) {
+              print('page change: $page/$total');
+              setState(() {
+                currentPage = page;
+              });
+            },
+          ),
+          errorMessage.isEmpty
+              ? !isReady
+                  ? Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : Container()
+              : Center(
+                  child: Text(errorMessage),
+                )
+        ],
+      ),
+      floatingActionButton: FutureBuilder<PDFViewController>(
+        future: _controller.future,
+        builder: (context, AsyncSnapshot<PDFViewController> snapshot) {
+          if (snapshot.hasData) {
+            return FloatingActionButton.extended(
+              label: Icon(Icons.arrow_upward_rounded),
+              onPressed: () async {
+                await snapshot.data!.setPage(pages! ~/ 2);
+              },
+            );
+          }
+          return Container();
+        },
       ),
     );
   }
