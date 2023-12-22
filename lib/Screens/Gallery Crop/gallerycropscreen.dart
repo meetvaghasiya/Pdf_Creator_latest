@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'dart:ui' as ui;
+
 import 'package:crop_image/crop_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf_creator/Screens/DashBoard%20Screen/dashboard.dart';
@@ -313,16 +313,7 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
 
   Future<void> _deleteImage() async {
     LoadingDialog.show(context);
-    if (_dashCtrl.nameController.value.text.trim().isNotEmpty &&
-        _cropCtrl.ImgLst.length != 1) {
-      _CropCtrl.ImgLst.removeAt(_CropCtrl.selectedIndex.value);
-      Get.back();
-    }
-    if (_cropCtrl.selectedIndex.value > 0) {
-      _CropCtrl.selectedIndex.value = _CropCtrl.selectedIndex.value - 1;
-    }
-
-    if (croppedList.isNotEmpty) {
+    if (croppedList.isNotEmpty && _cropCtrl.ImgLst.length == 1) {
       if (_dashCtrl.nameController.value.text.trim().isNotEmpty &&
           _cropCtrl.ImgLst.length == 1) {
         Get.offAll(() => DashBoard());
@@ -338,6 +329,21 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
       }
     } else {
       Get.back();
+    }
+    if (croppedList.isEmpty && _cropCtrl.ImgLst.length == 1) {
+      Get.back();
+    }
+
+    if (_cropCtrl.ImgLst.length > 1) {
+      _cropCtrl.ImgLst.removeAt(_cropCtrl.selectedIndex.value);
+    }
+    if (_dashCtrl.nameController.value.text.trim().isNotEmpty &&
+        _cropCtrl.ImgLst.length == 0) {
+      _cropCtrl.ImgLst.removeAt(_cropCtrl.selectedIndex.value);
+      Get.back();
+    }
+    if (_cropCtrl.selectedIndex.value > 0) {
+      _cropCtrl.selectedIndex.value = _cropCtrl.selectedIndex.value - 1;
     }
   }
 

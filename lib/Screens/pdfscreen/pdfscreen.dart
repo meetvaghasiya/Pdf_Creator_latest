@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:get/get.dart';
 import 'package:pdf_creator/Utilities/colors.dart';
 import 'package:printing/printing.dart';
+
 import '../../Utilities/classes.dart';
 import '../DashBoard Screen/dashboardCtrl.dart';
 
@@ -40,7 +41,7 @@ class _PDFScreenState extends State<PDFScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.document.pdfPath);
+    print("==>${widget.document.pdfPath}");
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -85,17 +86,17 @@ class _PDFScreenState extends State<PDFScreen> {
         ],
       ),
       body: Stack(
-        children: <Widget>[
+        children: [
           PDFView(
             filePath: widget.document.pdfPath,
             enableSwipe: true,
             autoSpacing: false,
             pageFling: true,
-            pageSnap: false, fitEachPage: false,
+            pageSnap: false,
+            fitEachPage: false,
             defaultPage: currentPage!,
             fitPolicy: FitPolicy.BOTH,
-            preventLinkNavigation:
-                false, // if set to true the link is handled in flutter
+            preventLinkNavigation: false,
             onRender: (pages) {
               setState(() {
                 pages = pages;
@@ -134,7 +135,7 @@ class _PDFScreenState extends State<PDFScreen> {
                     )
                   : Container()
               : Center(
-                  child: Text(errorMessage),
+                  child: Text("${errorMessage}"),
                 )
         ],
       ),

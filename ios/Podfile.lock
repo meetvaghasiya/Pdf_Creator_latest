@@ -1,6 +1,4 @@
 PODS:
-  - advance_pdf_viewer2 (1.0.5):
-    - Flutter
   - cunning_document_scanner (1.0.0):
     - Flutter
   - device_info_plus (0.0.1):
@@ -10,9 +8,6 @@ PODS:
     - Flutter
   - flutter_secure_storage (6.0.0):
     - Flutter
-  - FMDB (2.7.5):
-    - FMDB/standard (= 2.7.5)
-  - FMDB/standard (2.7.5)
   - image_picker_ios (0.0.1):
     - Flutter
   - package_info (0.0.1):
@@ -26,12 +21,10 @@ PODS:
     - Flutter
   - share (0.0.1):
     - Flutter
-  - sqflite (0.0.3):
+  - url_launcher_ios (0.0.1):
     - Flutter
-    - FMDB (>= 2.7.5)
 
 DEPENDENCIES:
-  - advance_pdf_viewer2 (from `.symlinks/plugins/advance_pdf_viewer2/ios`)
   - cunning_document_scanner (from `.symlinks/plugins/cunning_document_scanner/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - Flutter (from `Flutter`)
@@ -43,15 +36,9 @@ DEPENDENCIES:
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - printing (from `.symlinks/plugins/printing/ios`)
   - share (from `.symlinks/plugins/share/ios`)
-  - sqflite (from `.symlinks/plugins/sqflite/ios`)
-
-SPEC REPOS:
-  trunk:
-    - FMDB
+  - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
 
 EXTERNAL SOURCES:
-  advance_pdf_viewer2:
-    :path: ".symlinks/plugins/advance_pdf_viewer2/ios"
   cunning_document_scanner:
     :path: ".symlinks/plugins/cunning_document_scanner/ios"
   device_info_plus:
@@ -74,24 +61,22 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/printing/ios"
   share:
     :path: ".symlinks/plugins/share/ios"
-  sqflite:
-    :path: ".symlinks/plugins/sqflite/ios"
+  url_launcher_ios:
+    :path: ".symlinks/plugins/url_launcher_ios/ios"
 
 SPEC CHECKSUMS:
-  advance_pdf_viewer2: e4df833fc3120011b681eb2fa2fb780a3e85f6c3
   cunning_document_scanner: 7cb9bd173f7cc7b11696dde98d01492187fc3a67
   device_info_plus: c6fb39579d0f423935b0c9ce7ee2f44b71b9fce6
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_pdfview: 25f53dd6097661e6395b17de506e6060585946bd
   flutter_secure_storage: 23fc622d89d073675f2eaa109381aefbcf5a49be
-  FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
   image_picker_ios: 4a8aadfbb6dc30ad5141a2ce3832af9214a705b5
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
   path_provider_foundation: 29f094ae23ebbca9d3d0cec13889cd9060c0e943
   permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
   printing: 233e1b73bd1f4a05615548e9b5a324c98588640b
   share: 0b2c3e82132f5888bccca3351c504d0003b3b410
-  sqflite: 31f7eba61e3074736dff8807a9b41581e4f7f15a
+  url_launcher_ios: bf5ce03e0e2088bad9cc378ea97fa0ed5b49673b
 
 PODFILE CHECKSUM: 5d3ef33e4b219c2f4c7f9dae0ed06e18f72b56fa
 

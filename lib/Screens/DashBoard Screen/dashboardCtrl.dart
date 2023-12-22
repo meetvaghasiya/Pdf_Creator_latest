@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
@@ -12,6 +13,7 @@ import 'package:pdf/widgets.dart' as pw;
 import '../../Utilities/classes.dart';
 
 class DashCtrl extends GetxController {
+  final zoomDrawerController = ZoomDrawerController().obs;
   RxBool nameIsValid = true.obs;
   RxList<DocumentModel> allDocuments = <DocumentModel>[].obs;
   Rx<TextEditingController> nameController = TextEditingController().obs;

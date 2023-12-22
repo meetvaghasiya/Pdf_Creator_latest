@@ -1,18 +1,22 @@
 import 'dart:io';
+
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:package_info/package_info.dart';
+import 'package:pdf_creator/Screens/Gallery%20Crop/gallerycropscreen.dart';
 import 'package:pdf_creator/Screens/Search%20Screen/searchscreen.dart';
 import 'package:pdf_creator/Screens/pdfscreen/pdfscreen.dart';
 import 'package:pdf_creator/Utilities/classes.dart';
 import 'package:pdf_creator/Utilities/colors.dart';
-import 'package:pdf_creator/Screens/Gallery%20Crop/gallerycropscreen.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:printing/printing.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import '../../Utilities/utilities.dart';
 import 'dashboardCtrl.dart';
-import 'package:printing/printing.dart';
 
 class DashBoard extends StatefulWidget {
   const DashBoard({super.key});
@@ -27,8 +31,180 @@ class _DashBoardState extends State<DashBoard> {
 
   @override
   Widget build(BuildContext context) {
+    return ZoomDrawer(
+      controller: _dashCtrl.zoomDrawerController.value,
+      menuBackgroundColor: Color(0xff1d375c),
+      shadowLayer1Color: Color.fromARGB(255, 68, 100, 145),
+      shadowLayer2Color: Color.fromARGB(255, 111, 143, 189),
+      menuScreen: _Drawer(context),
+      borderRadius: 40.0,
+      mainScreenScale: .2,
+      showShadow: true,
+      // moveMenuScreen: false,
+      // isRtl: true,
+
+      angle: -1.0,
+      overlayBlur: .3,
+      drawerShadowsBackgroundColor: Colors.grey,
+      slideWidth: MediaQuery.of(context).size.width * 0.65,
+      mainScreen: _DashBoardScreen(context),
+    );
+  }
+
+  Widget _Drawer(BuildContext context) {
     return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          color: Color(0xff1d375c),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 35),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              IconButton(
+                onPressed: () {
+                  _dashCtrl.zoomDrawerController.value.toggle?.call();
+                },
+                icon: const Icon(
+                  Icons.close,
+                  color: Colors.white,
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 15, top: Get.height / 6.5),
+                child: CircleAvatar(
+                  radius: 60,
+                  backgroundColor: Colors.transparent,
+                  backgroundImage: AssetImage("assets/images/pdf_logo.png"),
+                ),
+              ),
+              const SizedBox(height: 25),
+              ListTile(
+                onTap: () {
+                  // Share.share(
+                  //   "",
+                  //   subject: "",
+                  // );
+                },
+                leading: Icon(
+                  Icons.share,
+                  color: Colors.white,
+                  size: 27,
+                ),
+                title: Text(
+                  "Share",
+                  style: const TextStyle(
+                      fontSize: 15.0,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white),
+                ),
+              ),
+              ListTile(
+                onTap: () async {
+                  final String url = 'https://m.youtube.com/';
+                  if (await canLaunch(url)) {
+                    await launch(url);
+                  } else {
+                    throw 'Could not launch $url';
+                  }
+                },
+                leading: Icon(
+                  Icons.mail,
+                  color: Colors.white,
+                  size: 27,
+                ),
+                title: Text(
+                  "Contact Us",
+                  style: const TextStyle(
+                      fontSize: 15.0,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white),
+                ),
+              ),
+              ListTile(
+                onTap: () async {
+                  String packageName =
+                      'your_app_package_name'; // replace with your app's package name
+
+                  final String url = Platform.isIOS
+                      ? 'https://apps.apple.com/in/app/buissmaster-oms/id1614817862'
+                      : 'https://play.google.com/store/apps/details?id=com.buissmaster.buissmasterApp&pcampaignid=web_share';
+
+                  if (await canLaunch(url)) {
+                    await launch(url);
+                  } else {
+                    throw 'Could not launch $url';
+                  }
+                },
+                leading: Icon(
+                  Icons.star,
+                  color: Colors.white,
+                  size: 27,
+                ),
+                title: Text(
+                  "Rate Us",
+                  style: const TextStyle(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white),
+                ),
+              ),
+              ListTile(
+                onTap: () {},
+                leading: Icon(
+                  Icons.privacy_tip_outlined,
+                  color: Colors.white,
+                  size: 27,
+                ),
+                title: Text(
+                  "Privacy Policy",
+                  style: const TextStyle(
+                      fontSize: 15.0,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 15, top: 70),
+                child: FutureBuilder<PackageInfo>(
+                  future: PackageInfo.fromPlatform(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return Text(
+                        'Version ${snapshot.data!.version}',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      return CircularProgressIndicator();
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _DashBoardScreen(BuildContext context) {
+    return Scaffold(
+      drawerEnableOpenDragGesture: true,
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: () => _dashCtrl.zoomDrawerController.value.toggle?.call(),
+          icon: const Icon(
+            Icons.menu,
+            color: Colors.white,
+          ),
+        ),
         automaticallyImplyLeading: false,
         backgroundColor: AppColor.themeDark,
         title: Text(
