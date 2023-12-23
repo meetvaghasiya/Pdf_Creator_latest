@@ -32,7 +32,6 @@ target 'Runner' do
   use_modular_headers!
   platform :ios, '13.0'
   pod 'cunning_document_scanner', :path => '.symlinks/plugins/cunning_document_scanner/ios'
-
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   target 'RunnerTests' do
     inherit! :search_paths

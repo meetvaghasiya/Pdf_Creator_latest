@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:get/get.dart';
@@ -8,8 +9,9 @@ import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
-import 'package:share/share.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:share/share.dart';
+
 import '../../Utilities/classes.dart';
 
 class DashCtrl extends GetxController {
@@ -39,6 +41,10 @@ class DashCtrl extends GetxController {
         documentPath: jsonDocument['documentPath'],
         dateTime: jsonDocument['dateTime'],
         pdfPath: jsonDocument['pdfPath'],
+        imageList: (jsonDocument['imageList'] as List<dynamic>?)
+                ?.map((path) => File(path))
+                .toList() ??
+            <File>[],
       );
       allDocuments.add(document);
     });
@@ -133,6 +139,7 @@ class DashCtrl extends GetxController {
       documentPath: documentPath,
       dateTime: dateTime,
       pdfPath: pdfPath,
+      imageList: imageList,
     );
 
     String jsonDocument = json.encode({
@@ -140,6 +147,7 @@ class DashCtrl extends GetxController {
       "documentPath": document.documentPath,
       "dateTime": document.dateTime.toString(),
       "pdfPath": document.pdfPath,
+      "imageList": document.imageList.map((file) => file.path).toList(),
     });
     box.write(document.dateTime.toString(), jsonDocument);
 
@@ -164,6 +172,7 @@ class DashCtrl extends GetxController {
       "documentPath": allDocuments[index].documentPath,
       "dateTime": allDocuments[index].dateTime.toString(),
       "pdfPath": allDocuments[index].pdfPath,
+      "imageList": allDocuments[index].imageList,
     });
     box.write(key, jsonDocument);
 

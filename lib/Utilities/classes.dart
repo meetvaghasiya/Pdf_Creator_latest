@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -7,11 +9,14 @@ class DocumentModel {
   String documentPath;
   String dateTime;
   String pdfPath;
+  List<File> imageList;
+
   DocumentModel(
       {required this.name,
       required this.documentPath,
       required this.dateTime,
-      required this.pdfPath});
+      required this.pdfPath,
+      required this.imageList});
 }
 
 class getCamera {

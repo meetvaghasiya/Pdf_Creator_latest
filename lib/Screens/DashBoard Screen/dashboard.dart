@@ -4,13 +4,16 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:get/get.dart';
+import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:package_info/package_info.dart';
 import 'package:pdf_creator/Screens/Gallery%20Crop/gallerycropscreen.dart';
+import 'package:pdf_creator/Screens/Pdf%20Utilities/textSpecch/TextSpeech.dart';
 import 'package:pdf_creator/Screens/Search%20Screen/searchscreen.dart';
 import 'package:pdf_creator/Screens/pdfscreen/pdfscreen.dart';
 import 'package:pdf_creator/Utilities/classes.dart';
 import 'package:pdf_creator/Utilities/colors.dart';
+import 'package:pdf_text/pdf_text.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:printing/printing.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -510,13 +513,17 @@ class _PDFListState extends State<PDFList> {
     );
   }
 
-  void showModalSheet(
-      {int? index,
-      String? filePath,
-      String? name,
-      String? dateTime,
-      BuildContext? context,
-      String? pdfPath}) {
+  void showModalSheet({
+    int? index,
+    String? filePath,
+    String? name,
+    String? dateTime,
+    BuildContext? context,
+    String? pdfPath,
+    PDFDoc? pdfDoc,
+  }) {
+    final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
+
     showModalBottomSheet(
       context: context!,
       builder: (context) {
@@ -581,6 +588,48 @@ class _PDFListState extends State<PDFList> {
                 endIndent: 10,
                 color: AppColor.greyClr,
               ),
+              ListTile(
+                  leading: Icon(
+                    Icons.edit_document,
+                    color: AppColor.whiteClr,
+                  ),
+                  title: Text(
+                    "PDF To Text",
+                    style: TextStyle(
+                      color: AppColor.whiteClr,
+                    ),
+                  ),
+                  onTap: () async {
+                    Navigator.pop(context);
+
+                    //need code..
+                    List<String> filePaths = _dashCtrl
+                        .allDocuments[index].imageList
+                        .map((e) => e.path)
+                        .toList();
+
+                    List<String> extractedTextList = [];
+
+                    for (String filePath in filePaths) {
+                      final inputImage = InputImage.fromFile(File(filePath));
+                      final textRecognizer =
+                          GoogleMlKit.vision.textRecognizer();
+                      final recognisedText =
+                          await textRecognizer.processImage(inputImage);
+
+                      extractedTextList.add(recognisedText.text);
+
+                      textRecognizer.close();
+                    }
+
+// Assuming you have a StatefulWidget, update the state to trigger a rebuild
+                    setState(() {});
+
+// Navigate to the new screen and pass the list of extracted texts
+                    Get.to(() => TextSpeechScreen(
+                          extractedTextList: extractedTextList,
+                        ));
+                  }),
               ListTile(
                 leading: Icon(
                   Icons.edit,

@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:pdf_creator/Screens/DashBoard%20Screen/dashboard.dart';
 import 'package:pdf_creator/Screens/onboardingscreen/onboardingscreen.dart';
-import 'package:page_transition/page_transition.dart';
 
 Future<void> main() async {
   await GetStorage.init();
