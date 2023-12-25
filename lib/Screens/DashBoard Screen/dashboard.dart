@@ -10,6 +10,7 @@ import 'package:package_info/package_info.dart';
 import 'package:pdf_creator/Screens/Gallery%20Crop/gallerycropscreen.dart';
 import 'package:pdf_creator/Screens/Pdf%20Utilities/textSpecch/TextSpeech.dart';
 import 'package:pdf_creator/Screens/Search%20Screen/searchscreen.dart';
+import 'package:pdf_creator/Screens/bookmark/bookmarkscreen.dart';
 import 'package:pdf_creator/Screens/pdfscreen/pdfscreen.dart';
 import 'package:pdf_creator/Utilities/classes.dart';
 import 'package:pdf_creator/Utilities/colors.dart';
@@ -83,6 +84,24 @@ class _DashBoardState extends State<DashBoard> {
                 ),
               ),
               const SizedBox(height: 25),
+              ListTile(
+                onTap: () {
+                  Get.to(() => BookmarkScreen());
+                  _dashCtrl.zoomDrawerController.value.toggle?.call();
+                },
+                leading: Icon(
+                  Icons.bookmark,
+                  color: Colors.white,
+                  size: 27,
+                ),
+                title: Text(
+                  "bookmark",
+                  style: const TextStyle(
+                      fontSize: 15.0,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white),
+                ),
+              ),
               ListTile(
                 onTap: () {
                   // Share.share(
@@ -632,6 +651,13 @@ class _PDFListState extends State<PDFList> {
                             pdfname: name,
                           ));
                     } else {
+                      ScaffoldMessenger.of(Get.context!).showSnackBar(
+                        SnackBar(
+                          content: Text('Text not found!'),
+                          duration: Duration(
+                              seconds: 2), // Adjust the duration as needed
+                        ),
+                      );
                       // Handle the case when there is no non-empty text, e.g., show a message or take other actions.
                     }
                   }),

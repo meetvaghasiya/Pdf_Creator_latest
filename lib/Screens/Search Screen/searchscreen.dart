@@ -1,7 +1,9 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pdf_creator/Screens/pdfscreen/pdfscreen.dart';
+
 import '../../Utilities/classes.dart';
 import '../DashBoard Screen/dashboardCtrl.dart';
 
@@ -43,9 +45,8 @@ class Search extends SearchDelegate {
           child: ListTile(
             onTap: () {
               Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => PDFScreen(
-                  document: documentList[index],
-                ),
+                builder: (context) =>
+                    PDFScreen(document: documentList[index], index: index),
               ));
             },
             leading: Image.file(File(documentList[index].documentPath)),
@@ -66,7 +67,7 @@ class Search extends SearchDelegate {
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) =>
-                      PDFScreen(document: documentList[index]),
+                      PDFScreen(document: documentList[index], index: index),
                 ));
               },
               leading: Image.file(File(documentList[index].documentPath)),
@@ -134,7 +135,8 @@ class Search extends SearchDelegate {
           child: ListTile(
             onTap: () {
               Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => PDFScreen(document: documentList[index]),
+                builder: (context) =>
+                    PDFScreen(document: documentList[index], index: index),
               ));
             },
             leading: Container(

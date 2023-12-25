@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:get/get.dart';
+import 'package:pdf_creator/Screens/pdfscreen/pdfctrl.dart';
 import 'package:pdf_creator/Utilities/colors.dart';
 import 'package:printing/printing.dart';
 
@@ -39,6 +40,8 @@ class _PDFScreenState extends State<PDFScreen> {
     return _dashCtrl.allDocuments[index].name;
   }
 
+  final PdfCtrl pdfController = Get.put(PdfCtrl());
+
   @override
   Widget build(BuildContext context) {
     print("==>${widget.document.pdfPath}");
@@ -63,6 +66,37 @@ class _PDFScreenState extends State<PDFScreen> {
           ),
         ),
         actions: <Widget>[
+          Obx(
+            () => IconButton(
+              icon: pdfController.isBookmarked(widget.index)
+                  ? Icon(
+                      Icons.bookmark,
+                      color: Colors.white,
+                    )
+                  : Icon(
+                      Icons.bookmark_outline,
+                      color: Colors.white,
+                    ),
+              onPressed: () {
+                final isBookmarked = pdfController.isBookmarked(widget.index);
+                final message = isBookmarked
+                    ? 'Removed bookmark for ${getName(widget.index)}'
+                    : 'Saved bookmark for ${getName(widget.index)}';
+
+                // Toggle the bookmark
+                pdfController.toggleBookmark(widget.index);
+
+                // Show a snackbar
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(message),
+                    duration:
+                        Duration(seconds: 2), // Adjust the duration as needed
+                  ),
+                );
+              },
+            ),
+          ),
           IconButton(
             icon: Icon(
               Icons.share,

@@ -36,17 +36,27 @@ class DashCtrl extends GetxController {
     allDocuments = <DocumentModel>[].obs;
     box.getKeys().forEach((key) {
       var jsonDocument = json.decode(box.read(key) ?? '{}');
-      DocumentModel document = DocumentModel(
-        name: jsonDocument['name'],
-        documentPath: jsonDocument['documentPath'],
-        dateTime: jsonDocument['dateTime'],
-        pdfPath: jsonDocument['pdfPath'],
-        imageList: (jsonDocument['imageList'] as List<dynamic>?)
-                ?.map((path) => File(path))
-                .toList() ??
-            <File>[],
-      );
-      allDocuments.add(document);
+
+      var storedData = box.read(key);
+      if (storedData != null) {
+        if (storedData is String) {
+          var jsonDocument = json.decode(storedData);
+          DocumentModel document = DocumentModel(
+            name: jsonDocument['name'],
+            documentPath: jsonDocument['documentPath'],
+            dateTime: jsonDocument['dateTime'],
+            pdfPath: jsonDocument['pdfPath'],
+            imageList: (jsonDocument['imageList'] as List<dynamic>?)
+                    ?.map((path) => File(path))
+                    .toList() ??
+                <File>[],
+          );
+          allDocuments.add(document);
+        } else if (storedData is List<dynamic>) {
+          // Handle the case when the data is a list
+          // (You might need to iterate through the list and process each item)
+        }
+      }
     });
 
     allDocuments.sort((a, b) {
