@@ -522,7 +522,7 @@ class _PDFListState extends State<PDFList> {
     String? pdfPath,
     PDFDoc? pdfDoc,
   }) {
-    final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
+    // final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
 
     showModalBottomSheet(
       context: context!,
@@ -601,13 +601,10 @@ class _PDFListState extends State<PDFList> {
                   ),
                   onTap: () async {
                     Navigator.pop(context);
-
-                    //need code..
                     List<String> filePaths = _dashCtrl
                         .allDocuments[index].imageList
                         .map((e) => e.path)
                         .toList();
-
                     List<String> extractedTextList = [];
 
                     for (String filePath in filePaths) {
@@ -617,18 +614,26 @@ class _PDFListState extends State<PDFList> {
                       final recognisedText =
                           await textRecognizer.processImage(inputImage);
 
-                      extractedTextList.add(recognisedText.text);
+                      if (recognisedText.text.isNotEmpty) {
+                        extractedTextList.add(recognisedText.text);
+                      }
 
                       textRecognizer.close();
                     }
 
-// Assuming you have a StatefulWidget, update the state to trigger a rebuild
-                    setState(() {});
+// Check if there is at least one non-empty text before navigating to TextSpeechScreen
+                    if (extractedTextList.isNotEmpty) {
+                      // Assuming you have a StatefulWidget, update the state to trigger a rebuild
+                      setState(() {});
 
-// Navigate to the new screen and pass the list of extracted texts
-                    Get.to(() => TextSpeechScreen(
-                          extractedTextList: extractedTextList,
-                        ));
+                      // Navigate to the new screen and pass the list of extracted texts
+                      Get.to(() => TextSpeechScreen(
+                            extractedTextList: extractedTextList,
+                            pdfname: name,
+                          ));
+                    } else {
+                      // Handle the case when there is no non-empty text, e.g., show a message or take other actions.
+                    }
                   }),
               ListTile(
                 leading: Icon(

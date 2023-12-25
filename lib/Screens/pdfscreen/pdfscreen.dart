@@ -139,20 +139,22 @@ class _PDFScreenState extends State<PDFScreen> {
                 )
         ],
       ),
-      floatingActionButton: FutureBuilder<PDFViewController>(
-        future: _controller.future,
-        builder: (context, AsyncSnapshot<PDFViewController> snapshot) {
-          if (snapshot.hasData) {
-            return FloatingActionButton.extended(
-              label: Icon(Icons.arrow_upward_rounded),
-              onPressed: () async {
-                await snapshot.data!.setPage(pages! ~/ 2);
+      floatingActionButton: currentPage == 0
+          ? null
+          : FutureBuilder<PDFViewController>(
+              future: _controller.future,
+              builder: (context, AsyncSnapshot<PDFViewController> snapshot) {
+                if (snapshot.hasData) {
+                  return FloatingActionButton.extended(
+                    label: Icon(Icons.arrow_upward_rounded),
+                    onPressed: () async {
+                      await snapshot.data!.setPage(pages! ~/ 2);
+                    },
+                  );
+                }
+                return Container();
               },
-            );
-          }
-          return Container();
-        },
-      ),
+            ),
     );
   }
 }
