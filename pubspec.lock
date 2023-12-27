@@ -384,6 +384,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.1"
+  gallery_saver:
+    dependency: "direct main"
+    description:
+      name: gallery_saver
+      sha256: df8b7e207ca12d64c71e0710a7ee3bc48aa7206d51cc720716fedb1543a66712
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.2"
   get:
     dependency: "direct main"
     description:
@@ -544,14 +552,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.3"
-  image_gallery_saver:
-    dependency: "direct main"
-    description:
-      name: image_gallery_saver
-      sha256: "0aba74216a4d9b0561510cb968015d56b701ba1bd94aace26aacdd8ae5761816"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.3"
   image_picker:
     dependency: "direct main"
     description:
@@ -776,22 +776,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.10.7"
-  pdf_render:
+  pdf_viewer_plugin:
     dependency: "direct main"
     description:
-      name: pdf_render
-      sha256: "8d04e46e1db50a4fa502b6cd6d4dfe9eda8ec5f81a98ecfa78fe62b356bd515c"
+      name: pdf_viewer_plugin
+      sha256: "1202453cc01b7d15049916ba58b777c561519b682d4b28d8cce2759090a0e3c4"
       url: "https://pub.dev"
     source: hosted
-    version: "1.4.5"
-  pdf_text:
-    dependency: "direct main"
+    version: "2.0.1"
+  pedantic:
+    dependency: transitive
     description:
-      name: pdf_text
-      sha256: ea906fbc95c3c13bf91be826daaec5524182db0a0bfa5eae702f78e8dd1d26c8
+      name: pedantic
+      sha256: "67fc27ed9639506c856c840ccce7594d0bdcd91bc8d53d6e52359449a1d50602"
       url: "https://pub.dev"
     source: hosted
-    version: "0.5.0"
+    version: "1.11.1"
   permission_handler:
     dependency: "direct main"
     description:
@@ -949,22 +949,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
-  syncfusion_flutter_core:
-    dependency: transitive
-    description:
-      name: syncfusion_flutter_core
-      sha256: "8db8f55c77f56968681447d3837c10f27a9e861e238a898fda116c7531def979"
-      url: "https://pub.dev"
-    source: hosted
-    version: "21.2.10"
-  syncfusion_flutter_pdf:
-    dependency: "direct main"
-    description:
-      name: syncfusion_flutter_pdf
-      sha256: a42186922a416c2c9634a8f221aee261101babc2d30b1a1e908a7f034e743046
-      url: "https://pub.dev"
-    source: hosted
-    version: "21.2.4"
   term_glyph:
     dependency: transitive
     description:

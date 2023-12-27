@@ -1,13 +1,11 @@
 import 'dart:io';
-import 'dart:typed_data';
-import 'dart:ui' as ui;
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
+import 'package:gallery_saver/gallery_saver.dart';
 import 'package:get/get.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:package_info/package_info.dart';
 import 'package:pdf_creator/Screens/Gallery%20Crop/gallerycropscreen.dart';
@@ -17,8 +15,7 @@ import 'package:pdf_creator/Screens/bookmark/bookmarkscreen.dart';
 import 'package:pdf_creator/Screens/pdfscreen/pdfscreen.dart';
 import 'package:pdf_creator/Utilities/classes.dart';
 import 'package:pdf_creator/Utilities/colors.dart';
-import 'package:pdf_render/pdf_render.dart';
-import 'package:pdf_text/pdf_text.dart';
+// import 'package:pdf_text/pdf_text.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:printing/printing.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -322,22 +319,20 @@ class _PDFListState extends State<PDFList> {
               ),
               Expanded(
                   child: Obx(
-                () => _dashCtrl.isLoading.value
-                    ? Center(child: CircularProgressIndicator())
-                    : _dashCtrl.allDocuments.isNotEmpty
-                        ? ListView.builder(
-                            shrinkWrap: true,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.all(5.0),
-                                child: buildDocumentCard(index, context),
-                              );
-                            },
-                            itemCount: _dashCtrl.allDocuments.length,
-                          )
-                        : Center(
-                            child: Text("No Data Found !"),
-                          ),
+                () => _dashCtrl.allDocuments.isNotEmpty
+                    ? ListView.builder(
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: buildDocumentCard(index, context),
+                          );
+                        },
+                        itemCount: _dashCtrl.allDocuments.length,
+                      )
+                    : Center(
+                        child: Text("No Data Found !"),
+                      ),
               ))
             ],
           )),
@@ -543,7 +538,7 @@ class _PDFListState extends State<PDFList> {
     String? dateTime,
     BuildContext? context,
     String? pdfPath,
-    PDFDoc? pdfDoc,
+    // PDFDoc? pdfDoc,
   }) {
     // final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
 
@@ -624,65 +619,70 @@ class _PDFListState extends State<PDFList> {
                 ),
                 onTap: () async {
                   Navigator.pop(context);
-                  final pdfDocument = await PdfDocument.openFile(
-                      _dashCtrl.allDocuments[index].pdfPath);
-                  savePdfToGallery(context, pdfDocument);
+                  LoadingDialog.show(context);
+                  for (var element in _dashCtrl.allDocuments[index].imageList) {
+                    await GallerySaver.saveImage(element.path);
+                  }
+                  LoadingDialog.hide(Get.context!);
                 },
               ),
               ListTile(
-                  leading: Icon(
-                    Icons.edit_document,
+                leading: Icon(
+                  Icons.edit_document,
+                  color: AppColor.whiteClr,
+                ),
+                title: Text(
+                  "PDF To Text",
+                  style: TextStyle(
                     color: AppColor.whiteClr,
                   ),
-                  title: Text(
-                    "PDF To Text",
-                    style: TextStyle(
-                      color: AppColor.whiteClr,
-                    ),
-                  ),
-                  onTap: () async {
-                    Navigator.pop(context);
-                    List<String> filePaths = _dashCtrl
-                        .allDocuments[index].imageList
-                        .map((e) => e.path)
-                        .toList();
-                    List<String> extractedTextList = [];
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+                  List<String> filePaths = _dashCtrl
+                      .allDocuments[index].imageList
+                      .map((e) => e.path)
+                      .toList();
+                  List<String> extractedTextList = [];
 
-                    for (String filePath in filePaths) {
-                      final inputImage = InputImage.fromFile(File(filePath));
-                      final textRecognizer =
-                          GoogleMlKit.vision.textRecognizer();
-                      final recognisedText =
-                          await textRecognizer.processImage(inputImage);
+                  // Show loading dialog
+                  LoadingDialog.show(context);
 
-                      if (recognisedText.text.isNotEmpty) {
-                        extractedTextList.add(recognisedText.text);
-                      }
+                  for (String filePath in filePaths) {
+                    final inputImage = InputImage.fromFile(File(filePath));
+                    final textRecognizer = GoogleMlKit.vision.textRecognizer();
+                    final recognisedText =
+                        await textRecognizer.processImage(inputImage);
 
-                      textRecognizer.close();
+                    if (recognisedText.text.isNotEmpty) {
+                      extractedTextList.add(recognisedText.text);
                     }
 
-// Check if there is at least one non-empty text before navigating to TextSpeechScreen
-                    if (extractedTextList.isNotEmpty) {
-                      // Assuming you have a StatefulWidget, update the state to trigger a rebuild
-                      setState(() {});
+                    textRecognizer.close();
+                  }
 
-                      // Navigate to the new screen and pass the list of extracted texts
-                      Get.to(() => TextSpeechScreen(
-                            extractedTextList: extractedTextList,
-                            pdfname: name,
-                          ));
-                    } else {
-                      ScaffoldMessenger.of(Get.context!).showSnackBar(
-                        SnackBar(
-                          content: Text('Text not found!'),
-                          duration: Duration(
-                              seconds: 2), // Adjust the duration as needed
-                        ),
-                      );
-                      // Handle the case when there is no non-empty text, e.g., show a message or take other actions.
-                    }
-                  }),
+                  // Hide loading dialog
+                  LoadingDialog.show(Get.context!);
+
+                  // Check if there is at least one non-empty text before navigating to TextSpeechScreen
+                  if (extractedTextList.isNotEmpty) {
+                    // Navigate to the new screen and pass the list of extracted texts
+                    Get.to(() => TextSpeechScreen(
+                          extractedTextList: extractedTextList,
+                          pdfname: name,
+                        ));
+                  } else {
+                    ScaffoldMessenger.of(Get.context!).showSnackBar(
+                      SnackBar(
+                        content: Text('Text not found!'),
+                        duration: Duration(
+                            seconds: 2), // Adjust the duration as needed
+                      ),
+                    );
+                    // Handle the case when there is no non-empty text, e.g., show a message or take other actions.
+                  }
+                },
+              ),
               ListTile(
                 leading: Icon(
                   Icons.edit,
@@ -728,42 +728,6 @@ class _PDFListState extends State<PDFList> {
         );
       },
     );
-  }
-
-  void savePdfToGallery(BuildContext context, PdfDocument pdfDocument) async {
-    if (pdfDocument == null) {
-      debugPrint('No PDF loaded yet');
-      return;
-    }
-
-    debugPrint(pdfDocument.pageCount.toString());
-
-    LoadingDialog.show(context); // Show loading indicator
-
-    try {
-      for (int i = 1; i <= pdfDocument.pageCount; i++) {
-        var page = await pdfDocument.getPage(i);
-        debugPrint('Page $i size: ${page.width} x ${page.height}');
-
-        final width = (page.width * 300 / 72).ceil();
-        final height = (page.height * 300 / 72).ceil();
-        PdfPageImage pagePdfImage = await page.render(
-            width: width, height: height, allowAntialiasingIOS: true);
-        ui.Image pageImage = await pagePdfImage.createImageDetached();
-        ByteData? imageBytes =
-            await pageImage.toByteData(format: ui.ImageByteFormat.png);
-
-        if (imageBytes != null) {
-          await ImageGallerySaver.saveImage(imageBytes.buffer.asUint8List(),
-              quality: 100,
-              name: 'page_${i}_${DateTime.now().millisecondsSinceEpoch}');
-        }
-      }
-      debugPrint('Images downloaded and saved successfully');
-    } catch (e) {
-      debugPrint('Error downloading and saving images: $e');
-    }
-    LoadingDialog.hide(Get.context!); // Hide loading indicator
   }
 
   void showDeleteDialog1({int? index, String? dateTime, context}) {

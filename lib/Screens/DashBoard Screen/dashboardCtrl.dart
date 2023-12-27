@@ -35,7 +35,7 @@ class DashCtrl extends GetxController {
   Future getDocuments() async {
     allDocuments = <DocumentModel>[].obs;
     box.getKeys().forEach((key) {
-      var jsonDocument = json.decode(box.read(key) ?? '{}');
+      // var jsonDocument = json.decode(box.read(key) ?? '{}');
 
       var storedData = box.read(key);
       if (storedData != null) {

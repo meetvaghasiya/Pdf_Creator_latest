@@ -25,13 +25,18 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
   final _CropCtrl = Get.put(galleryCropCntl());
   final _focusNode = FocusNode();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final DashCtrl _dashCtrl = Get.put(DashCtrl());
 
   List<File> croppedList = [];
+  void _initControllers() {
+    _dashCtrl.nameController.value.clear();
+    _CropCtrl.ImgLst.addAll(widget.images);
+  }
+
   @override
   void initState() {
-    _CropCtrl.ImgLst.addAll(widget.images);
+    _initControllers();
     super.initState();
-    _dashCtrl.nameController.value.clear();
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
         _dashCtrl.nameController.value.selection = TextSelection(
@@ -40,6 +45,20 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
         );
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _initControllers();
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus) {
+        _dashCtrl.nameController.value.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: _dashCtrl.nameController.value.text.length,
+        );
+      }
+    });
+    super.dispose();
   }
 
   String formattedTime = DateFormat('hh:mm:ss a').format(DateTime.now());
@@ -313,42 +332,45 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
 
   Future<void> _deleteImage() async {
     LoadingDialog.show(context);
-    if (croppedList.isNotEmpty && _cropCtrl.ImgLst.length == 1) {
+
+    if (croppedList.isNotEmpty && _CropCtrl.ImgLst.length == 1) {
       if (_dashCtrl.nameController.value.text.trim().isNotEmpty &&
-          _cropCtrl.ImgLst.length == 1) {
-        Get.offAll(() => DashBoard());
+          _CropCtrl.ImgLst.length == 1) {
         await _dashCtrl.saveDocument(
           imageList: croppedList,
           name: _dashCtrl.nameController.value.text.trim(),
           documentPath: croppedList[0].path,
           dateTime: '$formattedDate $formattedTime',
         );
+        Get.offAll(() => DashBoard());
+        // No need to Get.offAll here, as it will be handled in _finished
       } else {
         LoadingDialog.hide(context);
         ErrorSnackbar().showSnackbar(context, "Please Enter Name");
+        return; // Return to avoid further execution of the method
       }
     } else {
       Get.back();
     }
-    if (croppedList.isEmpty && _cropCtrl.ImgLst.length == 1) {
+
+    if (croppedList.isEmpty && _CropCtrl.ImgLst.length == 1) {
       Get.back();
     }
 
-    if (_cropCtrl.ImgLst.length > 1) {
-      _cropCtrl.ImgLst.removeAt(_cropCtrl.selectedIndex.value);
+    if (_CropCtrl.ImgLst.length > 1) {
+      _CropCtrl.ImgLst.removeAt(_CropCtrl.selectedIndex.value);
     }
+
     if (_dashCtrl.nameController.value.text.trim().isNotEmpty &&
-        _cropCtrl.ImgLst.length == 0) {
-      _cropCtrl.ImgLst.removeAt(_cropCtrl.selectedIndex.value);
+        _CropCtrl.ImgLst.length == 0) {
+      _CropCtrl.ImgLst.removeAt(_CropCtrl.selectedIndex.value);
       Get.back();
     }
-    if (_cropCtrl.selectedIndex.value > 0) {
-      _cropCtrl.selectedIndex.value = _cropCtrl.selectedIndex.value - 1;
+
+    if (_CropCtrl.selectedIndex.value > 0) {
+      _CropCtrl.selectedIndex.value = _CropCtrl.selectedIndex.value - 1;
     }
   }
-
-  final galleryCropCntl _cropCtrl = Get.put(galleryCropCntl());
-  final DashCtrl _dashCtrl = Get.put(DashCtrl());
 
   Future<void> _finished(BuildContext context) async {
     try {
@@ -361,23 +383,23 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
           File('${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.png');
       await file.writeAsBytes(bytes);
 
-      if (_cropCtrl.selectedIndex.value < _cropCtrl.ImgLst.length) {
+      if (_CropCtrl.selectedIndex.value < _CropCtrl.ImgLst.length) {
         if (_dashCtrl.nameController.value.text.trim().isNotEmpty ||
-            _cropCtrl.ImgLst.length != 1) {
+            _CropCtrl.ImgLst.length != 1) {
           croppedList.add(file);
           LoadingDialog.hide(context);
-          _cropCtrl.ImgLst.removeAt(_cropCtrl.selectedIndex.value);
+          _CropCtrl.ImgLst.removeAt(_CropCtrl.selectedIndex.value);
         } else {
           LoadingDialog.hide(context);
           ErrorSnackbar().showSnackbar(context, "Please Enter Name");
         }
       }
 
-      if (_cropCtrl.ImgLst.isNotEmpty) {
-        _cropCtrl.selectedIndex.value = 0;
+      if (_CropCtrl.ImgLst.isNotEmpty) {
+        _CropCtrl.selectedIndex.value = 0;
       }
 
-      if (_cropCtrl.ImgLst.isEmpty && _cropCtrl.selectedIndex.value == 0) {
+      if (_CropCtrl.ImgLst.isEmpty && _CropCtrl.selectedIndex.value == 0) {
         Get.offAll(() => DashBoard());
         await _dashCtrl.saveDocument(
           imageList: croppedList,

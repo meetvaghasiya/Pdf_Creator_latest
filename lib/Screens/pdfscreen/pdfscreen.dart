@@ -6,6 +6,7 @@ import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:get/get.dart';
 import 'package:pdf_creator/Screens/pdfscreen/pdfctrl.dart';
 import 'package:pdf_creator/Utilities/colors.dart';
+import 'package:pdf_viewer_plugin/pdf_viewer_plugin.dart';
 import 'package:printing/printing.dart';
 
 import '../../Utilities/classes.dart';
@@ -44,7 +45,6 @@ class _PDFScreenState extends State<PDFScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print("==>${widget.document.pdfPath}");
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -65,7 +65,7 @@ class _PDFScreenState extends State<PDFScreen> {
             color: AppColor.whiteClr,
           ),
         ),
-        actions: <Widget>[
+        actions: [
           Obx(
             () => IconButton(
               icon: pdfController.isBookmarked(widget.index)
@@ -121,47 +121,48 @@ class _PDFScreenState extends State<PDFScreen> {
       ),
       body: Stack(
         children: [
-          PDFView(
-            filePath: widget.document.pdfPath,
-            enableSwipe: true,
-            autoSpacing: false,
-            pageFling: true,
-            pageSnap: false,
-            fitEachPage: false,
-            defaultPage: currentPage!,
-            fitPolicy: FitPolicy.BOTH,
-            preventLinkNavigation: false,
-            onRender: (pages) {
-              setState(() {
-                pages = pages;
-                isReady = true;
-              });
-            },
-            onError: (error) {
-              setState(() {
-                errorMessage = error.toString();
-              });
-              print(error.toString());
-            },
-            onPageError: (page, error) {
-              setState(() {
-                errorMessage = '$page: ${error.toString()}';
-              });
-              print('$page: ${error.toString()}');
-            },
-            onViewCreated: (PDFViewController pdfViewController) {
-              _controller.complete(pdfViewController);
-            },
-            onLinkHandler: (String? uri) {
-              print('goto uri: $uri');
-            },
-            onPageChanged: (int? page, int? total) {
-              print('page change: $page/$total');
-              setState(() {
-                currentPage = page;
-              });
-            },
-          ),
+          // PDFView(
+          //   filePath: widget.document.pdfPath,
+          //   enableSwipe: true,
+          //   autoSpacing: false,
+          //   pageFling: true,
+          //   pageSnap: false,
+          //   fitEachPage: false,
+          //   defaultPage: currentPage!,
+          //   fitPolicy: FitPolicy.BOTH,
+          //   preventLinkNavigation: false,
+          //   onRender: (pages) {
+          //     setState(() {
+          //       pages = pages;
+          //       isReady = true;
+          //     });
+          //   },
+          //   onError: (error) {
+          //     setState(() {
+          //       errorMessage = error.toString();
+          //     });
+          //     print('PDFView onError: $error');
+          //   },
+          //   onPageError: (page, error) {
+          //     setState(() {
+          //       errorMessage = '$page: ${error.toString()}';
+          //     });
+          //     print('PDFView onPageError: $page: ${error.toString()}');
+          //   },
+          //   onViewCreated: (PDFViewController pdfViewController) {
+          //     _controller.complete(pdfViewController);
+          //   },
+          //   onLinkHandler: (String? uri) {
+          //     print('goto uri: $uri');
+          //   },
+          //   onPageChanged: (int? page, int? total) {
+          //     print('page change: $page/$total');
+          //     setState(() {
+          //       currentPage = page;
+          //     });
+          //   },
+          // ),
+          PdfView(path: widget.document.pdfPath),
           errorMessage.isEmpty
               ? !isReady
                   ? Center(
@@ -169,7 +170,7 @@ class _PDFScreenState extends State<PDFScreen> {
                     )
                   : Container()
               : Center(
-                  child: Text("${errorMessage}"),
+                  child: Text("Error: $errorMessage"),
                 )
         ],
       ),

@@ -8,7 +8,6 @@ import 'package:pdf_creator/Screens/Pdf%20Utilities/textSpecch/TextSpeech.dart';
 import 'package:pdf_creator/Screens/pdfscreen/pdfctrl.dart';
 import 'package:pdf_creator/Screens/pdfscreen/pdfscreen.dart';
 import 'package:pdf_creator/Utilities/colors.dart';
-import 'package:pdf_text/pdf_text.dart';
 import 'package:printing/printing.dart';
 
 class BookmarkScreen extends StatefulWidget {
@@ -26,7 +25,23 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Bookmarks'),
+        backgroundColor: AppColor.themeDark,
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          onPressed: () {
+            Get.back();
+          },
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColor.whiteClr,
+          ),
+        ),
+        title: Text(
+          'Bookmarks',
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
       ),
       body: Obx(
         () => pdfController.bookmarks.isNotEmpty
@@ -247,7 +262,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
     String? dateTime,
     BuildContext? context,
     String? pdfPath,
-    PDFDoc? pdfDoc,
+    // PDFDoc? pdfDoc,
   }) {
     // final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
 
