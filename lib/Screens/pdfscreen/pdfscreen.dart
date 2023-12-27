@@ -1,18 +1,13 @@
-import 'dart:async';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:get/get.dart';
 import 'package:pdf_creator/Screens/pdfscreen/pdfctrl.dart';
 import 'package:pdf_creator/Utilities/colors.dart';
-import 'package:pdf_viewer_plugin/pdf_viewer_plugin.dart';
+import 'package:pdf_render/pdf_render_widgets.dart';
 import 'package:printing/printing.dart';
-
 import '../../Utilities/classes.dart';
 import '../DashBoard Screen/dashboardCtrl.dart';
 
-// ignore: must_be_immutable
 class PDFScreen extends StatefulWidget {
   DocumentModel document;
   var animatedListKey;
@@ -34,8 +29,6 @@ class _PDFScreenState extends State<PDFScreen> {
   int? currentPage = 0;
   bool isReady = false;
   String errorMessage = '';
-  final Completer<PDFViewController> _controller =
-      Completer<PDFViewController>();
 
   String getName(int index) {
     return _dashCtrl.allDocuments[index].name;
@@ -119,77 +112,20 @@ class _PDFScreenState extends State<PDFScreen> {
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          // PDFView(
-          //   filePath: widget.document.pdfPath,
-          //   enableSwipe: true,
-          //   autoSpacing: false,
-          //   pageFling: true,
-          //   pageSnap: false,
-          //   fitEachPage: false,
-          //   defaultPage: currentPage!,
-          //   fitPolicy: FitPolicy.BOTH,
-          //   preventLinkNavigation: false,
-          //   onRender: (pages) {
-          //     setState(() {
-          //       pages = pages;
-          //       isReady = true;
-          //     });
-          //   },
-          //   onError: (error) {
-          //     setState(() {
-          //       errorMessage = error.toString();
-          //     });
-          //     print('PDFView onError: $error');
-          //   },
-          //   onPageError: (page, error) {
-          //     setState(() {
-          //       errorMessage = '$page: ${error.toString()}';
-          //     });
-          //     print('PDFView onPageError: $page: ${error.toString()}');
-          //   },
-          //   onViewCreated: (PDFViewController pdfViewController) {
-          //     _controller.complete(pdfViewController);
-          //   },
-          //   onLinkHandler: (String? uri) {
-          //     print('goto uri: $uri');
-          //   },
-          //   onPageChanged: (int? page, int? total) {
-          //     print('page change: $page/$total');
-          //     setState(() {
-          //       currentPage = page;
-          //     });
-          //   },
-          // ),
-          PdfView(path: widget.document.pdfPath),
-          errorMessage.isEmpty
-              ? !isReady
-                  ? Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  : Container()
-              : Center(
-                  child: Text("Error: $errorMessage"),
-                )
-        ],
-      ),
-      floatingActionButton: currentPage == 0
-          ? null
-          : FutureBuilder<PDFViewController>(
-              future: _controller.future,
-              builder: (context, AsyncSnapshot<PDFViewController> snapshot) {
-                if (snapshot.hasData) {
-                  return FloatingActionButton.extended(
-                    label: Icon(Icons.arrow_upward_rounded),
-                    onPressed: () async {
-                      await snapshot.data!.setPage(pages! ~/ 2);
-                    },
-                  );
-                }
-                return Container();
-              },
-            ),
+      body: PdfViewer.openFile(widget.document.pdfPath),
+      // Stack(
+      //   children: [
+      //     errorMessage.isEmpty
+      //         ? !isReady
+      //             ? Center(
+      //                 child: CircularProgressIndicator(),
+      //               )
+      //             : Container()
+      //         : Center(
+      //             child: Text("Error: $errorMessage"),
+      //           )
+      //   ],
+      // ),
     );
   }
 }

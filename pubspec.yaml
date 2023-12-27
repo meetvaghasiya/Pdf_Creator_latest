@@ -51,16 +51,15 @@ dependencies:
   cunning_document_scanner: ^1.1.4
   image_picker: ^1.0.4
   crop_image: ^1.0.11
-  flutter_pdfview: ^1.3.2
   flutter_zoom_drawer: ^3.1.1
   url_launcher: ^6.2.2
   flutter_tts: 
   file_picker: ^6.1.1
   camera: ^0.10.5+7
   google_ml_kit: ^0.16.3
+  pdf_render: ^1.4.5
   image: ^4.1.3
   gallery_saver: ^2.3.2
-  pdf_viewer_plugin: ^2.0.1
 
 dev_dependencies:
   flutter_test:
