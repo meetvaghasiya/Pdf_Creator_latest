@@ -18,6 +18,7 @@ import 'package:pdf_creator/Utilities/colors.dart';
 // import 'package:pdf_text/pdf_text.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:printing/printing.dart';
+import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../Utilities/utilities.dart';
@@ -105,10 +106,15 @@ class _DashBoardState extends State<DashBoard> {
               ),
               ListTile(
                 onTap: () {
-                  // Share.share(
-                  //   "",
-                  //   subject: "",
-                  // );
+                  final String subject = 'App Sharing';
+                  final String url =
+                      'https://play.google.com/store/apps/details?id=com.buissmaster.buissmasterApp&pcampaignid=web_share';
+
+                  // Combine text with the app's store URL
+                  final String shareText = '$url';
+
+                  // You can customize the share options based on your requirements
+                  Share.share(shareText, subject: subject);
                 },
                 leading: Icon(
                   Icons.share,
