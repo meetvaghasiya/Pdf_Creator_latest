@@ -105,17 +105,6 @@ class _DashBoardState extends State<DashBoard> {
                 ),
               ),
               ListTile(
-                onTap: () {
-                  final String subject = 'App Sharing';
-                  final String url =
-                      'https://play.google.com/store/apps/details?id=com.buissmaster.buissmasterApp&pcampaignid=web_share';
-
-                  // Combine text with the app's store URL
-                  final String shareText = '$url';
-
-                  // You can customize the share options based on your requirements
-                  Share.share(shareText, subject: subject);
-                },
                 leading: Icon(
                   Icons.share,
                   color: Colors.white,
@@ -128,15 +117,24 @@ class _DashBoardState extends State<DashBoard> {
                       fontWeight: FontWeight.w500,
                       color: Colors.white),
                 ),
+                onTap: () {
+                  final String url = Platform.isAndroid
+                      ? "https://play.google.com/store/apps/details?id=com.buissmaster.buissmasterApp&pcampaignid=web_share"
+                      : "https://apps.apple.com/in/app/buissmaster-oms/id1614817862";
+                  Share.share(url);
+                  _dashCtrl.zoomDrawerController.value.toggle?.call();
+                },
               ),
               ListTile(
                 onTap: () async {
-                  final String url = 'https://m.youtube.com/';
+                  final String url =
+                      'https://www.thefreelancewarriors.com/contact-us';
                   if (await canLaunch(url)) {
                     await launch(url);
                   } else {
                     throw 'Could not launch $url';
                   }
+                  _dashCtrl.zoomDrawerController.value.toggle?.call();
                 },
                 leading: Icon(
                   Icons.mail,
@@ -153,6 +151,7 @@ class _DashBoardState extends State<DashBoard> {
               ),
               ListTile(
                 onTap: () async {
+                  _dashCtrl.zoomDrawerController.value.toggle?.call();
                   String packageName =
                       'your_app_package_name'; // replace with your app's package name
 
@@ -180,7 +179,16 @@ class _DashBoardState extends State<DashBoard> {
                 ),
               ),
               ListTile(
-                onTap: () {},
+                onTap: () async {
+                  final String url =
+                      'https://www.thefreelancewarriors.com/privacy-policy';
+                  if (await canLaunch(url)) {
+                    await launch(url);
+                  } else {
+                    throw 'Could not launch $url';
+                  }
+                  _dashCtrl.zoomDrawerController.value.toggle?.call();
+                },
                 leading: Icon(
                   Icons.privacy_tip_outlined,
                   color: Colors.white,
@@ -243,26 +251,6 @@ class _DashBoardState extends State<DashBoard> {
               fontSize: 18,
               fontWeight: FontWeight.w500),
         ),
-        actions: [
-          FutureBuilder<PackageInfo>(
-            future: PackageInfo.fromPlatform(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Text(
-                  'V ${snapshot.data!.version}',
-                  style: TextStyle(color: AppColor.whiteClr),
-                );
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else {
-                return CircularProgressIndicator();
-              }
-            },
-          ),
-          SizedBox(
-            width: 10,
-          ),
-        ],
       ),
       backgroundColor: AppColor.themeDark,
       body: NestedScrollView(
@@ -652,7 +640,7 @@ class _PDFListState extends State<PDFList> {
                   List<String> extractedTextList = [];
 
                   // Show loading dialog
-                  LoadingDialog.show(context);
+                  LoadingDialog.show(Get.context!);
 
                   for (String filePath in filePaths) {
                     final inputImage = InputImage.fromFile(File(filePath));
@@ -668,7 +656,7 @@ class _PDFListState extends State<PDFList> {
                   }
 
                   // Hide loading dialog
-                  LoadingDialog.show(Get.context!);
+                  LoadingDialog.hide(Get.context!);
 
                   // Check if there is at least one non-empty text before navigating to TextSpeechScreen
                   if (extractedTextList.isNotEmpty) {

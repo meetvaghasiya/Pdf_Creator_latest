@@ -330,47 +330,47 @@
 
 //   Future<void> _rotateRight() async => _CropCtrl.controller.value.rotateRight();
 
-//   Future<void> _deleteImage() async {
-//     LoadingDialog.show(context);
-
-//     if (croppedList.isNotEmpty && _CropCtrl.ImgLst.length == 1) {
-//       if (_dashCtrl.nameController.value.text.trim().isNotEmpty &&
-//           _CropCtrl.ImgLst.length == 1) {
-//         await _dashCtrl.saveDocument(
-//           imageList: croppedList,
-//           name: _dashCtrl.nameController.value.text.trim(),
-//           documentPath: croppedList[0].path,
-//           dateTime: '$formattedDate $formattedTime',
-//         );
-//         Get.offAll(() => DashBoard());
-//         // No need to Get.offAll here, as it will be handled in _finished
-//       } else {
-//         LoadingDialog.hide(context);
-//         ErrorSnackbar().showSnackbar(context, "Please Enter Name");
-//         return; // Return to avoid further execution of the method
-//       }
-//     } else {
-//       Get.back();
-//     }
-
-//     if (croppedList.isEmpty && _CropCtrl.ImgLst.length == 1) {
-//       Get.back();
-//     }
-
-//     if (_CropCtrl.ImgLst.length > 1) {
-//       _CropCtrl.ImgLst.removeAt(_CropCtrl.selectedIndex.value);
-//     }
-
-//     if (_dashCtrl.nameController.value.text.trim().isNotEmpty &&
-//         _CropCtrl.ImgLst.length == 0) {
-//       _CropCtrl.ImgLst.removeAt(_CropCtrl.selectedIndex.value);
-//       Get.back();
-//     }
-
-//     if (_CropCtrl.selectedIndex.value > 0) {
-//       _CropCtrl.selectedIndex.value = _CropCtrl.selectedIndex.value - 1;
-//     }
-//   }
+  // Future<void> _deleteImage() async {
+  //   LoadingDialog.show(context);
+  //
+  //   if (croppedList.isNotEmpty && _CropCtrl.ImgLst.length == 1) {
+  //     if (_dashCtrl.nameController.value.text.trim().isNotEmpty &&
+  //         _CropCtrl.ImgLst.length == 1) {
+  //       await _dashCtrl.saveDocument(
+  //         imageList: croppedList,
+  //         name: _dashCtrl.nameController.value.text.trim(),
+  //         documentPath: croppedList[0].path,
+  //         dateTime: '$formattedDate $formattedTime',
+  //       );
+  //       Get.offAll(() => DashBoard());
+  //       // No need to Get.offAll here, as it will be handled in _finished
+  //     } else {
+  //       LoadingDialog.hide(context);
+  //       ErrorSnackbar().showSnackbar(context, "Please Enter Name");
+  //       return; // Return to avoid further execution of the method
+  //     }
+  //   } else {
+  //     Get.back();
+  //   }
+  //
+  //   if (croppedList.isEmpty && _CropCtrl.ImgLst.length == 1) {
+  //     Get.back();
+  //   }
+  //
+  //   if (_CropCtrl.ImgLst.length > 1) {
+  //     _CropCtrl.ImgLst.removeAt(_CropCtrl.selectedIndex.value);
+  //   }
+  //
+  //   if (_dashCtrl.nameController.value.text.trim().isNotEmpty &&
+  //       _CropCtrl.ImgLst.length == 0) {
+  //     _CropCtrl.ImgLst.removeAt(_CropCtrl.selectedIndex.value);
+  //     Get.back();
+  //   }
+  //
+  //   if (_CropCtrl.selectedIndex.value > 0) {
+  //     _CropCtrl.selectedIndex.value = _CropCtrl.selectedIndex.value - 1;
+  //   }
+  // }
 
 //   Future<void> _finished(BuildContext context) async {
 //     try {
@@ -538,133 +538,172 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
           ),
         ),
       ),
-      body: Column(
+      body: Stack(
         children: [
-          SizedBox(
-            height: 150,
-            child: Obx(
-              () => ListView.builder(
-                physics: BouncingScrollPhysics(),
-                itemCount: _CropCtrl.ImgLst.length,
-                shrinkWrap: true,
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      _CropCtrl.selectedIndex.value = index;
-                      print('Selected Index: ${_CropCtrl.selectedIndex.value}');
-                      print('ImgLst Length: ${_CropCtrl.ImgLst.length}');
-                    },
-                    child: Padding(
-                      key:
-                          UniqueKey(), // Use UniqueKey for better widget identification
-                      padding: const EdgeInsets.all(8.0),
-                      child: Obx(
-                        () => Container(
-                          width: MediaQuery.of(context).size.width / 3.1,
-                          decoration: BoxDecoration(
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(.5),
-                                offset: ui.Offset(.6, .6),
-                                blurStyle: BlurStyle.outer,
-                                spreadRadius: .5,
-                                blurRadius: .9,
+          Column(
+            children: [
+              SizedBox(
+                height: 150,
+                child: Obx(
+                  () => ListView.builder(
+                    physics: BouncingScrollPhysics(),
+                    itemCount: _CropCtrl.ImgLst.length,
+                    shrinkWrap: true,
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () {
+                          _CropCtrl.selectedIndex.value = index;
+                          print('Selected Index: ${_CropCtrl.selectedIndex.value}');
+                          print('ImgLst Length: ${_CropCtrl.ImgLst.length}');
+                        },
+                        child: Padding(
+                          key:
+                              UniqueKey(), // Use UniqueKey for better widget identification
+                          padding: const EdgeInsets.all(8.0),
+                          child: Obx(
+                            () => Container(
+                              width: MediaQuery.of(context).size.width / 3.1,
+                              decoration: BoxDecoration(
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(.5),
+                                    offset: ui.Offset(.6, .6),
+                                    blurStyle: BlurStyle.outer,
+                                    spreadRadius: .5,
+                                    blurRadius: .9,
+                                  ),
+                                ],
+                                border: _CropCtrl.selectedIndex.value == index
+                                    ? Border.all(color: Colors.white)
+                                    : null,
+                                borderRadius: BorderRadius.circular(15),
                               ),
-                            ],
-                            border: _CropCtrl.selectedIndex.value == index
-                                ? Border.all(color: Colors.white)
-                                : null,
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(3.0),
-                            child: Container(
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Image.file(
-                                  File(_CropCtrl.ImgLst[index].path),
-                                  fit: BoxFit.cover,
+                              child: Padding(
+                                padding: const EdgeInsets.all(3.0),
+                                child: Container(
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Image.file(
+                                      File(_CropCtrl.ImgLst[index].path),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-          // SizedBox(
-          //   height: MediaQuery.of(context).size.height * 0.01,
-          // ),
-          Obx(() {
-            return Padding(
-              key:
-                  UniqueKey(), // Use UniqueKey for better widget identification
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.48,
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(.5),
-                      offset: ui.Offset(.6, .6),
-                      blurStyle: BlurStyle.outer,
-                      spreadRadius: .5,
-                      blurRadius: .9,
-                    ),
-                  ],
-                  color: Colors.black.withOpacity(.5),
-                  borderRadius: BorderRadius.circular(15),
+                      );
+                    },
+                  ),
                 ),
-                child: (_CropCtrl.selectedIndex < _CropCtrl.ImgLst.length)
-                    ? CropImage(
-                        paddingSize: 25.0,
-                        alwaysMove: true,
-                        controller: _CropCtrl.controller.value,
-                        image: Image.file(File(_CropCtrl
-                            .ImgLst[_CropCtrl.selectedIndex.value].path)),
-                      )
-                    : Center(child: CircularProgressIndicator()),
               ),
-            );
-          }),
-          // SizedBox(
-          //   height: MediaQuery.of(context).size.height * 0.05,
-          // ),
-          _buildButtons(),
-          ValueListenableBuilder(
-            valueListenable: _CropCtrl.loadingState,
-            builder: (context, isLoading, child) {
-              return AnimatedSize(
-                duration: kThemeAnimationDuration,
-                child: isLoading ? child : null,
-              );
-
-              // return isLoading
-              //     ? CircularProgressIndicator() // Show loading indicator
-              //     : YourActualContent(); // Your actual content when not loading
-            },
-            child: AlertDialog(
-              title: ValueListenableBuilder(
-                valueListenable: _CropCtrl.loadingState,
-                builder: (_, bool isLoading, __) => Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text(
-                      isLoading ? "Generating PDf File..." : "Export complete",
-                      style: const TextStyle(fontSize: 12),
+              // SizedBox(
+              //   height: MediaQuery.of(context).size.height * 0.01,
+              // ),
+              Obx(() {
+                return Padding(
+                  key:
+                      UniqueKey(), // Use UniqueKey for better widget identification
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height * 0.48,
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(.5),
+                          offset: ui.Offset(.6, .6),
+                          blurStyle: BlurStyle.outer,
+                          spreadRadius: .5,
+                          blurRadius: .9,
+                        ),
+                      ],
+                      color: Colors.black.withOpacity(.5),
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                    SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(),
-                    ),
-                  ],
+                    child: (_CropCtrl.selectedIndex < _CropCtrl.ImgLst.length)
+                        ? CropImage(
+                            paddingSize: 25.0,
+                            alwaysMove: true,
+                            controller: _CropCtrl.controller.value,
+                            image: Image.file(File(_CropCtrl
+                                .ImgLst[_CropCtrl.selectedIndex.value].path)),
+                          )
+                        : Center(child: CircularProgressIndicator()),
+                  ),
+                );
+              }),
+              // SizedBox(
+              //   height: MediaQuery.of(context).size.height * 0.05,
+              // ),
+              _buildButtons(),
+              // ValueListenableBuilder(
+              //   valueListenable: _CropCtrl.loadingState,
+              //   builder: (context, isLoading, child) {
+              //     return AnimatedSize(
+              //       duration: kThemeAnimationDuration,
+              //       child: isLoading ? child : null,
+              //     );
+              //
+              //     // return isLoading
+              //     //     ? CircularProgressIndicator() // Show loading indicator
+              //     //     : YourActualContent(); // Your actual content when not loading
+              //   },
+              //   child: AlertDialog(
+              //     title: ValueListenableBuilder(
+              //       valueListenable: _CropCtrl.loadingState,
+              //       builder: (_, bool isLoading, __) => Row(
+              //         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              //         children: [
+              //           Text(
+              //             isLoading ? "Please Wait..." : "Export complete",
+              //             style: const TextStyle(fontSize: 12),
+              //           ),
+              //           SizedBox(
+              //             height: 20,
+              //             width: 20,
+              //             child: CircularProgressIndicator(),
+              //           ),
+              //         ],
+              //       ),
+              //     ),
+              //   ),
+              // ),
+            ],
+          ),
+          Positioned(
+            bottom: 0,
+            child: ValueListenableBuilder(
+              valueListenable: _CropCtrl.loadingState,
+              builder: (context, isLoading, child) {
+                return AnimatedSize(
+                  duration: kThemeAnimationDuration,
+                  child: isLoading ? child : null,
+                );
+            
+                // return isLoading
+                //     ? CircularProgressIndicator() // Show loading indicator
+                //     : YourActualContent(); // Your actual content when not loading
+              },
+              child: AlertDialog(
+                title: ValueListenableBuilder(
+                  valueListenable: _CropCtrl.loadingState,
+                  builder: (_, bool isLoading, __) => Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text(
+                        isLoading ? "Please Wait..." : "Export complete",
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -779,8 +818,8 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
   Future<void> _rotateRight() async => _CropCtrl.controller.value.rotateRight();
 
   Future<void> _deleteImage() async {
-    LoadingDialog.show(context);
-
+    // LoadingDialog.show(context);
+    _CropCtrl.loadingState.value = true;
     if (croppedList.isNotEmpty && _CropCtrl.ImgLst.length == 1) {
       if (_dashCtrl.nameController.value.text.trim().isNotEmpty &&
           _CropCtrl.ImgLst.length == 1) {
@@ -793,12 +832,14 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
         Get.offAll(() => DashBoard());
         // No need to Get.offAll here, as it will be handled in _finished
       } else {
-        LoadingDialog.hide(context);
+        // LoadingDialog.hide(context);
+        _CropCtrl.loadingState.value = false;
         ErrorSnackbar().showSnackbar(context, "Please Enter Name");
         return; // Return to avoid further execution of the method
       }
     } else {
-      Get.back();
+      _CropCtrl.loadingState.value = false;
+      // Get.back();
     }
 
     if (croppedList.isEmpty && _CropCtrl.ImgLst.length == 1) {

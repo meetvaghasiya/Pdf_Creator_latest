@@ -39,7 +39,6 @@ class _TextSpeechScreenState extends State<TextSpeechScreen> {
 
   Future<void> stopSpeaking() async {
     await flutterTts.stop();
-
     setState(() {
       isSpeaking = false;
     });
