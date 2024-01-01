@@ -543,7 +543,7 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
           Column(
             children: [
               SizedBox(
-                height: 150,
+                height: 170,
                 child: Obx(
                   () => ListView.builder(
                     physics: BouncingScrollPhysics(),
@@ -599,9 +599,9 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
                   ),
                 ),
               ),
-              // SizedBox(
-              //   height: MediaQuery.of(context).size.height * 0.01,
-              // ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.01,
+              ),
               Obx(() {
                 return Padding(
                   key:
@@ -635,9 +635,9 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
                   ),
                 );
               }),
-              // SizedBox(
-              //   height: MediaQuery.of(context).size.height * 0.05,
-              // ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.05,
+              ),
               _buildButtons(),
               // ValueListenableBuilder(
               //   valueListenable: _CropCtrl.loadingState,
@@ -864,34 +864,42 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
   Future<void> _finished(BuildContext context) async {
     try {
       _CropCtrl.loadingState.value = true;
-      // LoadingDialog.show(context);
+
+      // Crop the image
       ui.Image bitmap = await _CropCtrl.controller.value.croppedBitmap();
       var data = await bitmap.toByteData(format: ui.ImageByteFormat.png);
       var bytes = data!.buffer.asUint8List();
+
+      // Save the cropped image to a file
       Directory tempDir = await getTemporaryDirectory();
-      File file =
-          File('${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.png');
+      File file = File('${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.png');
       await file.writeAsBytes(bytes);
 
+      // Check conditions before adding the cropped image to the list
       if (_CropCtrl.selectedIndex.value < _CropCtrl.ImgLst.length) {
         if (_dashCtrl.nameController.value.text.trim().isNotEmpty ||
             _CropCtrl.ImgLst.length != 1) {
+          // Add the file to the croppedList
           croppedList.add(file);
-          // LoadingDialog.hide(context);
           _CropCtrl.ImgLst.removeAt(_CropCtrl.selectedIndex.value);
         } else {
-          // LoadingDialog.hide(context);
+          // Display an error message if name is not entered
           ErrorSnackbar().showSnackbar(context, "Please Enter Name");
         }
       }
 
+      // Reset selectedIndex if ImgLst is not empty
       if (_CropCtrl.ImgLst.isNotEmpty) {
         _CropCtrl.selectedIndex.value = 0;
       }
 
+      // Check conditions before navigating to DashBoard and saving the document
       if (_CropCtrl.ImgLst.isEmpty && _CropCtrl.selectedIndex.value == 0) {
-        _CropCtrl.progressValue.value = 0.5;
+
+        // Navigate to DashBoard
         Get.offAll(() => DashBoard());
+
+        // Save the document
         await _dashCtrl.saveDocument(
           imageList: croppedList,
           name: _dashCtrl.nameController.value.text.trim(),
@@ -902,8 +910,8 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
     } catch (e) {
       print('Error while cropping image: $e');
     } finally {
-      _CropCtrl.loadingState.value =
-          false; // Set loading state to false when finished
+        _CropCtrl.loadingState.value = false;
     }
   }
+
 }

@@ -19,8 +19,28 @@ class DashCtrl extends GetxController {
   RxBool nameIsValid = true.obs;
   RxList<DocumentModel> allDocuments = <DocumentModel>[].obs;
   Rx<TextEditingController> nameController = TextEditingController().obs;
+
+  TextEditingController nameEditcontroller = TextEditingController();
   RxBool isLoading = false.obs;
   final GetStorage box = GetStorage();
+
+  RxString renamedPdfName = "".obs;
+
+  void setRenamedPdfName(String newName) {
+    renamedPdfName.value = newName;
+  }
+
+
+
+  void toggleBookmark(index) {
+    allDocuments[index].isBookmark = !allDocuments[index].isBookmark;
+    String jsonDocument = json.encode(allDocuments[index].toJson());
+    box.write(allDocuments[index].dateTime, jsonDocument);
+    update([allDocuments]);
+
+    print('Bookmark toggled for ${allDocuments[index].name}. New state: ${allDocuments[index].isBookmark}');
+  }
+
 
   Future<void> sharePDF(context, int index) async {
     String pdfPath = allDocuments[index].pdfPath;
@@ -35,8 +55,6 @@ class DashCtrl extends GetxController {
   Future getDocuments() async {
     allDocuments = <DocumentModel>[].obs;
     box.getKeys().forEach((key) {
-      // var jsonDocument = json.decode(box.read(key) ?? '{}');
-
       var storedData = box.read(key);
       if (storedData != null) {
         if (storedData is String) {
@@ -52,13 +70,10 @@ class DashCtrl extends GetxController {
                 <File>[],
           );
           allDocuments.add(document);
-        } else if (storedData is List<dynamic>) {
-          // Handle the case when the data is a list
-          // (You might need to iterate through the list and process each item)
         }
       }
     });
-
+    print(allDocuments.length);
     allDocuments.sort((a, b) {
       return b.dateTime.compareTo(a.dateTime);
     });
@@ -169,7 +184,6 @@ class DashCtrl extends GetxController {
     Timer(Duration(milliseconds: 300), () {
       allDocuments.removeAt(index);
     });
-
     box.remove(key);
   }
 
@@ -177,15 +191,23 @@ class DashCtrl extends GetxController {
     box.remove(key);
 
     allDocuments[index].name = changedName;
+
+    // Convert File objects to their paths before encoding
+    List<String> imagePaths = allDocuments[index].imageList.map((file) => file.path).toList();
+
     String jsonDocument = json.encode({
       "name": changedName,
       "documentPath": allDocuments[index].documentPath,
       "dateTime": allDocuments[index].dateTime.toString(),
       "pdfPath": allDocuments[index].pdfPath,
-      "imageList": allDocuments[index].imageList,
+      "imageList": imagePaths,  // Use the paths instead of File objects
     });
+
     box.write(key, jsonDocument);
+
+    setRenamedPdfName(changedName);
 
     Timer(Duration(milliseconds: 800), () {});
   }
+
 }

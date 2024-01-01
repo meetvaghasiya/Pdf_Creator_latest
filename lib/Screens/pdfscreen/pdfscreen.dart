@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pdf_creator/Screens/bookmark/bookmarkctrl.dart';
 import 'package:pdf_creator/Screens/pdfscreen/pdfctrl.dart';
 import 'package:pdf_creator/Utilities/colors.dart';
 import 'package:pdf_render/pdf_render_widgets.dart';
@@ -33,13 +34,15 @@ class _PDFScreenState extends State<PDFScreen> {
   String errorMessage = '';
 
   String getName(int index) {
-    return _dashCtrl.allDocuments[index].name;
+    return _dashCtrl.allDocuments[widget.index].name;
   }
 
-  final PdfCtrl pdfController = Get.put(PdfCtrl());
+  final BookmarkCtrl _bookmarkCtrl = Get.put(BookmarkCtrl());
+  // final PdfCtrl pdfController = Get.put(PdfCtrl());
 
   @override
   Widget build(BuildContext context) {
+    print("document : ${widget.document}");
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -62,36 +65,68 @@ class _PDFScreenState extends State<PDFScreen> {
         ),
         actions: [
           Obx(
-            () => IconButton(
-              icon: pdfController.isBookmarked(widget.index)
+                () => IconButton(
+              icon: _dashCtrl.allDocuments[widget.index].isBookmark
                   ? Icon(
-                      Icons.bookmark,
-                      color: Colors.white,
-                    )
+                Icons.bookmark,
+                color: Colors.white,
+              )
                   : Icon(
-                      Icons.bookmark_outline,
-                      color: Colors.white,
-                    ),
-              onPressed: () {
-                final isBookmarked = pdfController.isBookmarked(widget.index);
+                Icons.bookmark_outline,
+                color: Colors.white,
+              ),
+              onPressed: () async {
+                final isBookmarked =  _dashCtrl.allDocuments[widget.index].isBookmark;
                 final message = isBookmarked
                     ? 'Removed bookmark for ${getName(widget.index)}'
                     : 'Saved bookmark for ${getName(widget.index)}';
 
                 // Toggle the bookmark
-                pdfController.toggleBookmark(widget.index);
+                _bookmarkCtrl.toggleBookmark(widget.document);
 
                 // Show a snackbar
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(message),
-                    duration:
-                        Duration(seconds: 2), // Adjust the duration as needed
+                    duration: Duration(seconds: 2),
                   ),
                 );
               },
             ),
           ),
+
+          // Obx(
+          //   () => IconButton(
+          //     icon: pdfController.isBookmarked(widget.index)
+          //         ? Icon(
+          //             Icons.bookmark,
+          //             color: Colors.white,
+          //           )
+          //         : Icon(
+          //             Icons.bookmark_outline,
+          //             color: Colors.white,
+          //           ),
+          //     onPressed: () {
+          //       pdfController.toggleBookmarkAndShowSnackbar(widget.index);
+          //       // final isBookmarked = pdfController.isBookmarked(widget.index);
+          //       // final message = isBookmarked
+          //       //     ? 'Removed bookmark for ${getName(widget.index)}'
+          //       //     : 'Saved bookmark for ${getName(widget.index)}';
+          //       //
+          //       // // Toggle the bookmark
+          //       // pdfController.toggleBookmark(widget.index);
+          //       //
+          //       // // Show a snackbar
+          //       // ScaffoldMessenger.of(context).showSnackBar(
+          //       //   SnackBar(
+          //       //     content: Text(message),
+          //       //     duration:
+          //       //         Duration(seconds: 2), // Adjust the duration as needed
+          //       //   ),
+          //       // );
+          //     },
+          //   ),
+          // ),
           IconButton(
             icon: Icon(
               Icons.share,
