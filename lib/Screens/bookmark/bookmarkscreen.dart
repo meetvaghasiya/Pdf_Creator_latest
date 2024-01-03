@@ -16,8 +16,8 @@ import 'package:printing/printing.dart';
 import 'package:share/share.dart';
 
 class BookmarkScreen extends StatefulWidget {
-  final int dashindex;
-  const BookmarkScreen({super.key, required this.dashindex});
+ final int dashindex;
+  const BookmarkScreen({super.key, required this.dashindex,});
 
   @override
   State<BookmarkScreen> createState() => _BookmarkScreenState();
@@ -28,11 +28,12 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
   final DashCtrl _dashCtrl = Get.put(DashCtrl());
   static GlobalKey<AnimatedListState> animatedListKey =
       GlobalKey<AnimatedListState>();
-@override
-  void initState() {
-    _bookmarkCtrl.loadBookmarks();
-    super.initState();
-  }
+  // @override
+  // void initState() {
+  //   _bookmarkCtrl.loadBookmarks();
+  //   super.initState();
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,10 +59,11 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
       body: Obx(
         () => _bookmarkCtrl.bookmarks.length > 0
             ? ListView.builder(
+                itemCount: _bookmarkCtrl.bookmarks.length,
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   DocumentModel bookmarkPage = _bookmarkCtrl.bookmarks[index];
-
+                  print("Index: $index, Length: ${_bookmarkCtrl.bookmarks.length}");
                   return Obx(
                     () => Padding(
                       padding: const EdgeInsets.all(5.0),
@@ -69,7 +71,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                         onTap: () {
                           Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => PDFScreen(
-                              index: widget.dashindex,
+                              index: index,
                               document: bookmarkPage,
                               animatedListKey: animatedListKey,
                             ),
@@ -133,9 +135,8 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                                       width: MediaQuery.of(context).size.width *
                                           .5,
                                       padding: const EdgeInsets.all(12),
-                                      child: Obx(
-                                        () => Text(
-                                          (_dashCtrl.allDocuments[widget.dashindex].name),
+                                      child:  Text(
+                                          (_bookmarkCtrl.bookmarks[index].name),
                                           style: const TextStyle(
                                             fontWeight: FontWeight.w500,
                                             color: Colors.white,
@@ -143,12 +144,11 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                                           ),
                                           overflow: TextOverflow.ellipsis,
                                         ),
-                                      ),
                                     ),
                                     Container(
                                       padding: const EdgeInsets.only(left: 12),
                                       child: Text(
-                                        // "${formattedDate} ${formattedTime}",
+                                        // "${formattedDate} q${formattedTime}",
                                         (_bookmarkCtrl
                                             .bookmarks[index].dateTime),
                                         style:
@@ -242,7 +242,6 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                     ),
                   );
                 },
-                itemCount: _bookmarkCtrl.bookmarks.length,
               )
             : Center(
                 child: Text("No Bookmarks Found!"),
@@ -251,54 +250,54 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
     );
   }
 
-  void showRenameDialog({int? index, String? dateTime, String? name, context}) {
-    // TextEditingController controller = TextEditingController();
-    _dashCtrl.nameEditcontroller.text = name!;
-    _dashCtrl.nameEditcontroller.selection =
-        TextSelection(baseOffset: 0, extentOffset:  _dashCtrl.nameEditcontroller.text.length);
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text("Rename"),
-            TextFormField(
-              controller:  _dashCtrl.nameEditcontroller,
-              autofocus: true,
-              decoration: InputDecoration(
-                  suffix: IconButton(
-                      icon: Icon(Icons.clear),
-                      onPressed: () {
-                        _dashCtrl.nameEditcontroller.clear();
-                      })),
-            ),
-          ],
-        ),
-        actions: <Widget>[
-          MaterialButton(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text("Cancel")),
-          MaterialButton(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _dashCtrl.renameDocument(
-                    widget.dashindex, dateTime.toString(),  _dashCtrl.nameEditcontroller.text);
-              },
-              child: Text("Rename")),
-        ],
-      ),
-    );
-  }
+  // void showRenameDialog({int? index, String? dateTime, String? name, context}) {
+  //   // TextEditingController controller = TextEditingController();
+  //   _dashCtrl.nameEditcontroller.text = name!;
+  //   _dashCtrl.nameEditcontroller.selection = TextSelection(
+  //       baseOffset: 0, extentOffset: _dashCtrl.nameEditcontroller.text.length);
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (context) => AlertDialog(
+  //       content: Column(
+  //         mainAxisSize: MainAxisSize.min,
+  //         mainAxisAlignment: MainAxisAlignment.start,
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: <Widget>[
+  //           Text("Rename"),
+  //           TextFormField(
+  //             controller: _dashCtrl.nameEditcontroller,
+  //             autofocus: true,
+  //             decoration: InputDecoration(
+  //                 suffix: IconButton(
+  //                     icon: Icon(Icons.clear),
+  //                     onPressed: () {
+  //                       _dashCtrl.nameEditcontroller.clear();
+  //                     })),
+  //           ),
+  //         ],
+  //       ),
+  //       actions: <Widget>[
+  //         MaterialButton(
+  //             shape: RoundedRectangleBorder(
+  //                 borderRadius: BorderRadius.circular(20)),
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: Text("Cancel")),
+  //         MaterialButton(
+  //             shape: RoundedRectangleBorder(
+  //                 borderRadius: BorderRadius.circular(20)),
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //               _dashCtrl.renameDocument(index!, dateTime.toString(),
+  //                   _dashCtrl.nameEditcontroller.text);
+  //             },
+  //             child: Text("Rename")),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   void showModalSheet({
     int? index,
@@ -458,102 +457,30 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                       // Handle the case when there is no non-empty text, e.g., show a message or take other actions.
                     }
                   }),
-              ListTile(
-                leading: Icon(
-                  Icons.edit,
-                  color: AppColor.whiteClr,
-                ),
-                title: Text(
-                  "Rename",
-                  style: TextStyle(
-                    color: AppColor.whiteClr,
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  showRenameDialog(
-                      index: index,
-                      name: name,
-                      dateTime: dateTime,
-                      context: context);
-                },
-              ),
               // ListTile(
               //   leading: Icon(
-              //     Icons.delete,
+              //     Icons.edit,
               //     color: AppColor.whiteClr,
               //   ),
               //   title: Text(
-              //     "Delete",
+              //     "Rename",
               //     style: TextStyle(
               //       color: AppColor.whiteClr,
               //     ),
               //   ),
               //   onTap: () {
               //     Navigator.pop(context);
-              //     showDeleteDialog1(
-              //       index: index,
-              //       dateTime: dateTime,
-              //       context: context,
-              //     );
+              //     showRenameDialog(
+              //         index: index,
+              //         name: name,
+              //         dateTime: dateTime,
+              //         context: context);
               //   },
-              // )
+              // ),
             ],
           ),
         );
       },
     );
   }
-
-  // void showDeleteDialog1({int? index, String? dateTime, context}) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) => AlertDialog(
-  //       content: Column(
-  //         mainAxisAlignment: MainAxisAlignment.start,
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         mainAxisSize: MainAxisSize.min,
-  //         children: <Widget>[
-  //           const Text(
-  //             "Delete file",
-  //             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-  //           ),
-  //           const Divider(
-  //             thickness: 2,
-  //           ),
-  //           Text(
-  //             "Are you sure you want to delete this file?",
-  //             style: TextStyle(color: Colors.grey[500]),
-  //           )
-  //         ],
-  //       ),
-  //       actions: <Widget>[
-  //         MaterialButton(
-  //           shape:
-  //               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-  //           onPressed: () {
-  //             Navigator.of(context).pop();
-  //           },
-  //           child: const Text(
-  //             "Cancel",
-  //             style: TextStyle(color: Colors.black),
-  //           ),
-  //         ),
-  //         MaterialButton(
-  //           shape:
-  //               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-  //           onPressed: () {
-  //             Navigator.of(context).pop();
-  //
-  //             _dashCtrl.deleteDocument(index!, dateTime.toString());
-  //           },
-  //           child: const Text(
-  //             "Delete",
-  //             style: TextStyle(color: Colors.red),
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 }

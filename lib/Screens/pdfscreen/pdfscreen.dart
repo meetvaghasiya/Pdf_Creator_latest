@@ -34,7 +34,7 @@ class _PDFScreenState extends State<PDFScreen> {
   String errorMessage = '';
 
   String getName(int index) {
-    return _dashCtrl.allDocuments[widget.index].name;
+    return widget.document.name;
   }
 
   final BookmarkCtrl _bookmarkCtrl = Get.put(BookmarkCtrl());
@@ -66,7 +66,8 @@ class _PDFScreenState extends State<PDFScreen> {
         actions: [
           Obx(
                 () => IconButton(
-              icon: _dashCtrl.allDocuments[widget.index].isBookmark
+    // _dashCtrl.allDocuments[widget.index].isBookmark
+              icon: _bookmarkCtrl.isBookmarked(widget.document)
                   ? Icon(
                 Icons.bookmark,
                 color: Colors.white,
@@ -76,7 +77,7 @@ class _PDFScreenState extends State<PDFScreen> {
                 color: Colors.white,
               ),
               onPressed: () async {
-                final isBookmarked =  _dashCtrl.allDocuments[widget.index].isBookmark;
+                final isBookmarked = _bookmarkCtrl.isBookmarked(widget.document);
                 final message = isBookmarked
                     ? 'Removed bookmark for ${getName(widget.index)}'
                     : 'Saved bookmark for ${getName(widget.index)}';

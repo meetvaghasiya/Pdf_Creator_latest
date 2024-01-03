@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:get/get.dart';
@@ -10,8 +9,8 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf_creator/Screens/bookmark/bookmarkctrl.dart';
 import 'package:share/share.dart';
-
 import '../../Utilities/classes.dart';
 
 class DashCtrl extends GetxController {
@@ -21,6 +20,8 @@ class DashCtrl extends GetxController {
   Rx<TextEditingController> nameController = TextEditingController().obs;
 
   TextEditingController nameEditcontroller = TextEditingController();
+  final BookmarkCtrl _bookmarkCtrl = Get.put(BookmarkCtrl());
+
   RxBool isLoading = false.obs;
   final GetStorage box = GetStorage();
 
@@ -31,8 +32,7 @@ class DashCtrl extends GetxController {
   }
 
 
-
-  void toggleBookmark(index) {
+  void toggleBookmark(int index) {
     allDocuments[index].isBookmark = !allDocuments[index].isBookmark;
     String jsonDocument = json.encode(allDocuments[index].toJson());
     box.write(allDocuments[index].dateTime, jsonDocument);
@@ -40,6 +40,17 @@ class DashCtrl extends GetxController {
 
     print('Bookmark toggled for ${allDocuments[index].name}. New state: ${allDocuments[index].isBookmark}');
   }
+
+
+  RxList<DocumentModel> getBookmarkedDocuments() {
+    return allDocuments.where((document) => document.isBookmark).toList().obs;
+  }
+  RxList<DocumentModel> bookmarks = <DocumentModel>[].obs;
+
+  bool isBookmarked(DocumentModel pdf) {
+    return bookmarks.any((bookmark) => bookmark.name == pdf.name);
+  }
+
 
 
   Future<void> sharePDF(context, int index) async {
@@ -54,6 +65,7 @@ class DashCtrl extends GetxController {
 
   Future getDocuments() async {
     allDocuments = <DocumentModel>[].obs;
+    // _bookmarkCtrl.loadBookmarks();
     box.getKeys().forEach((key) {
       var storedData = box.read(key);
       if (storedData != null) {
@@ -187,13 +199,16 @@ class DashCtrl extends GetxController {
     box.remove(key);
   }
 
-  void renameDocument(int index, String key, String changedName) async {
-    box.remove(key);
-
+  Future<void> renameDocument(int index, String key, String changedName) async {
+    // Update document name in the Dashboard
     allDocuments[index].name = changedName;
 
+    // Call the method in BookmarkCtrl to update the bookmark name
+    _bookmarkCtrl.renameDocument(allDocuments[index], key, changedName);
+
     // Convert File objects to their paths before encoding
-    List<String> imagePaths = allDocuments[index].imageList.map((file) => file.path).toList();
+    List<String> imagePaths =
+    allDocuments[index].imageList.map((file) => file.path).toList();
 
     String jsonDocument = json.encode({
       "name": changedName,
@@ -209,5 +224,6 @@ class DashCtrl extends GetxController {
 
     Timer(Duration(milliseconds: 800), () {});
   }
+
 
 }
