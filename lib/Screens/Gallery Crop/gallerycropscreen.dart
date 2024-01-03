@@ -92,7 +92,7 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
               padding: const EdgeInsets.all(8.0),
               child: TextField(
                 cursorColor: Colors.white,
-                cursorHeight: 20,
+                cursorHeight: 25,
                 decoration: InputDecoration(
                   enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15),

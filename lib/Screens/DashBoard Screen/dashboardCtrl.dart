@@ -194,9 +194,18 @@ class DashCtrl extends GetxController {
 
   void deleteDocument(int index, String key) async {
     Timer(Duration(milliseconds: 300), () {
+      // Remove from dashboard
       allDocuments.removeAt(index);
+
+      // Remove from bookmarks if present
+      _bookmarkCtrl.bookmarks.removeWhere((bookmark) => bookmark.dateTime == key);
+
+      // Remove from GetStorage
+      box.remove(key);
+
+      // Save bookmarks after removal
+      _bookmarkCtrl.saveBookmarks();
     });
-    box.remove(key);
   }
 
   Future<void> renameDocument(int index, String key, String changedName) async {

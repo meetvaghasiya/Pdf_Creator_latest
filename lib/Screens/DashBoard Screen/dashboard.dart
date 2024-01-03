@@ -67,6 +67,7 @@ class _DashBoardState extends State<DashBoard> {
 
   Widget _Drawer(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xff1d375c),
       body: Container(
         decoration: BoxDecoration(
           color: Color(0xff1d375c),
@@ -97,7 +98,7 @@ class _DashBoardState extends State<DashBoard> {
               ListTile(
                 onTap: () {
                   Get.to(() => BookmarkScreen(
-                    dashindex: dashscreenindex!,
+                        dashindex: dashscreenindex!,
                       ));
                   _dashCtrl.zoomDrawerController.value.toggle?.call();
                 },
@@ -137,17 +138,16 @@ class _DashBoardState extends State<DashBoard> {
               ),
               ListTile(
                 onTap: () async {
-                  final String url =
-                      'https://www.thefreelancewarriors.com/contact-us';
-                  if (await canLaunch(url)) {
-                    await launch(url);
-                  } else {
-                    throw 'Could not launch $url';
+                  final Uri _url = Uri.parse(
+                      'https://www.thefreelancewarriors.com/contact-us');
+
+                  if (!await launchUrl(_url)) {
+                    throw Exception('Could not launch $_url');
                   }
                   _dashCtrl.zoomDrawerController.value.toggle?.call();
                 },
                 leading: Icon(
-                  Icons.mail,
+                  Icons.mail_outline_rounded,
                   color: Colors.white,
                   size: 27,
                 ),
@@ -161,27 +161,22 @@ class _DashBoardState extends State<DashBoard> {
               ),
               ListTile(
                 onTap: () async {
-                  _dashCtrl.zoomDrawerController.value.toggle?.call();
-                  String packageName =
-                      'your_app_package_name'; // replace with your app's package name
+                  final Uri _url = Uri.parse(
+                      'https://www.thefreelancewarriors.com');
 
-                  final String url = Platform.isIOS
-                      ? 'https://apps.apple.com/in/app/buissmaster-oms/id1614817862'
-                      : 'https://play.google.com/store/apps/details?id=com.buissmaster.buissmasterApp&pcampaignid=web_share';
-
-                  if (await canLaunch(url)) {
-                    await launch(url);
-                  } else {
-                    throw 'Could not launch $url';
+                  if (!await launchUrl(_url)) {
+                    throw Exception('Could not launch $_url');
                   }
+
+                  _dashCtrl.zoomDrawerController.value.toggle?.call();
                 },
                 leading: Icon(
-                  Icons.star,
+                  Icons.info_outline,
                   color: Colors.white,
                   size: 27,
                 ),
                 title: Text(
-                  "Rate Us",
+                  "About Us",
                   style: const TextStyle(
                       fontSize: 16.0,
                       fontWeight: FontWeight.w500,
@@ -190,12 +185,11 @@ class _DashBoardState extends State<DashBoard> {
               ),
               ListTile(
                 onTap: () async {
-                  final String url =
-                      'https://www.thefreelancewarriors.com/privacy-policy';
-                  if (await canLaunch(url)) {
-                    await launch(url);
-                  } else {
-                    throw 'Could not launch $url';
+                  final Uri _url = Uri.parse(
+                      'https://www.thefreelancewarriors.com/privacy-policy');
+
+                  if (!await launchUrl(_url)) {
+                    throw Exception('Could not launch $_url');
                   }
                   _dashCtrl.zoomDrawerController.value.toggle?.call();
                 },
@@ -784,8 +778,6 @@ class _DashBoardState extends State<DashBoard> {
     );
   }
 }
-
-
 
 class FunctionCard extends StatefulWidget {
   const FunctionCard({super.key, this.cnt});
