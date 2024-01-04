@@ -1,2 +1,2 @@
 ios: com.pdf.creator
-android: com.pdf.creator.apps
+android: com.pdf.creator

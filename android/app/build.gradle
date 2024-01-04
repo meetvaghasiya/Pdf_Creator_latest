@@ -32,7 +32,7 @@ android {
     packagingOptions {
         exclude 'lib/arm64-v8a/libc++_shared.so'
     }
-    namespace "com.pdf.creator.apps"
+    namespace "com.pdf.creator"
     compileSdkVersion 34
     ndkVersion flutter.ndkVersion
 
@@ -53,7 +53,7 @@ android {
         ndk {
             ndk.abiFilters 'armeabi-v7a','arm64-v8a','x86_64'
         }
-        applicationId "com.pdf.creator.apps"
+        applicationId "com.pdf.creator"
         minSdkVersion 24
         targetSdkVersion flutter.targetSdkVersion
         multiDexEnabled true
