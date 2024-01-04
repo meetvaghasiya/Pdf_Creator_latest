@@ -138,11 +138,11 @@ class _DashBoardState extends State<DashBoard> {
               ),
               ListTile(
                 onTap: () async {
-                  final Uri _url = Uri.parse(
+                  final Uri url0 = Uri.parse(
                       'https://www.thefreelancewarriors.com/contact-us');
 
-                  if (!await launchUrl(_url)) {
-                    throw Exception('Could not launch $_url');
+                  if (!await launchUrl(url0)) {
+                    throw Exception('Could not launch $url0');
                   }
                   _dashCtrl.zoomDrawerController.value.toggle?.call();
                 },
@@ -161,11 +161,11 @@ class _DashBoardState extends State<DashBoard> {
               ),
               ListTile(
                 onTap: () async {
-                  final Uri _url = Uri.parse(
+                  final Uri url0 = Uri.parse(
                       'https://www.thefreelancewarriors.com');
 
-                  if (!await launchUrl(_url)) {
-                    throw Exception('Could not launch $_url');
+                  if (!await launchUrl(url0)) {
+                    throw Exception('Could not launch $url0');
                   }
 
                   _dashCtrl.zoomDrawerController.value.toggle?.call();
@@ -185,11 +185,11 @@ class _DashBoardState extends State<DashBoard> {
               ),
               ListTile(
                 onTap: () async {
-                  final Uri _url = Uri.parse(
+                  final Uri url0 = Uri.parse(
                       'https://www.thefreelancewarriors.com/privacy-policy');
 
-                  if (!await launchUrl(_url)) {
-                    throw Exception('Could not launch $_url');
+                  if (!await launchUrl(url0)) {
+                    throw Exception('Could not launch $url0');
                   }
                   _dashCtrl.zoomDrawerController.value.toggle?.call();
                 },
@@ -899,7 +899,7 @@ class _FunctionCardState extends State<FunctionCard> {
                     "Convert Image To PDf",
                     style: TextStyle(fontSize: 15),
                   ),
-                  Row(
+                  Row(mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       CircleAvatar(
                         radius: 25,
@@ -909,7 +909,7 @@ class _FunctionCardState extends State<FunctionCard> {
                           color: AppColor.whiteClr,
                         ),
                       ),
-                      DottedDivider(),
+                      Image.asset('assets/images/arrow-up.png',height: 50),
                       CircleAvatar(
                         radius: 25,
                         backgroundColor: AppColor.themeDark,
@@ -934,9 +934,9 @@ class _FunctionCardState extends State<FunctionCard> {
                     showModalBottomSheet(
                       context: context,
                       builder: (BuildContext context) {
-                        final h = MediaQuery.of(context).size.height;
                         return Container(
-                          height: h * 0.25, // Adjust the height as needed
+                          height: 200, // Adjust the height as needed
+                          width: Get.width, // Adjust the height as needed
                           decoration: BoxDecoration(
                             color: AppColor.themeDark,
                             borderRadius: BorderRadius.only(

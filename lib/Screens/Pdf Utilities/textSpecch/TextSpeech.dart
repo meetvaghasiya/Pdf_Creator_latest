@@ -8,8 +8,7 @@ class TextSpeechScreen extends StatefulWidget {
   final String pdfname;
 
   const TextSpeechScreen(
-      {Key? key, required this.extractedTextList, required this.pdfname})
-      : super(key: key);
+      {super.key, required this.extractedTextList, required this.pdfname});
 
   @override
   State<TextSpeechScreen> createState() => _TextSpeechScreenState();
@@ -160,7 +159,6 @@ class _TextSpeechScreenState extends State<TextSpeechScreen> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColor.themeDark,
         onPressed: () {
-          print("isSpeaking ${isSpeaking}");
           if (isSpeaking) {
             stopSpeaking();
           } else {

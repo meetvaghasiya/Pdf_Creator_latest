@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:crop_image/crop_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -14,7 +15,7 @@ import 'package:pdf_creator/Utilities/colors.dart';
 import 'package:pdf_creator/Utilities/utilities.dart';
 
 class GalleryCropScreen extends StatefulWidget {
-  const GalleryCropScreen({Key? key, this.images, this.cnt}) : super(key: key);
+  const GalleryCropScreen({super.key, this.images, this.cnt});
   final images;
   final cnt;
 
@@ -166,13 +167,11 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(3.0),
-                                child: Container(
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(10),
-                                    child: Image.file(
-                                      File(_CropCtrl.ImgLst[index].path),
-                                      fit: BoxFit.cover,
-                                    ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.file(
+                                    File(_CropCtrl.ImgLst[index].path),
+                                    fit: BoxFit.cover,
                                   ),
                                 ),
                               ),
@@ -436,7 +435,7 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
     }
 
     if (_dashCtrl.nameController.value.text.trim().isNotEmpty &&
-        _CropCtrl.ImgLst.length == 0) {
+        _CropCtrl.ImgLst.isEmpty) {
       _CropCtrl.ImgLst.removeAt(_CropCtrl.selectedIndex.value);
       Get.back();
     }
@@ -445,7 +444,6 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
       _CropCtrl.selectedIndex.value = _CropCtrl.selectedIndex.value - 1;
     }
   }
-
   Future<void> _finished(BuildContext context) async {
     try {
       _CropCtrl.loadingState.value = true;
@@ -473,25 +471,24 @@ class _GalleryCropScreenState extends State<GalleryCropScreen> {
         }
       }
 
+
       // Reset selectedIndex if ImgLst is not empty
       if (_CropCtrl.ImgLst.isNotEmpty) {
         _CropCtrl.selectedIndex.value = 0;
       }
 
-      // Check conditions before navigating to DashBoard and saving the document
       if (_CropCtrl.ImgLst.isEmpty && _CropCtrl.selectedIndex.value == 0) {
-
-        // Navigate to DashBoard
-        Get.offAll(() => DashBoard());
-
-        // Save the document
-        await _dashCtrl.saveDocument(
+        // Save the document and navigate only after the save operation is complete
+        _dashCtrl.saveDocument(
           imageList: croppedList,
           name: _dashCtrl.nameController.value.text.trim(),
           documentPath: croppedList[0].path,
           dateTime: '$formattedDate $formattedTime',
-        );
+        ).then((value) => Get.offAll(()=>DashBoard()));
+
       }
+      // Check conditions before navigating to DashBoard and saving the document
+
     } catch (e) {
       print('Error while cropping image: $e');
     } finally {

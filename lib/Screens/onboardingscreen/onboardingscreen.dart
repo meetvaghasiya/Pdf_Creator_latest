@@ -36,15 +36,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       background: [
         Image.asset(
           'assets/images/onboardingone.jpg',
-          height: 350,
+          height: 350,width: Get.width,
         ),
         Image.asset(
           'assets/images/onboardingtwo.jpg',
-          height: 350,
+          height: 350,width: Get.width,
         ),
         Image.asset(
           'assets/images/onboardingthree.png',
-          height: 350,
+          height: 350,width: Get.width,
         ),
       ],
       speed: 1.8,

@@ -5,7 +5,6 @@ import 'package:gallery_saver/gallery_saver.dart';
 import 'package:get/get.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pdf_creator/Screens/DashBoard%20Screen/dashboardCtrl.dart';
 import 'package:pdf_creator/Screens/Pdf%20Utilities/textSpecch/TextSpeech.dart';
 import 'package:pdf_creator/Screens/bookmark/bookmarkctrl.dart';
 import 'package:pdf_creator/Screens/pdfscreen/pdfscreen.dart';
@@ -25,14 +24,8 @@ class BookmarkScreen extends StatefulWidget {
 
 class _BookmarkScreenState extends State<BookmarkScreen> {
   final BookmarkCtrl _bookmarkCtrl = Get.put(BookmarkCtrl());
-  final DashCtrl _dashCtrl = Get.put(DashCtrl());
   static GlobalKey<AnimatedListState> animatedListKey =
       GlobalKey<AnimatedListState>();
-  // @override
-  // void initState() {
-  //   _bookmarkCtrl.loadBookmarks();
-  //   super.initState();
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +50,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
         ),
       ),
       body: Obx(
-        () => _bookmarkCtrl.bookmarks.length > 0
+        () => _bookmarkCtrl.bookmarks.length != 0
             ? ListView.builder(
                 itemCount: _bookmarkCtrl.bookmarks.length,
                 shrinkWrap: true,
@@ -102,13 +95,13 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                                       borderRadius: BorderRadius.circular(15),
                                       border: Border(
                                         left: BorderSide(
-                                            color: Colors.grey[300]!),
+                                            color: Colors.grey.withOpacity(.3)),
                                         right: BorderSide(
-                                            color: Colors.grey[300]!),
+                                            color: Colors.grey.withOpacity(.3)),
                                         top: BorderSide(
-                                            color: Colors.grey[300]!),
+                                            color: Colors.grey.withOpacity(.3)),
                                         bottom: BorderSide(
-                                            color: Colors.grey[300]!),
+                                            color: Colors.grey.withOpacity(.3)),
                                       ),
                                     ),
                                     child: ClipRRect(
@@ -244,60 +237,11 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                 },
               )
             : Center(
-                child: Text("No Bookmarks Found!"),
+                child: Text("No Bookmarks Found !"),
               ),
       ),
     );
   }
-
-  // void showRenameDialog({int? index, String? dateTime, String? name, context}) {
-  //   // TextEditingController controller = TextEditingController();
-  //   _dashCtrl.nameEditcontroller.text = name!;
-  //   _dashCtrl.nameEditcontroller.selection = TextSelection(
-  //       baseOffset: 0, extentOffset: _dashCtrl.nameEditcontroller.text.length);
-  //   showDialog(
-  //     context: context,
-  //     barrierDismissible: false,
-  //     builder: (context) => AlertDialog(
-  //       content: Column(
-  //         mainAxisSize: MainAxisSize.min,
-  //         mainAxisAlignment: MainAxisAlignment.start,
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: <Widget>[
-  //           Text("Rename"),
-  //           TextFormField(
-  //             controller: _dashCtrl.nameEditcontroller,
-  //             autofocus: true,
-  //             decoration: InputDecoration(
-  //                 suffix: IconButton(
-  //                     icon: Icon(Icons.clear),
-  //                     onPressed: () {
-  //                       _dashCtrl.nameEditcontroller.clear();
-  //                     })),
-  //           ),
-  //         ],
-  //       ),
-  //       actions: <Widget>[
-  //         MaterialButton(
-  //             shape: RoundedRectangleBorder(
-  //                 borderRadius: BorderRadius.circular(20)),
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: Text("Cancel")),
-  //         MaterialButton(
-  //             shape: RoundedRectangleBorder(
-  //                 borderRadius: BorderRadius.circular(20)),
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //               _dashCtrl.renameDocument(index!, dateTime.toString(),
-  //                   _dashCtrl.nameEditcontroller.text);
-  //             },
-  //             child: Text("Rename")),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   void showModalSheet({
     int? index,

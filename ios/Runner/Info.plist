@@ -2,26 +2,24 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-<key>io.flutter.embedded_views_preview</key>
-<true/>
     <key>NSCameraUsageDescription</key>
-    <string>Camera Permission Description</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-    <string>photo permission required.</string>
+    <string>We want to access camera permission for create pdf.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>We want to access library permission for create pdf.</string>
     <key>NSMicrophoneUsageDescription</key>
-    <string>your usage description here</string>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
-	<key>CFBundleDisplayName</key>
-	<string>Pdf Creator</string>
-	<key>CFBundleExecutable</key>
-	<string>$(EXECUTABLE_NAME)</string>
-	<key>CFBundleIdentifier</key>
-	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+    <string>Microphone Permission required</string>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>$(DEVELOPMENT_LANGUAGE)</string>
+    <key>CFBundleDisplayName</key>
+    <string>Pdf Creator App</string>
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
+    <key>CFBundleIdentifier</key>
+    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>pdf_creator</string>
+	<string>com.pdf.creator.apps</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

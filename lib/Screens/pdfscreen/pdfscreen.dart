@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pdf_creator/Screens/bookmark/bookmarkctrl.dart';
-import 'package:pdf_creator/Screens/pdfscreen/pdfctrl.dart';
 import 'package:pdf_creator/Utilities/colors.dart';
 import 'package:pdf_render/pdf_render_widgets.dart';
 import 'package:printing/printing.dart';
