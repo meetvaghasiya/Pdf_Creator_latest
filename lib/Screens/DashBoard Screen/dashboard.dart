@@ -13,6 +13,7 @@ import 'package:pdf_creator/Screens/Pdf%20Utilities/textSpecch/TextSpeech.dart';
 import 'package:pdf_creator/Screens/Search%20Screen/searchscreen.dart';
 import 'package:pdf_creator/Screens/bookmark/bookmarkscreen.dart';
 import 'package:pdf_creator/Screens/pdfscreen/pdfscreen.dart';
+import 'package:pdf_creator/Screens/updateapp.dart';
 import 'package:pdf_creator/Utilities/classes.dart';
 import 'package:pdf_creator/Utilities/colors.dart';
 // import 'package:pdf_text/pdf_text.dart';
@@ -23,6 +24,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../Utilities/utilities.dart';
 import 'dashboardCtrl.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:version/version.dart';
 
 class DashBoard extends StatefulWidget {
   const DashBoard({super.key});
@@ -40,8 +44,34 @@ class _DashBoardState extends State<DashBoard> {
   @override
   void initState() {
     _dashCtrl.getDocuments();
+    _checkForUpdates();
     super.initState();
   }
+
+  final String updateCheckUrl =
+      'https://raw.githubusercontent.com/meetvaghasiya/Pdf_Creator_latest/main/README.md';
+
+  Future<void> _checkForUpdates() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    final currentAppVersion = packageInfo.version;
+
+    final response = await http.get(Uri.parse(updateCheckUrl));
+    final data = json.decode(response.body);
+
+    final latestVersion = Version.parse(data['version']);
+    final currentVersion = Version.parse(currentAppVersion);
+
+    if (latestVersion > currentVersion) {
+      // Show update dialog
+      Get.offAll(UpdateAppScreen());
+      // _showUpdateDialog(data['message']);
+    } else {
+      // Proceed to the main screen or home page
+      Get.back();
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -130,8 +160,8 @@ class _DashBoardState extends State<DashBoard> {
                 ),
                 onTap: () {
                   final String url = Platform.isAndroid
-                      ? "https://play.google.com/store/apps/details?id=com.buissmaster.buissmasterApp&pcampaignid=web_share"
-                      : "https://apps.apple.com/in/app/buissmaster-oms/id1614817862";
+                      ? "https://play.google.com/store/apps/details?id=com.pdf.creator.apps"
+                      : "https://apps.apple.com/in/app/pdf-creator-app/id6475385314";
                   Share.share(url);
                   _dashCtrl.zoomDrawerController.value.toggle?.call();
                 },
@@ -161,8 +191,8 @@ class _DashBoardState extends State<DashBoard> {
               ),
               ListTile(
                 onTap: () async {
-                  final Uri url0 = Uri.parse(
-                      'https://www.thefreelancewarriors.com');
+                  final Uri url0 =
+                      Uri.parse('https://www.thefreelancewarriors.com');
 
                   if (!await launchUrl(url0)) {
                     throw Exception('Could not launch $url0');
@@ -272,6 +302,14 @@ class _DashBoardState extends State<DashBoard> {
               fontSize: 18,
               fontWeight: FontWeight.w500),
         ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Get.to(UpdateAppScreen());
+            },
+            icon: Icon(Icons.screen_lock_landscape,color: Colors.white,),
+          ),
+        ],
       ),
       backgroundColor: AppColor.themeDark,
       body: NestedScrollView(
@@ -899,7 +937,8 @@ class _FunctionCardState extends State<FunctionCard> {
                     "Convert Image To PDf",
                     style: TextStyle(fontSize: 15),
                   ),
-                  Row(mainAxisAlignment: MainAxisAlignment.center,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       CircleAvatar(
                         radius: 25,
@@ -909,7 +948,7 @@ class _FunctionCardState extends State<FunctionCard> {
                           color: AppColor.whiteClr,
                         ),
                       ),
-                      Image.asset('assets/images/arrow-up.png',height: 50),
+                      Image.asset('assets/images/arrow-up.png', height: 50),
                       CircleAvatar(
                         radius: 25,
                         backgroundColor: AppColor.themeDark,
