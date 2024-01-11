@@ -49,7 +49,7 @@ class _DashBoardState extends State<DashBoard> {
   }
 
   final String updateCheckUrl =
-      'https://raw.githubusercontent.com/meetvaghasiya/Pdf_Creator_latest/main/README.md';
+      'https://raw.githubusercontent.com/savanvaghani2/app_version/main/README.md';
 
   Future<void> _checkForUpdates() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
@@ -58,7 +58,7 @@ class _DashBoardState extends State<DashBoard> {
     final response = await http.get(Uri.parse(updateCheckUrl));
     final data = json.decode(response.body);
 
-    final latestVersion = Version.parse(data['version']);
+    final latestVersion = Version.parse(data['pdf_version']);
     final currentVersion = Version.parse(currentAppVersion);
 
     if (latestVersion > currentVersion) {
